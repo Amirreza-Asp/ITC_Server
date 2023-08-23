@@ -13,6 +13,7 @@ namespace Domain.Dtos.OperationalObjectives
 
         public bool Active { get; set; }
 
-        public List<ProjectActionCard> ProjectActions { get; set; } = new List<ProjectActionCard>();
+        public List<ProjectActionCard> Projects { get; set; } = new List<ProjectActionCard>();
+        public List<ProjectActionCard> Actions { get; set; } = new List<ProjectActionCard>();
     }
 }

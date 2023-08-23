@@ -144,6 +144,15 @@ namespace Infrastructure.Initializer
                     GuaranteedFulfillmentAt = DateTime.Now.AddMonths(10),
                     Title = "ایجاد سامانه اموزشی"
                 },
+                new OperationalObjective{
+                    Id = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DC9F3"),
+                    Deadline = DateTime.Now.AddYears(1),
+                    BigGoalId = Guid.Parse("4C6B36FE-4C0F-4D81-8F72-E9DBF80FC9DA"),
+                    Budget = 157000000,
+                    Description = lorem,
+                    GuaranteedFulfillmentAt = DateTime.Now.AddMonths(10),
+                    Title = "حذف سامانه های قدیمی"
+                },
             };
 
         private List<Project> Projects =>
@@ -233,6 +242,31 @@ namespace Infrastructure.Initializer
                     StartedAt = DateTime.Now,
                     Title = "ایجاد پلتفرم ازمون",
                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-5FC61A3DB9F3"),
+                    Financials = new List<Domain.SubEntities.Financial>
+                    {
+                        new Domain.SubEntities.Financial
+                        {
+                            Title = "دارایی 1",
+                        },
+                        new Domain.SubEntities.Financial
+                        {
+                            Title = "دارایی 2",
+                        },
+                        new Domain.SubEntities.Financial
+                        {
+                            Title = "دارایی 3",
+                        },
+                    }
+                },
+                new Project
+                {
+                    Id = Guid.NewGuid(),
+                    Contractor = "محمد قاری" ,
+                    GuaranteedFulfillmentAt= DateTime.Now.AddYears(1),
+                    LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                    StartedAt = DateTime.Now,
+                    Title = "ایجاد پلتفرم ازمون",
+                    OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DC9F3"),
                     Financials = new List<Domain.SubEntities.Financial>
                     {
                         new Domain.SubEntities.Financial
@@ -445,10 +479,6 @@ namespace Infrastructure.Initializer
                     SupportType = lorem
                 },
             };
-
-
-
-
 
 
         private String lorem = "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی و فرهنگ پیشرو در زبان فارسی ایجاد کرد. در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.";

@@ -42,5 +42,12 @@ namespace Presentation.Controllers.Business
         {
             return await _mediator.Send(command, cancellationToken);
         }
+
+        [Route("Delete")]
+        [HttpDelete]
+        public async Task<CommandResponse> Remove([FromQuery] DeletePracticalActionCommand command, CancellationToken cancellation)
+        {
+            return await _mediator.Send(command, cancellation);
+        }
     }
 }

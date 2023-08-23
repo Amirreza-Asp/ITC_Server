@@ -14,7 +14,7 @@ namespace Infrastructure.CQRS.Business.HardwareEquipments
         [Required]
         public String BrandName { get; set; }
 
-        [Range(0, int.MaxValue)]
+        [Range(1, int.MaxValue)]
         public int Count { get; set; }
 
         public String Description { get; set; }

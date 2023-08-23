@@ -18,7 +18,8 @@ namespace Infrastructure
             // Sql context
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                //options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseInMemoryDatabase("ITC");
             });
 
             // Initializer

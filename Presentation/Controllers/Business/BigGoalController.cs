@@ -29,13 +29,6 @@ namespace Presentation.Controllers.Business
             return await _repo.GetAllAsync<BigGoalSummary>(query, cancellationToken);
         }
 
-        [Route("GetAllWithOperationalObjectives")]
-        [HttpGet]
-        public async Task<List<BigGoalWithOperationalObjectives>> GetAllWithOperationalObjectives(CancellationToken cancellationToken)
-        {
-            return await _repo.GetAllAsync<BigGoalWithOperationalObjectives>(cancellationToken: cancellationToken);
-        }
-
         [HttpGet("Find/{id}")]
         public async Task<BigGoal> Find(Guid id, CancellationToken cancellationToken)
         {

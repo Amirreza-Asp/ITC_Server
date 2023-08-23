@@ -44,6 +44,9 @@ namespace Infrastructure.CQRS.Business.Projects
         {
             try
             {
+                if (request.StartedAt > request.GuaranteedFulfillmentAt)
+                    return CommandResponse.Failure(400, "تاریخ شروع نمیتواند از تاریخ تضمینی تحقق کمتر باشد");
+
                 if (!_context.People.Any(b => b.Id == request.LeaderId))
                     return CommandResponse.Failure(400, "راهبر انتخاب شده نامعتبر است");
 

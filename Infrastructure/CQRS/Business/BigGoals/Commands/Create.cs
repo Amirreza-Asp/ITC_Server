@@ -34,6 +34,9 @@ namespace Infrastructure.CQRS.Business.BigGoals.Commands
 
         public async Task<CommandResponse> Handle(CreateBigGoalCommand request, CancellationToken cancellationToken)
         {
+            if (request.Deadline < request.StartedAt)
+                return CommandResponse.Failure(400, "تاریخ شروع نمیتواند از مهلت انجام بیشتر باشد");
+
             var bigGoal = _mapper.Map<BigGoal>(request);
 
             _repo.Create(bigGoal);

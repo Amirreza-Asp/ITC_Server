@@ -7,7 +7,6 @@ using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.OperationalObjectives;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Presentation.Controllers.Business
 {
@@ -34,29 +33,25 @@ namespace Presentation.Controllers.Business
             return await _repo.GetAllAsync<OperationalObjectiveSummary>(query, cancellationToken);
         }
 
-        [HttpGet("Find/{id}")]
-        public async Task<OperationalObjectiveDetails> Find(Guid id, CancellationToken cancellationToken)
+        [HttpGet("GetAllByBigGoalId/{bigGoalId}")]
+        public async Task<List<OperationalObjectiveDetails>> GetAll(Guid bigGoalId, CancellationToken cancellationToken)
         {
-            var entity = await _repo.FirstOrDefaultAsync(
-                filter: b => b.Id == id,
-                source => source.
-                    Include(b => b.Projects)
-                        .ThenInclude(d => d.Financials)
-                    .Include(b => b.PracticalActions)
-                        .ThenInclude(d => d.Financials),
-                cancellationToken: cancellationToken);
-
-            var oboCard = _mapper.Map<OperationalObjectiveDetails>(entity);
-            oboCard.ProjectActions = _mapper.Map<List<ProjectActionCard>>(entity.Projects);
-            oboCard.ProjectActions.AddRange(_mapper.Map<List<ProjectActionCard>>(entity.PracticalActions));
-
-            return oboCard;
+            return await _repo.GetAllAsync<OperationalObjectiveDetails>(
+                 b => b.BigGoalId == bigGoalId,
+                 cancellationToken: cancellationToken);
         }
 
 
         [Route("Create")]
         [HttpPost]
         public async Task<CommandResponse> Create([FromBody] CreateOperationalObjectiveCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<CommandResponse> Remove([FromQuery] DeleteOperationObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
         }

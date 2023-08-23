@@ -2,6 +2,8 @@
 {
     public class CommandResponse
     {
+        private CommandResponse() { }
+
         public int Status { get; private set; }
         public String Error { get; private set; }
         public dynamic Data { get; private set; }

@@ -26,9 +26,7 @@ namespace Infrastructure.Profiles
             CreateMap<BigGoal, BigGoal>();
             CreateMap<BigGoal, BigGoalSummary>()
                 .ForMember(b => b.OperationalObjectiveCount, d => d.MapFrom(d => d.OperationalObjectives.Count()));
-            CreateMap<BigGoal, BigGoalWithOperationalObjectives>()
-                .ForMember(b => b.OperationalObjectives, d =>
-                    d.MapFrom(e => e.OperationalObjectives.Select(d => new SelectSummary { Id = d.Id, Title = d.Title })));
+            CreateMap<BigGoal, BigGoalWithOperationalObjectives>();
             CreateMap<CreateBigGoalCommand, BigGoal>()
                .ForMember(b => b.Id, d => d.MapFrom(e => Guid.NewGuid()));
 
@@ -39,6 +37,11 @@ namespace Infrastructure.Profiles
             CreateMap<OperationalObjective, OperationalObjectiveSummary>();
             CreateMap<OperationalObjective, OperationalObjectiveDetails>()
                 .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now));
+            CreateMap<OperationalObjective, OperationalObjectiveDetails>()
+                .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now))
+                .ForMember(b => b.Projects, d => d.MapFrom(b => b.Projects))
+                .ForMember(b => b.Actions, d => d.MapFrom(b => b.PracticalActions));
+
 
             // Person
             CreateMap<Person, PersonSummary>()
