@@ -1,16 +1,20 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.People;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
 using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.People;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PersonController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -38,6 +42,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddPerson)]
         public async Task<CommandResponse> Create([FromBody] CreatePersonCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

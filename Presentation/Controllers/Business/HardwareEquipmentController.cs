@@ -1,10 +1,12 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
 using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.HardwareEquipments;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
 {
@@ -36,6 +38,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddHardwareEquipment)]
         public async Task<CommandResponse> Create([FromBody] CreateHardwareEquipmentCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

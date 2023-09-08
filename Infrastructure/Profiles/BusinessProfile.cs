@@ -38,9 +38,7 @@ namespace Infrastructure.Profiles
             CreateMap<OperationalObjective, OperationalObjectiveDetails>()
                 .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now));
             CreateMap<OperationalObjective, OperationalObjectiveDetails>()
-                .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now))
-                .ForMember(b => b.Projects, d => d.MapFrom(b => b.Projects))
-                .ForMember(b => b.Actions, d => d.MapFrom(b => b.PracticalActions));
+                .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now));
 
 
             // Person
@@ -64,10 +62,12 @@ namespace Infrastructure.Profiles
             CreateMap<CreatePracticalActionCommand, PracticalAction>()
                .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(d => new Financial { Title = d })))
                .ForMember(b => b.Id, d => d.MapFrom(d => Guid.NewGuid()));
+
             CreateMap<PracticalAction, PracticalActionSummary>()
                .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(d => d.Title)))
                .ForMember(b => b.LeaderName, d => d.MapFrom(d => String.Concat(d.Leader.Name, ' ', d.Leader.Family)))
                .ForMember(b => b.OperationalObjectiveTitle, d => d.MapFrom(d => d.OperationalObjective.Title));
+
             CreateMap<PracticalAction, ProjectActionCard>()
                 .ForMember(b => b.Active, b => b.MapFrom(d => d.Deadline >= DateTime.Now))
                 .ForMember(b => b.Type, d => d.MapFrom(b => "اقدام کاربردی"))

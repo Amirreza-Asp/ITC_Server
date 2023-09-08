@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using AutoMapper;
+using Domain;
 using Domain.Dtos.OperationalObjectives;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
@@ -7,6 +8,7 @@ using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.OperationalObjectives;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
 {
@@ -44,6 +46,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddOperationalObjective)]
         public async Task<CommandResponse> Create([FromBody] CreateOperationalObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -51,6 +54,7 @@ namespace Presentation.Controllers.Business
 
         [HttpDelete]
         [Route("Delete")]
+        [AccessControl(SD.Permission_RemoveOperationalObjective)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteOperationObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

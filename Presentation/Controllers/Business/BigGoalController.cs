@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.BigGoals;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
@@ -6,6 +7,7 @@ using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.BigGoals.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
 {
@@ -24,6 +26,7 @@ namespace Presentation.Controllers.Business
 
         [Route("GetAll")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddPracticalAction)]
         public async Task<ListActionResult<BigGoalSummary>> GetAll(GridQuery query, CancellationToken cancellationToken)
         {
             return await _repo.GetAllAsync<BigGoalSummary>(query, cancellationToken);
@@ -37,6 +40,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddBigGoal)]
         public async Task<CommandResponse> Create([FromBody] CreateBigGoalCommand command, CancellationToken cancellationToken) =>
             await _mediator.Send(command, cancellationToken);
 

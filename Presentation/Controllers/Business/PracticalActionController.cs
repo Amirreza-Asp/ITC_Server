@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.PracticalActions;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
@@ -6,6 +7,7 @@ using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.PracticalActions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
 {
@@ -38,6 +40,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddPracticalAction)]
         public async Task<CommandResponse> Create([FromBody] CreatePracticalActionCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -45,6 +48,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Delete")]
         [HttpDelete]
+        [AccessControl(SD.Permission_RemovePracticalAction)]
         public async Task<CommandResponse> Remove([FromQuery] DeletePracticalActionCommand command, CancellationToken cancellation)
         {
             return await _mediator.Send(command, cancellation);

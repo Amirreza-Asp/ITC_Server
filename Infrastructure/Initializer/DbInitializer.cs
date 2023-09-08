@@ -1,4 +1,6 @@
-﻿using Application.Services;
+﻿using Application.Services.Interfaces;
+using Domain;
+using Domain.Entities.Account;
 using Domain.Entities.Business;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +17,7 @@ namespace Infrastructure.Initializer
 
         public async Task Execute()
         {
-            await _context.Database.EnsureDeletedAsync();
+            //await _context.Database.EnsureDeletedAsync();
 
             try
             {
@@ -31,29 +33,19 @@ namespace Infrastructure.Initializer
 
 
             if (!_context.People.Any())
-            {
                 _context.People.AddRange(People);
-            }
 
             if (!_context.BigGoals.Any())
-            {
                 _context.BigGoals.AddRange(BigGoals);
-            }
 
             if (!_context.OperationalObjectives.Any())
-            {
                 _context.OperationalObjectives.AddRange(OperationalObjectives);
-            }
 
             if (!_context.Projects.Any())
-            {
                 _context.Projects.AddRange(Projects);
-            }
 
             if (!_context.PracticalActions.Any())
-            {
                 _context.PracticalActions.AddRange(PracticalActions);
-            }
 
             if (!_context.HardwareEquipment.Any())
                 _context.HardwareEquipment.AddRange(HardwareEquipments);
@@ -61,9 +53,31 @@ namespace Infrastructure.Initializer
             if (!_context.Systems.Any())
                 _context.Systems.AddRange(Systems);
 
-            await _context.SaveChangesAsync();
+            if (!_context.Roles.Any())
+                _context.AddRange(Roles);
+
+            if (!_context.Permissions.Any())
+                _context.Permissions.Add(Permissions);
+
+            if (!_context.Company.Any())
+                _context.Company.AddRange(Companies);
+
+            if (!_context.Users.Any())
+                _context.Users.AddRange(UserRoles);
+
+
+            _context.SaveChanges();
+
+            if (!_context.RolePermissions.Any())
+            {
+                var permissions = _context.Permissions.Where(b => b.Discriminator == nameof(PermissionItem)).ToList();
+                var adminPermissions = permissions.Select(b => new RolePermission { Id = Guid.NewGuid(), Permission = b, RoleId = SD.AdminRoleId });
+                _context.RolePermissions.AddRange(adminPermissions);
+                await _context.SaveChangesAsync();
+            }
         }
 
+        #region Business
         private List<Person> People =>
             new List<Person>
             {
@@ -479,8 +493,127 @@ namespace Infrastructure.Initializer
                     SupportType = lorem
                 },
             };
+        #endregion
+
+        #region Account
+        private List<Role> Roles =>
+            new List<Role>
+            {
+                new Role
+                {
+                    Id = SD.AdminRoleId,
+                    Title = "ادمین",
+                    Description = "ادمین کل سیستم"
+                },
+                new Role
+                {
+                    Id = AgentRoleId,
+                    Title = "نماینده سازمان",
+                    Description = "نماینده مشخص شده از یک سازمان"
+                },
+                new Role
+                {
+                    Id = UserRoleId,
+                    Title = "کاربر",
+                    Description = "حداقل دسترسی"
+                }
+            };
+
+        private Permission Permissions =>
+            new PermissionContainer(
+                SD.TopPermissionId,
+                "سطوح دسترسی",
+                new List<Permission>
+                {
+                    new PermissionContainer("مسئولیت" , new List<Permission>
+                    {
+                        new PermissionContainer("اهداف کلان" ,
+                            new List<Permission>
+                            {
+                                new PermissionItem("افزودن هدف کلان"  , SD.Permission_AddBigGoal),
+                                new PermissionItem("ویرایش هدف کلان" , SD.Permission_EditBigGoal),
+                                new PermissionItem("حذف هدف کلان" , SD.Permission_RemoveBigGoal)
+                            }),
+                        new PermissionContainer("اهداف عملیاتی" ,
+                            new List<Permission>
+                            {
+                                new PermissionItem("افزودن هدف عملیاتی" , SD.Permission_AddOperationalObjective),
+                                new PermissionItem("ویرایش هدف عملیاتی" , SD.Permission_EditOperationalObjective),
+                                new PermissionItem("حذف هدف عملیاتی" , SD.Permission_RemoveOperationalObjective),
+                            }),
+                        new PermissionContainer("منابع" ,
+                            new List<Permission>{
+                                new PermissionContainer("افراد" ,
+                                    new List<Permission>
+                                    {
+                                        new PermissionItem("افزودن فرد" , SD.Permission_AddPerson),
+                                        new PermissionItem("حذف فرد" , SD.Permission_RemovePerson),
+                                    }),
+                                new PermissionContainer("تجهیزات سخت افزاری" ,
+                                    new List<Permission>
+                                    {
+                                        new PermissionItem("افزودن تجهیز سخت افزاری" , SD.Permission_AddHardwareEquipment),
+                                        new PermissionItem("حذف تجهیز سخت افزاری" , SD.Permission_RemoveHardwareEquipment),
+                                    }),
+                                new PermissionContainer("سامانه ها" ,
+                                    new List<Permission>
+                                    {
+                                        new PermissionItem("افزودن سامانه" , SD.Permission_AddSystem),
+                                        new PermissionItem("حذف سامانه" , SD.Permission_RemoveSystem),
+                                    }),
+                            }),
+                        new PermissionContainer("گذار" ,
+                            new List<Permission>
+                            {
+                                new PermissionContainer("پروژه ها" ,
+                                    new List<Permission>
+                                    {
+                                        new PermissionItem("افزودن پروژه" , SD.Permission_AddProject),
+                                        new PermissionItem("حذف پروژه" , SD.Permission_RemoveProject)
+                                    }),
+                                new PermissionContainer("اقدامات کاربری" ,
+                                    new List<Permission>
+                                    {
+                                        new PermissionItem("افزودن اقدام کاربردی" , SD.Permission_AddPracticalAction),
+                                        new PermissionItem("حذف اقدام کاربردی" , SD.Permission_RemovePracticalAction)
+                                    }),
+                            }),
+                    }),
+                    new PermissionContainer("حساب" , new List<Permission>
+                    {
+                        new PermissionContainer("نقش ها" , new List<Permission>
+                        {
+                            new PermissionItem("افزودن نقش" , SD.Permission_AddRole),
+                            new PermissionItem("ویرایش نقش" , SD.Permission_EditRole),
+                            new PermissionItem("حذف نقش" , SD.Permission_RemoveRole),
+                        })
+                    })
+                }
+            );
+
+        private User UserRoles =>
+            new User
+            {
+                Id = Guid.NewGuid(),
+                NationalId = SD.DefaultNationalId,
+                RoleId = SD.AdminRoleId,
+                IsActive = true,
+                CompanyId = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1D")
+            };
+
+        private List<Company> Companies =>
+            new List<Company>()
+            {
+                new Company{
+                    Id = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1D"),
+                    Title = "وزارت علوم"
+                }
+            };
+        #endregion
 
 
+        private Guid UserRoleId = Guid.NewGuid();
+        private Guid AgentRoleId = Guid.NewGuid();
         private String lorem = "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی و فرهنگ پیشرو در زبان فارسی ایجاد کرد. در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.";
     }
 }

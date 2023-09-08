@@ -24,7 +24,7 @@ namespace Infrastructure.CQRS.Business.OperationalObjectives
             var entity = await _context.OperationalObjectives.FindAsync(request.Id);
 
             if (entity == null)
-                return CommandResponse.Success(200);
+                return CommandResponse.Success();
 
             _context.OperationalObjectives.Remove(entity);
 

@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.Projects;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
@@ -6,6 +7,7 @@ using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.Projects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
 {
@@ -38,6 +40,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddProject)]
         public async Task<CommandResponse> Create([FromBody] CreateProjectCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -45,6 +48,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Delete")]
         [HttpDelete]
+        [AccessControl(SD.Permission_RemoveProject)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteProjectCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

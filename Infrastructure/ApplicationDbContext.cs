@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Business;
+﻿using Domain.Entities.Account;
+using Domain.Entities.Business;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -8,7 +9,6 @@ namespace Infrastructure
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
-
         public DbSet<BigGoal> BigGoals { get; set; }
         public DbSet<OperationalObjective> OperationalObjectives { get; set; }
         public DbSet<Person> People { get; set; }
@@ -16,6 +16,17 @@ namespace Infrastructure
         public DbSet<Domain.Entities.Business.System> Systems { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<PracticalAction> PracticalActions { get; set; }
+
+
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        private DbSet<PermissionContainer> PermissionContainers { get; set; }
+        private DbSet<PermissionItem> permissionItems { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Company> Company { get; set; }
+        public DbSet<Token> Tokens { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,6 +49,9 @@ namespace Infrastructure
                 {
                     b.Property(b => b.Title).IsRequired().HasColumnName("title");
                 });
+
+            modelBuilder.Entity<User>()
+                .HasIndex(b => b.NationalId).IsUnique(true);
         }
     }
 }
