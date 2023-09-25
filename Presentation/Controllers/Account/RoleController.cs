@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.Account.Roles;
 using Domain.Dtos.Shared;
 using Domain.Entities.Account;
@@ -7,6 +8,7 @@ using Infrastructure.CQRS.Account.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Account
 {
@@ -15,12 +17,12 @@ namespace Presentation.Controllers.Account
     [AllowAnonymous]
     public class RoleController : ControllerBase
     {
-        private readonly IRepository<Role> _roleRepo;
+        private readonly IRepository<Role> _roleRepository;
         private readonly IMediator _mediator;
 
-        public RoleController(IRepository<Role> roleRepo, IMediator mediator)
+        public RoleController(IRepository<Role> roleRepository, IMediator mediator)
         {
-            _roleRepo = roleRepo;
+            _roleRepository = roleRepository;
             _mediator = mediator;
         }
 
@@ -28,22 +30,38 @@ namespace Presentation.Controllers.Account
         [HttpPost]
         public async Task<ListActionResult<RoleSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            return await _roleRepo.GetAllAsync<RoleSummary>(query, cancellationToken);
+            return await _roleRepository.GetAllAsync<RoleSummary>(query, cancellationToken);
         }
 
         [Route("Find")]
         [HttpGet]
         public async Task<RoleDetails> Find([FromQuery] Guid id, CancellationToken cancellationToken)
         {
-            return await _roleRepo.FirstOrDefaultAsync<RoleDetails>(b => b.Id == id, cancellationToken);
+            return await _roleRepository.FirstOrDefaultAsync<RoleDetails>(b => b.Id == id, cancellationToken);
         }
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(SD.Permission_AddRole)]
         public async Task<CommandResponse> Create([FromBody] CreateRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
         }
 
+        [Route("Update")]
+        [HttpPut]
+        [AccessControl(SD.Permission_EditRole)]
+        public async Task<CommandResponse> Update([FromBody] UpdateRoleCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+        [Route("Remove")]
+        [HttpDelete]
+        [AccessControl(SD.Permission_RemoveRole)]
+        public async Task<CommandResponse> Remove([FromQuery] DeleteRoleCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
     }
 }

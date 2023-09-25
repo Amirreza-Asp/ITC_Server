@@ -5,7 +5,7 @@ namespace Application.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<bool> CheckPermission(string nationalCode, string permissionFlag);
+        Task<bool> CheckPermission(String nationalCode, string permissionFlag);
         Task<List<PermissionSummary>> GetPermissionsAsync(String nationalCode);
 
         Task<String> GetRoleAsync(String nationalCode);

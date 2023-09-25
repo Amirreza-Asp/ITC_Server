@@ -1,13 +1,11 @@
 ﻿using Application.Repositories;
 using Domain.Dtos.Account.Permissions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers.Account
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class PermissionController : ControllerBase
     {
         private readonly IPermissionRepository _permissionRepo;

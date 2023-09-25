@@ -36,7 +36,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Company", (string)null);
+                    b.ToTable("Company");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.Permission", b =>
@@ -63,7 +63,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PermissionContainerId");
 
-                    b.ToTable("Permissions", (string)null);
+                    b.ToTable("Permissions");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("Permission");
                 });
@@ -94,7 +94,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.Role", b =>
@@ -115,7 +115,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.RolePermission", b =>
@@ -139,7 +139,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RolePermissions", (string)null);
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.Token", b =>
@@ -173,7 +173,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Tokens", (string)null);
+                    b.ToTable("Tokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.User", b =>
@@ -207,13 +207,16 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.BigGoal", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -225,6 +228,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ProgramYearId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<short>("Progress")
+                        .HasColumnType("smallint");
+
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("datetime2");
 
@@ -234,7 +243,11 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BigGoals", (string)null);
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ProgramYearId");
+
+                    b.ToTable("BigGoals");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.HardwareEquipment", b =>
@@ -266,7 +279,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HardwareEquipment", (string)null);
+                    b.ToTable("HardwareEquipment");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.OperationalObjective", b =>
@@ -301,7 +314,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("BigGoalId");
 
-                    b.ToTable("OperationalObjectives", (string)null);
+                    b.ToTable("OperationalObjectives");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.Person", b =>
@@ -331,7 +344,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("People", (string)null);
+                    b.ToTable("People");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.PracticalAction", b =>
@@ -365,7 +378,25 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("OperationalObjectiveId");
 
-                    b.ToTable("PracticalActions", (string)null);
+                    b.ToTable("PracticalActions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.ProgramYear", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Year")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProgramYears");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.Project", b =>
@@ -402,7 +433,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("OperationalObjectiveId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.System", b =>
@@ -451,7 +482,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Systems", (string)null);
+                    b.ToTable("Systems");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.PermissionContainer", b =>
@@ -538,6 +569,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Business.BigGoal", b =>
+                {
+                    b.HasOne("Domain.Entities.Account.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Business.ProgramYear", "ProgramYear")
+                        .WithMany("BigGoals")
+                        .HasForeignKey("ProgramYearId");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("ProgramYear");
+                });
+
             modelBuilder.Entity("Domain.Entities.Business.OperationalObjective", b =>
                 {
                     b.HasOne("Domain.Entities.Business.BigGoal", "BigGoal")
@@ -551,7 +599,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Business.Person", b =>
                 {
-                    b.OwnsMany("Domain.Entities.Business.Person.Expertises#Domain.Entities.Business.Expertise", "Expertises", b1 =>
+                    b.OwnsMany("Domain.Entities.Business.Expertise", "Expertises", b1 =>
                         {
                             b1.Property<Guid>("PersonId")
                                 .HasColumnType("uniqueidentifier");
@@ -569,7 +617,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("PersonId", "Id");
 
-                            b1.ToTable("Expertise", (string)null);
+                            b1.ToTable("Expertise");
 
                             b1.WithOwner()
                                 .HasForeignKey("PersonId");
@@ -592,7 +640,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Domain.Entities.Business.PracticalAction.Financials#Domain.SubEntities.Financial", "Financials", b1 =>
+                    b.OwnsMany("Domain.SubEntities.Financial", "Financials", b1 =>
                         {
                             b1.Property<Guid>("PracticalActionId")
                                 .HasColumnType("uniqueidentifier");
@@ -610,7 +658,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("PracticalActionId", "Id");
 
-                            b1.ToTable("PracticalActions_Financials", (string)null);
+                            b1.ToTable("PracticalActions_Financials");
 
                             b1.WithOwner()
                                 .HasForeignKey("PracticalActionId");
@@ -637,7 +685,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Domain.Entities.Business.Project.Financials#Domain.SubEntities.Financial", "Financials", b1 =>
+                    b.OwnsMany("Domain.SubEntities.Financial", "Financials", b1 =>
                         {
                             b1.Property<Guid>("ProjectId")
                                 .HasColumnType("uniqueidentifier");
@@ -655,7 +703,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ProjectId", "Id");
 
-                            b1.ToTable("Projects_Financials", (string)null);
+                            b1.ToTable("Projects_Financials");
 
                             b1.WithOwner()
                                 .HasForeignKey("ProjectId");
@@ -702,6 +750,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("PracticalActions");
 
                     b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.ProgramYear", b =>
+                {
+                    b.Navigation("BigGoals");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.PermissionContainer", b =>

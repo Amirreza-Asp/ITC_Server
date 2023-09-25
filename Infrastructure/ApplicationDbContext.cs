@@ -16,6 +16,7 @@ namespace Infrastructure
         public DbSet<Domain.Entities.Business.System> Systems { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<PracticalAction> PracticalActions { get; set; }
+        public DbSet<ProgramYear> ProgramYears { get; set; }
 
 
         public DbSet<Role> Roles { get; set; }
@@ -52,6 +53,11 @@ namespace Infrastructure
 
             modelBuilder.Entity<User>()
                 .HasIndex(b => b.NationalId).IsUnique(true);
+
+            modelBuilder.Entity<BigGoal>()
+                .HasOne(b => b.ProgramYear)
+                .WithMany(b => b.BigGoals)
+                .IsRequired(false);
         }
     }
 }

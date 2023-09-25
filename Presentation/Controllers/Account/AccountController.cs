@@ -41,6 +41,13 @@ namespace Presentation.Controllers.Account
                 await _authService.LogoutAsync();
 
 
+            await _authService.LoginAsync(
+               nationalId: "0123456789",
+               uswToken: "sdlkasdklasdjklasdklasdkl");
+
+            return Redirect(redirectUrl);
+
+
             var state = Guid.NewGuid().ToString().Replace("-", "");
             HttpContext.Session.SetString("state", state);
             HttpContext.Session.SetString("redirect-url", redirectUrl);

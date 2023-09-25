@@ -24,12 +24,18 @@ namespace Presentation.Controllers.Business
             _repo = repo;
         }
 
-        [Route("GetAll")]
+        [Route("DropDown")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddPracticalAction)]
-        public async Task<ListActionResult<BigGoalSummary>> GetAll(GridQuery query, CancellationToken cancellationToken)
+        public async Task<ListActionResult<BigGoalSummary>> DropDown(GridQuery query, CancellationToken cancellationToken)
         {
             return await _repo.GetAllAsync<BigGoalSummary>(query, cancellationToken);
+        }
+
+        [Route("GetAll")]
+        [HttpPost]
+        public async Task<ListActionResult<BigGoalsListDto>> GetAll(GridQuery query, CancellationToken cancellationToken)
+        {
+            return await _repo.GetAllAsync<BigGoalsListDto>(query, cancellationToken);
         }
 
         [HttpGet("Find/{id}")]

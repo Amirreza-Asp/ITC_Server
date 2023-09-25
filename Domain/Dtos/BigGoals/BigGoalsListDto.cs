@@ -1,9 +1,11 @@
 ﻿namespace Domain.Dtos.BigGoals
 {
-    public class BigGoalWithOperationalObjectives
+    public class BigGoalsListDto
     {
         public Guid Id { get; set; }
         public String Title { get; set; }
+        public String Year { get; set; }
+        public short Progress { get; set; }
     }
 
 }

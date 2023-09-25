@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230901181028_Init")]
+    [Migration("20230924224455_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,6 +218,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -227,6 +230,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ProgramYearId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<short>("Progress")
+                        .HasColumnType("smallint");
+
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("datetime2");
 
@@ -235,6 +244,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ProgramYearId");
 
                     b.ToTable("BigGoals");
                 });
@@ -368,6 +381,24 @@ namespace Infrastructure.Migrations
                     b.HasIndex("OperationalObjectiveId");
 
                     b.ToTable("PracticalActions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.ProgramYear", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Year")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProgramYears");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.Project", b =>
@@ -540,6 +571,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Business.BigGoal", b =>
+                {
+                    b.HasOne("Domain.Entities.Account.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Business.ProgramYear", "ProgramYear")
+                        .WithMany("BigGoals")
+                        .HasForeignKey("ProgramYearId");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("ProgramYear");
+                });
+
             modelBuilder.Entity("Domain.Entities.Business.OperationalObjective", b =>
                 {
                     b.HasOne("Domain.Entities.Business.BigGoal", "BigGoal")
@@ -704,6 +752,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("PracticalActions");
 
                     b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.ProgramYear", b =>
+                {
+                    b.Navigation("BigGoals");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.PermissionContainer", b =>

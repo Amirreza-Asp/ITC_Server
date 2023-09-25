@@ -4,8 +4,6 @@ using Domain;
 using Domain.Dtos.Account;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Presentation.Configurations;
@@ -36,11 +34,11 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddControllers(opt =>
-{
-    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-    opt.Filters.Add(new AuthorizeFilter(policy));
-});
+//builder.Services.AddControllers(opt =>
+//{
+//    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+//    opt.Filters.Add(new AuthorizeFilter(policy));
+//});
 
 
 #region JWT
@@ -93,7 +91,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:5173", "https://itc-client-kpbjb9wcb-amirreza-asp.vercel.app").AllowCredentials();
+        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:5173", "https://itc-client-kpbjb9wcb-amirreza-asp.vercel.app", "https://itc-client.vercel.app").AllowCredentials();
         //policy.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
     });
 });

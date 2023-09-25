@@ -101,7 +101,7 @@ namespace Infrastructure.Repositories
             _dbSet.Add(entity);
         }
 
-        public void Update(TEntity entity)
+        public virtual void Update(TEntity entity)
         {
             _dbSet.Update(entity);
         }

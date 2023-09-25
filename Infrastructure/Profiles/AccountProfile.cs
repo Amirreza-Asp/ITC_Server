@@ -4,6 +4,7 @@ using Domain.Dtos.Account.Roles;
 using Domain.Dtos.Account.SSO;
 using Domain.Dtos.Account.User;
 using Domain.Entities.Account;
+using System.Data;
 
 namespace Infrastructure.Profiles
 {
@@ -25,6 +26,7 @@ namespace Infrastructure.Profiles
             CreateMap<Role, RoleSummary>();
             CreateMap<Role, RoleDetails>()
                 .ForMember(b => b.Permissios, d => d.MapFrom(e => e.Permissions.Select(b => b.PermissionId)));
+
 
         }
     }

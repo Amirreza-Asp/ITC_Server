@@ -17,7 +17,7 @@ namespace Infrastructure.Initializer
 
         public async Task Execute()
         {
-            //await _context.Database.EnsureDeletedAsync();
+            await _context.Database.EnsureDeletedAsync();
 
             try
             {
@@ -31,6 +31,12 @@ namespace Infrastructure.Initializer
                 Console.WriteLine(error);
             }
 
+            if (!_context.Company.Any())
+                _context.Company.AddRange(Companies);
+
+
+            if (!_context.ProgramYears.Any())
+                _context.ProgramYears.AddRange(ProgramYears);
 
             if (!_context.People.Any())
                 _context.People.AddRange(People);
@@ -59,12 +65,8 @@ namespace Infrastructure.Initializer
             if (!_context.Permissions.Any())
                 _context.Permissions.Add(Permissions);
 
-            if (!_context.Company.Any())
-                _context.Company.AddRange(Companies);
-
             if (!_context.Users.Any())
                 _context.Users.AddRange(UserRoles);
-
 
             _context.SaveChanges();
 
@@ -126,14 +128,20 @@ namespace Infrastructure.Initializer
                     Deadline = DateTime.Now.AddYears(1) ,
                     StartedAt= DateTime.Now ,
                     Title = "مجازی سازی دانشگاه" ,
-                    Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه"
+                    Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
+                    ProgramYearId = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30E"),
+                    Progress = 94,
+                    CompanyId = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1D")
                 },
                 new BigGoal{
                     Id =  Guid.Parse("4C6B36FE-4C0F-4D81-8F72-E9DBF80FC9DB"),
                     Deadline = DateTime.Now.AddYears(1) ,
                     StartedAt= DateTime.Now ,
                     Title = "هوشمند سازی کلاس ها" ,
-                    Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه"
+                    Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
+                    ProgramYearId = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30F"),
+                    Progress = 73,
+                    CompanyId = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1D")
                 },
             };
 
@@ -493,9 +501,33 @@ namespace Infrastructure.Initializer
                     SupportType = lorem
                 },
             };
+
+        private List<ProgramYear> ProgramYears =>
+            new List<ProgramYear>
+            {
+                new ProgramYear{Id = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30E"),Year = "1401-1402"},
+                new ProgramYear{Id = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30F"),Year = "1400-1401"},
+                new ProgramYear{Id = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30A"),Year = "1399-1400"},
+            };
         #endregion
 
         #region Account
+        private List<Company> Companies =>
+            new List<Company>()
+            {
+                new Company{
+                    Id = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1D"),
+                    Title = "رازی"
+                },
+                new Company{
+                    Id = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1C"),
+                    Title = "بوعلی"
+                },
+                new Company{
+                    Id = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1B"),
+                    Title = "شریف"
+                },
+            };
         private List<Role> Roles =>
             new List<Role>
             {
@@ -601,14 +633,6 @@ namespace Infrastructure.Initializer
                 CompanyId = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1D")
             };
 
-        private List<Company> Companies =>
-            new List<Company>()
-            {
-                new Company{
-                    Id = Guid.Parse("72C9B920-B076-488E-8171-8B2DD4F92A1D"),
-                    Title = "وزارت علوم"
-                }
-            };
         #endregion
 
 
