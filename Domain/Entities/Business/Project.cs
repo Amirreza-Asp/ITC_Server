@@ -19,6 +19,8 @@ namespace Domain.Entities.Business
 
         public List<Financial> Financials { get; set; } = new List<Financial>();
 
+        [Range(0, 100)]
+        public short Progress { get; set; }
 
         [ForeignKey(nameof(Leader))]
         public Guid LeaderId { get; set; }

@@ -1,6 +1,9 @@
-﻿using Domain.Dtos.Shared;
+﻿using Application.Utility;
+using Domain.Dtos.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Account.Roles
 {
@@ -12,10 +15,12 @@ namespace Infrastructure.CQRS.Account.Roles
     public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, CommandResponse>
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DeleteRoleCommandHandler(ApplicationDbContext context)
+        public DeleteRoleCommandHandler(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<CommandResponse> Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
@@ -23,7 +28,10 @@ namespace Infrastructure.CQRS.Account.Roles
             var role =
                 await _context.Roles
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(b => b.Id == request.Id);
+                    .Where(b =>
+                        b.Id == request.Id &&
+                        b.CompanyId == (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId())
+                    .FirstOrDefaultAsync(cancellationToken);
 
             if (role == null)
                 return CommandResponse.Success();
@@ -33,7 +41,7 @@ namespace Infrastructure.CQRS.Account.Roles
 
             _context.Roles.Remove(role);
 
-            if (await _context.SaveChangesAsync() > 0)
+            if (await _context.SaveChangesAsync(cancellationToken) > 0)
                 return CommandResponse.Success();
 
             return CommandResponse.Failure(500, "مشکل داخلی سرور");

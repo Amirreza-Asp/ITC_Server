@@ -40,7 +40,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddPerson)]
+        [AccessControl(PermissionsSD.Company_AddPerson)]
         public async Task<CommandResponse> Create([FromBody] CreatePersonCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

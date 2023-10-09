@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Entities.Account;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Business
 {
@@ -22,12 +24,17 @@ namespace Domain.Entities.Business
         public String Development { get; set; }
 
         [Required]
-        public String Company { get; set; }
+        public String BuildInCompany { get; set; }
 
         [Required]
         public String OS { get; set; }
 
         [Required]
         public String SupportType { get; set; }
+
+
+        public Guid CompanyId { get; set; }
+        [ForeignKey(nameof(CompanyId))]
+        public Company Company { get; set; }
     }
 }

@@ -20,6 +20,7 @@ namespace Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 //options.UseInMemoryDatabase("ITC");
             });
 
@@ -34,6 +35,7 @@ namespace Infrastructure
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
 
             // MediatR
             services.AddMediatR(Assembly.GetExecutingAssembly());

@@ -9,6 +9,7 @@ namespace Domain.Dtos.OperationalObjectives
 
         public String Description { get; set; }
 
+        public DateTime GuaranteedFulfillmentAt { get; set; }
         public DateTime Deadline { get; set; }
 
         public bool Active { get; set; }

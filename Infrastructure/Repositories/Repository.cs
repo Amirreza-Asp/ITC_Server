@@ -96,6 +96,55 @@ namespace Infrastructure.Repositories
             return actionResult;
         }
 
+        public virtual async Task<ListActionResult<TDto>> GetAllAsync<TDto>(GridQuery query, Expression<Func<TEntity, bool>> filter = null, CancellationToken cancellationToken = default) where TDto : class
+        {
+            var actionResult = new ListActionResult<TDto>();
+
+            var queryContext = _dbSet.AsQueryable();
+
+            //filter
+            if (query.Filters != null && query.Filters.Any())
+            {
+                // var filterExpression = QueryUtility.FilterExpression<T>(args.Filtered[0].column, args.Filtered[0].value);
+                for (int i = 0; i < query.Filters.Count; i++)
+                {
+                    var filterExpression = QueryUtility.FilterExpression<TEntity>(query.Filters[i].column, query.Filters[i].value);
+                    if (filterExpression != null)
+                        queryContext = queryContext.Where(filterExpression);
+                }
+            }
+
+            if (filter != null)
+                queryContext = queryContext.Where(filter);
+
+            //total count
+            var total = await queryContext.CountAsync(cancellationToken);
+
+            //sort
+            if (query.Sorted != null && query.Sorted.Length > 0)
+            {
+                for (int i = 0; i < query.Sorted.Length; i++)
+                {
+                    queryContext = queryContext.SortMeDynamically(query.Sorted[i].column, query.Sorted[i].desc);
+                }
+            }
+
+            var result = await queryContext
+                .ProjectTo<TDto>(_mapper.ConfigurationProvider)
+                .Skip((query.Page - 1) * query.Size)
+                .Take(query.Size)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            actionResult.Data = result.ToList();
+            actionResult.Total = total;
+            actionResult.Page = query.Page;
+            actionResult.Size = query.Size;
+
+            return actionResult;
+        }
+
+
         public void Create(TEntity entity)
         {
             _dbSet.Add(entity);

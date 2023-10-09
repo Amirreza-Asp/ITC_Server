@@ -12,13 +12,14 @@ namespace Application.Utility
            new SymmetricSecurityKey(Encoding.UTF8.GetBytes("dklfnasdklsdjlfsdjlfnlfnsdklfnklefnsdklfnasdklfnsdjlfwofwifewfoiwf"));
 
 
-        public static string GenerateToken(String nationalId, String roleId, String ipAddress)
+        public static string GenerateToken(String nationalId, String roleId, String ipAddress, Guid? companyId)
         {
             var claims = new List<Claim>
             {
                 new Claim(AppClaims.NationalId ,nationalId),
                 new Claim(AppClaims.Role , roleId),
                 new Claim(AppClaims.IpAddress , ipAddress),
+                new Claim(AppClaims.CompanyId , companyId.HasValue ? companyId.Value.ToString() : Guid.Empty.ToString())
             };
 
             var cred = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
@@ -49,6 +50,14 @@ namespace Application.Utility
         public static String GetFullName(this ClaimsIdentity claims)
         {
             return claims.FindFirst(AppClaims.FullName).Value;
+        }
+
+        public static Guid? GetCompanyId(this ClaimsIdentity claims)
+        {
+            var companyId = claims.FindFirst(AppClaims.CompanyId).Value;
+            if (Guid.Empty == Guid.Parse(companyId))
+                return null;
+            return Guid.Parse(companyId);
         }
 
         public static DateTime GetTokenExpirationTime(this ClaimsIdentity claims)

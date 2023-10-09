@@ -21,6 +21,12 @@ namespace Application.Repositories
            GridQuery query,
            CancellationToken cancellationToken = default) where TDto : class;
 
+        Task<ListActionResult<TDto>> GetAllAsync<TDto>(
+          GridQuery query,
+          Expression<Func<TEntity, bool>> filters = null,
+          CancellationToken cancellationToken = default) where TDto : class;
+
+
         Task<List<TDto>> GetAllAsync<TDto>(Expression<Func<TEntity, bool>> filters = null, CancellationToken cancellationToken = default);
 
         Task<int> CountAsync(CancellationToken cancellationToken);

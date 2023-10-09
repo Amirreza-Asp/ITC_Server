@@ -14,45 +14,22 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    NameUniversity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LogoUniversity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PortalUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SingleWindowUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NationalSerial = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Latitude = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Longitude = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CityName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProvinceName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UniversityType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateAt = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Company", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "HardwareEquipment",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BrandName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Count = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SupportType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HardwareEquipment", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "People",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Family = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    JobTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Education = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_People", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -104,6 +81,53 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "HardwareEquipment",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BrandName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Count = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SupportType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HardwareEquipment", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HardwareEquipment_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "People",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Family = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    JobTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Education = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_People", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_People_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Systems",
                 columns: table => new
                 {
@@ -114,32 +138,19 @@ namespace Infrastructure.Migrations
                     Database = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Framework = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Development = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Company = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BuildInCompany = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OS = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SupportType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Systems", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Expertise",
-                columns: table => new
-                {
-                    PersonId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    title = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Expertise", x => new { x.PersonId, x.Id });
                     table.ForeignKey(
-                        name: "FK_Expertise_People_PersonId",
-                        column: x => x.PersonId,
-                        principalTable: "People",
+                        name: "FK_Systems_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -229,6 +240,26 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Expertise",
+                columns: table => new
+                {
+                    PersonId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Expertise", x => new { x.PersonId, x.Id });
+                    table.ForeignKey(
+                        name: "FK_Expertise_People_PersonId",
+                        column: x => x.PersonId,
+                        principalTable: "People",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OperationalObjectives",
                 columns: table => new
                 {
@@ -239,6 +270,7 @@ namespace Infrastructure.Migrations
                     Deadline = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Budget = table.Column<long>(type: "bigint", nullable: false),
                     BigGoalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Progress = table.Column<short>(type: "smallint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -305,6 +337,7 @@ namespace Infrastructure.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Contractor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Deadline = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Progress = table.Column<short>(type: "smallint", nullable: false),
                     LeaderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OperationalObjectiveId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -322,8 +355,7 @@ namespace Infrastructure.Migrations
                         name: "FK_PracticalActions_People_LeaderId",
                         column: x => x.LeaderId,
                         principalTable: "People",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -335,6 +367,7 @@ namespace Infrastructure.Migrations
                     Contractor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GuaranteedFulfillmentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Progress = table.Column<short>(type: "smallint", nullable: false),
                     LeaderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OperationalObjectiveId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -352,8 +385,7 @@ namespace Infrastructure.Migrations
                         name: "FK_Projects_People_LeaderId",
                         column: x => x.LeaderId,
                         principalTable: "People",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -407,9 +439,19 @@ namespace Infrastructure.Migrations
                 column: "ProgramYearId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_HardwareEquipment_CompanyId",
+                table: "HardwareEquipment",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OperationalObjectives_BigGoalId",
                 table: "OperationalObjectives",
                 column: "BigGoalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_People_CompanyId",
+                table: "People",
+                column: "CompanyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Permissions_PermissionContainerId",
@@ -451,6 +493,11 @@ namespace Infrastructure.Migrations
                 name: "IX_RolePermissions_RoleId",
                 table: "RolePermissions",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Systems_CompanyId",
+                table: "Systems",
+                column: "CompanyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tokens_UserId",

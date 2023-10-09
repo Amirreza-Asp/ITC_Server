@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Entities.Account;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Business
 {
@@ -17,6 +19,13 @@ namespace Domain.Entities.Business
         public String Education { get; set; }
 
         public List<Expertise> Expertises { get; set; } = new List<Expertise>();
+
+        public Guid CompanyId { get; set; }
+        [ForeignKey(nameof(CompanyId))]
+        public Company Company { get; set; }
+
+        public ICollection<PracticalAction> PracticalActions { get; set; }
+        public ICollection<Project> Projects { get; set; }
     }
 
     public class Expertise

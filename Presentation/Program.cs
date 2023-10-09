@@ -4,6 +4,8 @@ using Domain;
 using Domain.Dtos.Account;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Presentation.Configurations;
@@ -34,11 +36,11 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-//builder.Services.AddControllers(opt =>
-//{
-//    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-//    opt.Filters.Add(new AuthorizeFilter(policy));
-//});
+builder.Services.AddControllers(opt =>
+{
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+});
 
 
 #region JWT
@@ -114,6 +116,8 @@ if (app.Environment.IsDevelopment() || true)
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseStaticFiles();
 
 app.UseCors("CorsPolicy");
 

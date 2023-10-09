@@ -82,20 +82,24 @@ namespace Infrastructure.Services
 
             var user =
                 await _context.Users
-                    .Include(b => b.Role)
-                    .Where(b => b.NationalId == nationalId)
                     .AsNoTracking()
+                    .Include(b => b.Role)
+                    .Include(b => b.Token)
+                    .Include(b => b.RefreshToken)
+                    .Where(b => b.NationalId == nationalId)
                     .FirstAsync();
 
             var ip = _contextAccessor.HttpContext.Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
-            var token = JWTokenService.GenerateToken(nationalId, user.Role.Title, ip);
+            var token = JWTokenService.GenerateToken(nationalId, user.Role.Title, ip, user.CompanyId);
             var hashedToken = ProtectorData.Encrypt(token);
 
-            await UpsertToken(ip, hashedToken, user.Id);
-            var newRefreshTokenValue = await UpsertRefreshToken(user.Id);
+            UpsertToken(ip, hashedToken, user);
+            var rfValue = UpsertRefreshToken(user);
 
-            SetCookie(hashedToken, newRefreshTokenValue, uswToken);
+            await _context.SaveChangesAsync();
+
+            SetCookie(hashedToken, rfValue, uswToken);
         }
 
         public async Task<bool> LoginWithRefreshTokenAsync(Guid refreshToken)
@@ -120,9 +124,11 @@ namespace Infrastructure.Services
 
             var ip = _contextAccessor.HttpContext.Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
-            var newToken = JWTokenService.GenerateToken(rfToken.User.NationalId, rfToken.User.Role.Title, ip);
+            var newToken = JWTokenService.GenerateToken(rfToken.User.NationalId, rfToken.User.Role.Title, ip, rfToken.User.CompanyId);
             var tokenHash = ProtectorData.Encrypt(newToken);
-            await UpsertToken(ip, tokenHash, rfToken.UserId);
+            UpsertToken(ip, tokenHash, rfToken.User);
+
+            await _context.SaveChangesAsync();
 
             SetCookie(tokenHash, refreshToken, ProtectorData.Decrypt(uswToken));
 
@@ -209,26 +215,17 @@ namespace Infrastructure.Services
             await _context.SaveChangesAsync();
         }
 
-        private async Task UpsertToken(String ip, String tokenHash, Guid userId)
+        private void UpsertToken(String ip, String tokenHash, User user)
         {
-            var token =
-                await _context.Tokens
-                    .Where(b => b.UserId == userId)
-                    .Include(b => b.User)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync();
-
-
-
-            if (token == null)
+            if (user.Token == null)
             {
-                token = new Token
+                var token = new Token
                 {
                     Id = Guid.NewGuid(),
                     Expiration = DateTime.Now.AddMinutes(SD.ExpirationTime),
                     Ip = ip,
                     HashValue = tokenHash,
-                    UserId = userId,
+                    UserId = user.Id,
                     IsActive = true
                 };
 
@@ -236,49 +233,39 @@ namespace Infrastructure.Services
             }
             else
             {
-                _memoryCache.Remove($"user-{token.User.NationalId}");
-                token.HashValue = tokenHash;
-                token.Expiration = DateTime.Now.AddMinutes(SD.ExpirationTime);
-                token.Ip = ip;
-                token.IsActive = true;
+                _memoryCache.Remove($"user-{user.NationalId}");
+                user.Token.HashValue = tokenHash;
+                user.Token.Expiration = DateTime.Now.AddMinutes(SD.ExpirationTime);
+                user.Token.Ip = ip;
+                user.Token.IsActive = true;
 
-                _context.Tokens.Update(token);
+                _context.Tokens.Update(user.Token);
             }
-
-            await _context.SaveChangesAsync();
         }
 
-        private async Task<Guid> UpsertRefreshToken(Guid userId)
+        private Guid UpsertRefreshToken(User user)
         {
-            var refreshToken =
-                await _context.RefreshTokens
-                    .Where(b => b.UserId == userId)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync();
-
-            if (refreshToken == null)
+            if (user.RefreshToken == null)
             {
-                refreshToken = new RefreshToken
+                var refreshToken = new RefreshToken
                 {
                     Id = Guid.NewGuid(),
                     Expiration = DateTime.Now.AddMonths(1),
-                    UserId = userId,
+                    UserId = user.Id,
                     Value = Guid.NewGuid(),
                 };
 
                 _context.RefreshTokens.Add(refreshToken);
+                return refreshToken.Value;
             }
             else
             {
-                refreshToken.Value = Guid.NewGuid();
-                refreshToken.Expiration = DateTime.Now.AddMonths(1);
+                user.RefreshToken.Value = Guid.NewGuid();
+                user.RefreshToken.Expiration = DateTime.Now.AddMonths(1);
 
-                _context.RefreshTokens.Update(refreshToken);
+                _context.RefreshTokens.Update(user.RefreshToken);
+                return user.RefreshToken.Value;
             }
-
-            await _context.SaveChangesAsync();
-
-            return refreshToken.Value;
         }
 
         private async Task<List<String>> GetFromContext(String nationalCode)

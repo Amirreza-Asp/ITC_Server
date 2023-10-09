@@ -40,7 +40,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddProject)]
+        [AccessControl(PermissionsSD.Company_AddProject)]
         public async Task<CommandResponse> Create([FromBody] CreateProjectCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -48,7 +48,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Delete")]
         [HttpDelete]
-        [AccessControl(SD.Permission_RemoveProject)]
+        [AccessControl(PermissionsSD.Company_RemoveProject)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteProjectCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Application.Utility;
 using Domain;
 using Domain.Dtos.Account.Roles;
 using Domain.Dtos.Shared;
@@ -6,15 +7,14 @@ using Domain.Entities.Account;
 using Domain.Queries.Shared;
 using Infrastructure.CQRS.Account.Roles;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
+using System.Security.Claims;
 
 namespace Presentation.Controllers.Account
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class RoleController : ControllerBase
     {
         private readonly IRepository<Role> _roleRepository;
@@ -30,7 +30,23 @@ namespace Presentation.Controllers.Account
         [HttpPost]
         public async Task<ListActionResult<RoleSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            return await _roleRepository.GetAllAsync<RoleSummary>(query, cancellationToken);
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+
+            return
+                await _roleRepository.GetAllAsync<RoleSummary>(
+                    query,
+                    filters: b => b.CompanyId == claimsIdentity.GetCompanyId(),
+                    cancellationToken);
+        }
+
+        [Route("SelectList")]
+        [HttpGet]
+        public async Task<List<SelectSummary>> SelectList(CancellationToken cancellationToken)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+
+            return
+                await _roleRepository.GetAllAsync<SelectSummary>(b => b.CompanyId == claimsIdentity.GetCompanyId());
         }
 
         [Route("Find")]
@@ -42,7 +58,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddRole)]
+        [AccessControl(PermissionsSD.General_AddRole)]
         public async Task<CommandResponse> Create([FromBody] CreateRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -50,7 +66,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Update")]
         [HttpPut]
-        [AccessControl(SD.Permission_EditRole)]
+        [AccessControl(PermissionsSD.General_EditRole)]
         public async Task<CommandResponse> Update([FromBody] UpdateRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -58,7 +74,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Remove")]
         [HttpDelete]
-        [AccessControl(SD.Permission_RemoveRole)]
+        [AccessControl(PermissionsSD.General_RemoveRole)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

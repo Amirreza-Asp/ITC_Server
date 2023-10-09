@@ -38,7 +38,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddHardwareEquipment)]
+        [AccessControl(PermissionsSD.Company_AddHardwareEquipment)]
         public async Task<CommandResponse> Create([FromBody] CreateHardwareEquipmentCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

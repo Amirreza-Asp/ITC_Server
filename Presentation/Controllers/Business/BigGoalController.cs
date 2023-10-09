@@ -38,6 +38,9 @@ namespace Presentation.Controllers.Business
             return await _repo.GetAllAsync<BigGoalsListDto>(query, cancellationToken);
         }
 
+
+
+
         [HttpGet("Find/{id}")]
         public async Task<BigGoal> Find(Guid id, CancellationToken cancellationToken)
         {
@@ -46,7 +49,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddBigGoal)]
+        [AccessControl(PermissionsSD.Company_AddBigGoal)]
         public async Task<CommandResponse> Create([FromBody] CreateBigGoalCommand command, CancellationToken cancellationToken) =>
             await _mediator.Send(command, cancellationToken);
 

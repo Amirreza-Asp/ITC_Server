@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using Domain;
+using Domain.Dtos.Refrences;
 using Domain.Dtos.Shared;
 using Domain.Queries.Shared;
 using Infrastructure.CQRS.Business.Systems;
@@ -24,20 +25,20 @@ namespace Presentation.Controllers.Business
 
         [Route("GetAll")]
         [HttpPost]
-        public async Task<ListActionResult<Domain.Entities.Business.System>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
+        public async Task<ListActionResult<SystemDetails>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            return await _repository.GetAllAsync<Domain.Entities.Business.System>(query, cancellationToken);
+            return await _repository.GetAllAsync<SystemDetails>(query, cancellationToken);
         }
 
         [HttpGet("Find/{id}")]
-        public async Task<Domain.Entities.Business.System> Find(Guid id, CancellationToken cancellationToken)
+        public async Task<SystemDetails> Find(Guid id, CancellationToken cancellationToken)
         {
-            return await _repository.FirstOrDefaultAsync<Domain.Entities.Business.System>(b => b.Id == id, cancellationToken: cancellationToken);
+            return await _repository.FirstOrDefaultAsync<SystemDetails>(b => b.Id == id, cancellationToken: cancellationToken);
         }
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddSystem)]
+        [AccessControl(PermissionsSD.Company_AddSystem)]
         public async Task<CommandResponse> Create([FromBody] CreateSystemCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

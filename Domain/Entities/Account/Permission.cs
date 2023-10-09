@@ -7,6 +7,7 @@ namespace Domain.Entities.Account
         [Required]
         public String Title { get; set; }
         public String Discriminator { get; set; }
+        public PermissionType Type { get; set; }
 
         public ICollection<RolePermission> Roles { get; set; } = new List<RolePermission>();
     }
@@ -16,27 +17,30 @@ namespace Domain.Entities.Account
         readonly List<Permission> _childrens = new List<Permission>();
         public ICollection<Permission> Childrens => _childrens;
 
-        public PermissionContainer(string title)
+        public PermissionContainer(string title, PermissionType type)
         {
             Id = Guid.NewGuid();
             Title = title;
+            Type = type;
         }
 
-        public PermissionContainer(string title, List<Permission> childrens)
+        public PermissionContainer(string title, PermissionType type, List<Permission> childrens)
         {
             GuardAgaintSelfChildren(childrens.ToArray());
 
             Id = Guid.NewGuid();
             Title = title;
+            Type = type;
             _childrens = childrens;
         }
 
-        public PermissionContainer(Guid id, string title, List<Permission> childrens)
+        public PermissionContainer(Guid id, string title, PermissionType type, List<Permission> childrens)
         {
             GuardAgaintSelfChildren(childrens.ToArray());
 
             Id = id;
             Title = title;
+            Type = type;
             _childrens = childrens;
         }
 
@@ -66,11 +70,12 @@ namespace Domain.Entities.Account
     {
         public String PageValue { get; protected set; }
 
-        public PermissionItem(string title, string pageValue)
+        public PermissionItem(string title, PermissionType type, string pageValue)
         {
             Id = Guid.NewGuid();
             Title = title;
             PageValue = pageValue;
+            Type = type;
         }
         private PermissionItem()
         { }

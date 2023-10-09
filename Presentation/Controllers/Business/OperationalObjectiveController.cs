@@ -43,10 +43,18 @@ namespace Presentation.Controllers.Business
                  cancellationToken: cancellationToken);
         }
 
+        [Route("Find")]
+        [HttpGet]
+        public async Task<OperationalObjectiveDetails> Find([FromQuery] Guid id, CancellationToken cancellationToken)
+        {
+            return
+                await _repo.FirstOrDefaultAsync<OperationalObjectiveDetails>(b => b.Id == id);
+        }
+
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddOperationalObjective)]
+        [AccessControl(PermissionsSD.Company_AddOperationalObjective)]
         public async Task<CommandResponse> Create([FromBody] CreateOperationalObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -54,7 +62,7 @@ namespace Presentation.Controllers.Business
 
         [HttpDelete]
         [Route("Delete")]
-        [AccessControl(SD.Permission_RemoveOperationalObjective)]
+        [AccessControl(PermissionsSD.Company_RemoveOperationalObjective)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteOperationObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

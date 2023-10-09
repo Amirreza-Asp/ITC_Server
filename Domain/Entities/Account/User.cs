@@ -9,12 +9,13 @@ namespace Domain.Entities.Account
         public String NationalId { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public bool IsAdmin { get; set; }
 
         [ForeignKey(nameof(Role))]
         public Guid RoleId { get; set; }
 
         [ForeignKey(nameof(Company))]
-        public Guid CompanyId { get; set; }
+        public Guid? CompanyId { get; set; }
 
         public Role Role { get; set; }
         public Token Token { get; set; }

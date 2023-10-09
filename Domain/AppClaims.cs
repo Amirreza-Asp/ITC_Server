@@ -6,5 +6,6 @@
         public const String Role = "Role";
         public const String IpAddress = "IpAddress";
         public const String FullName = "FullName";
+        public const String CompanyId = "CompanyId";
     }
 }

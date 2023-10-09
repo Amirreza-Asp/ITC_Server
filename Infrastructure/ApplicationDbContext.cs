@@ -28,6 +28,7 @@ namespace Infrastructure
         public DbSet<Company> Company { get; set; }
         public DbSet<Token> Tokens { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<UserJoinRequest> UsersJoinRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +58,24 @@ namespace Infrastructure
             modelBuilder.Entity<BigGoal>()
                 .HasOne(b => b.ProgramYear)
                 .WithMany(b => b.BigGoals)
+                .IsRequired(false);
+
+            modelBuilder.Entity<PracticalAction>()
+                .HasOne(b => b.Leader)
+                .WithMany(b => b.PracticalActions)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Project>()
+                .HasOne(b => b.Leader)
+                .WithMany(b => b.Projects)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Role>()
+                .Property(b => b.CompanyId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<UserJoinRequest>()
+                .Property(b => b.CompanyId)
                 .IsRequired(false);
         }
     }

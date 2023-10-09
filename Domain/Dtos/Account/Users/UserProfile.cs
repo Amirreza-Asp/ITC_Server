@@ -9,6 +9,7 @@ namespace Domain.Dtos.Account.User
         public string Mobile { get; set; }
         public string Gender { get; set; }
         public String Company { get; set; }
+        public Guid? CompanyId { get; set; }
         public List<PermissionSummary> Permissions { get; set; }
     }
 }

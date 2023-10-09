@@ -22,6 +22,8 @@ namespace Domain.Entities.Business
         [ForeignKey(nameof(BigGoal))]
         public Guid BigGoalId { get; set; }
 
+        [Range(0, 100)]
+        public short Progress { get; set; }
 
         public BigGoal BigGoal { get; set; }
         public ICollection<Project> Projects { get; set; } = new List<Project>();

@@ -1,10 +1,12 @@
-﻿using AutoMapper;
+﻿using Application.Utility;
 using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Account.Roles
 {
@@ -28,27 +30,28 @@ namespace Infrastructure.CQRS.Account.Roles
     {
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _memoryCache;
-        private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UpdateRoleCommandHandler(ApplicationDbContext context, IMemoryCache memoryCache, IMapper mapper)
+        public UpdateRoleCommandHandler(ApplicationDbContext context, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _memoryCache = memoryCache;
-            _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<CommandResponse> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
         {
             var role =
                 await _context.Roles
-                    .Where(b => b.Id == request.Id)
+                    .Where(b =>
+                        b.Id == request.Id &&
+                        b.CompanyId == (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId())
                     .Include(b => b.Permissions)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(cancellationToken);
 
             if (role == null)
                 CommandResponse.Failure(400, "نقش انتخاب شده در سیستم وجود ندارد");
-
 
             foreach (var permission in role.Permissions)
                 _context.RolePermissions.Remove(permission);

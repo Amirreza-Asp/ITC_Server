@@ -5,8 +5,11 @@ using AutoMapper;
 using Domain;
 using Domain.Dtos.Account.User;
 using Domain.Entities.Account;
+using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text;
 
 namespace Presentation.Controllers.Account
@@ -21,8 +24,10 @@ namespace Presentation.Controllers.Account
         private readonly IMapper _mapper;
         private readonly IRepository<Company> _companyRepo;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly ApplicationDbContext _context;
 
-        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor)
+
+        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor, ApplicationDbContext context)
         {
             _clientFactory = clientFactory;
             _ssoService = ssoService;
@@ -30,6 +35,7 @@ namespace Presentation.Controllers.Account
             _mapper = mapper;
             _companyRepo = companyRepo;
             _contextAccessor = contextAccessor;
+            _context = context;
         }
 
         [Route("Login")]
@@ -40,9 +46,10 @@ namespace Presentation.Controllers.Account
             if (logout)
                 await _authService.LogoutAsync();
 
+            var user = await _context.Users.FirstOrDefaultAsync(b => b.CompanyId == null);
 
             await _authService.LoginAsync(
-               nationalId: "0123456789",
+               nationalId: user.NationalId,
                uswToken: "sdlkasdklasdjklasdklasdkl");
 
             return Redirect(redirectUrl);
@@ -63,6 +70,21 @@ namespace Presentation.Controllers.Account
                 $"&redirect_uri={SD.GetRedirectUrl(_contextAccessor)}";
 
             return Redirect(url);
+        }
+
+
+        [Route("RaziLogin")]
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> RaziLogin([FromQuery] String redirectUrl)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(b => b.CompanyId == Guid.Parse("aa12b4d2-652c-407a-a569-9edcd1e2c467"));
+
+            await _authService.LoginAsync(
+               nationalId: user.NationalId,
+               uswToken: "sdlkasdklasdjklasdklasdkl");
+
+            return Redirect(redirectUrl);
         }
 
         [Route("authorizeLogin")]
@@ -121,9 +143,11 @@ namespace Presentation.Controllers.Account
         [HttpGet("Profile")]
         public async Task<IActionResult> Profile()
         {
+            var company = await _companyRepo.FirstOrDefaultAsync(b => b.Id == (User.Identity as ClaimsIdentity).GetCompanyId());
             return Ok(new UserProfile
             {
-                Company = "رازی",
+                Company = company == null ? "وزارت علوم" : company.NameUniversity,
+                CompanyId = company?.Id,
                 FullName = "امیررضا محمدی",
                 Gender = "مرد",
                 Mobile = "09211573936",
@@ -131,27 +155,27 @@ namespace Presentation.Controllers.Account
                 Permissions = await _authService.GetPermissionsAsync(SD.DefaultNationalId)
             });
 
-            var hashedUswToken = HttpContext.Request.Cookies[SD.UswToken];
-            var uswToken = ProtectorData.Decrypt(hashedUswToken);
+            //var hashedUswToken = HttpContext.Request.Cookies[SD.UswToken];
+            //var uswToken = ProtectorData.Decrypt(hashedUswToken);
 
-            try
-            {
-                var userProfile = await _ssoService.GetProfileAsync(uswToken);
-                if (userProfile == null || !userProfile.isSuccess)
-                    return Unauthorized();
+            //try
+            //{
+            //    var userProfile = await _ssoService.GetProfileAsync(uswToken);
+            //    if (userProfile == null || !userProfile.isSuccess)
+            //        return Unauthorized();
 
-                var user = _mapper.Map<UserProfile>(userProfile.data);
+            //    var user = _mapper.Map<UserProfile>(userProfile.data);
 
-                var company = await _companyRepo.FirstOrDefaultAsync(filter: b => b.Users.Any(b => b.NationalId == user.NationalId));
-                user.Company = company.Title;
-                user.Permissions = await _authService.GetPermissionsAsync(user.NationalId);
+            //    var company = await _companyRepo.FirstOrDefaultAsync(filter: b => b.Users.Any(b => b.NationalId == user.NationalId));
+            //    user.Company = company.NameUniversity;
+            //    user.Permissions = await _authService.GetPermissionsAsync(user.NationalId);
 
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized();
-            }
+            //    return Ok(user);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return Unauthorized();
+            //}
         }
     }
 }

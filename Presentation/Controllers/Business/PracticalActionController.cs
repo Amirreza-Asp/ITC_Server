@@ -40,7 +40,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(SD.Permission_AddPracticalAction)]
+        [AccessControl(PermissionsSD.Company_AddPracticalAction)]
         public async Task<CommandResponse> Create([FromBody] CreatePracticalActionCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -48,7 +48,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Delete")]
         [HttpDelete]
-        [AccessControl(SD.Permission_RemovePracticalAction)]
+        [AccessControl(PermissionsSD.Company_RemovePracticalAction)]
         public async Task<CommandResponse> Remove([FromQuery] DeletePracticalActionCommand command, CancellationToken cancellation)
         {
             return await _mediator.Send(command, cancellation);
