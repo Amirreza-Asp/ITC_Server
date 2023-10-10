@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Application.Utility;
 using Domain;
 using Domain.Dtos.BigGoals;
 using Domain.Dtos.Shared;
@@ -8,6 +9,7 @@ using Infrastructure.CQRS.Business.BigGoals.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
+using System.Security.Claims;
 
 namespace Presentation.Controllers.Business
 {
@@ -28,18 +30,17 @@ namespace Presentation.Controllers.Business
         [HttpPost]
         public async Task<ListActionResult<BigGoalSummary>> DropDown(GridQuery query, CancellationToken cancellationToken)
         {
-            return await _repo.GetAllAsync<BigGoalSummary>(query, cancellationToken);
+            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            return await _repo.GetAllAsync<BigGoalSummary>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
 
         [Route("GetAll")]
         [HttpPost]
         public async Task<ListActionResult<BigGoalsListDto>> GetAll(GridQuery query, CancellationToken cancellationToken)
         {
-            return await _repo.GetAllAsync<BigGoalsListDto>(query, cancellationToken);
+            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            return await _repo.GetAllAsync<BigGoalsListDto>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
-
-
-
 
         [HttpGet("Find/{id}")]
         public async Task<BigGoal> Find(Guid id, CancellationToken cancellationToken)

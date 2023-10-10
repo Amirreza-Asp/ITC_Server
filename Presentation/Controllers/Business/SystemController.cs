@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Application.Utility;
 using Domain;
 using Domain.Dtos.Refrences;
 using Domain.Dtos.Shared;
@@ -7,6 +8,7 @@ using Infrastructure.CQRS.Business.Systems;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
+using System.Security.Claims;
 
 namespace Presentation.Controllers.Business
 {
@@ -27,7 +29,8 @@ namespace Presentation.Controllers.Business
         [HttpPost]
         public async Task<ListActionResult<SystemDetails>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            return await _repository.GetAllAsync<SystemDetails>(query, cancellationToken);
+            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            return await _repository.GetAllAsync<SystemDetails>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
 
         [HttpGet("Find/{id}")]

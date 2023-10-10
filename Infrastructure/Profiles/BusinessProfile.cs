@@ -62,7 +62,8 @@ namespace Infrastructure.Profiles
             CreateMap<Domain.Entities.Business.System, SystemDetails>();
             CreateMap<CreateSystemCommand, Domain.Entities.Business.System>()
                 .ForMember(b => b.Id, d => d.MapFrom(r => Guid.NewGuid()))
-                .ForMember(b => b.BuildInCompany, d => d.MapFrom(e => e.Company));
+                .ForMember(b => b.BuildInCompany, d => d.MapFrom(e => e.Company))
+                .ForMember(b => b.Company, d => d.Ignore());
 
             // Practical action
             CreateMap<CreatePracticalActionCommand, PracticalAction>()

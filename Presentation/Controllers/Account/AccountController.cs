@@ -4,6 +4,7 @@ using Application.Utility;
 using AutoMapper;
 using Domain;
 using Domain.Dtos.Account.User;
+using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
@@ -41,11 +42,8 @@ namespace Presentation.Controllers.Account
         [Route("Login")]
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromQuery] String redirectUrl, [FromQuery] bool logout)
+        public async Task<IActionResult> Login([FromQuery] String redirectUrl)
         {
-            if (logout)
-                await _authService.LogoutAsync();
-
             var user = await _context.Users.FirstOrDefaultAsync(b => b.CompanyId == null);
 
             await _authService.LoginAsync(
@@ -59,9 +57,8 @@ namespace Presentation.Controllers.Account
             HttpContext.Session.SetString("state", state);
             HttpContext.Session.SetString("redirect-url", redirectUrl);
 
-            var domain = logout ? "https://usw.msrt.ir/oauth2/logout?" : "https://usw.msrt.ir/oauth2/authorize?";
 
-            var url = domain +
+            var url = "https://usw.msrt.ir/oauth2/authorize?" +
                 $"response_type=code" +
                 $"&scope=openid profile" +
                 $"&client_id={SD.ClientId}" +
@@ -126,18 +123,18 @@ namespace Presentation.Controllers.Account
 
         [HttpGet]
         [Route("Logout")]
-        public async Task<IActionResult> Logout()
+        public async Task<CommandResponse> Logout()
         {
             await _authService.LogoutAsync();
             var httpClient = _clientFactory.CreateClient();
 
-            var response = await httpClient.GetAsync("https://usw.msrt.ir/oauth2/logout");
-            if (response.IsSuccessStatusCode)
-            {
-                return Ok();
-            }
+            //var response = await httpClient.GetAsync("https://usw.msrt.ir/oauth2/logout");
+            //if (response.IsSuccessStatusCode)
+            //{
+            return CommandResponse.Success();
+            //}
 
-            return BadRequest();
+            //return CommandResponse.Failure((int)response.StatusCode);
         }
 
         [HttpGet("Profile")]

@@ -66,9 +66,12 @@ namespace Presentation.Controllers.Account
             return await _userJoinRequestsRepo.GetAllAsync<UserRequestsSummary>(query, b => b.CompanyId == companyId, cancellationToken);
         }
 
-        //[HttpPost]
-        //[Route("Accept")]
-        //[AccessControl(PermissionsSD.General_UsersRequests)]
-        //public async Task<Boolean> Accept([From])
+        [HttpPost]
+        [Route("RequestResult")]
+        [AccessControl(PermissionsSD.General_UsersRequests)]
+        public async Task<CommandResponse> RequestResult([FromBody] UserRequestResultCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
     }
 }

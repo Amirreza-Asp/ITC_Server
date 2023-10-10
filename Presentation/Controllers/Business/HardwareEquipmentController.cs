@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Application.Utility;
 using Domain;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
@@ -7,6 +8,7 @@ using Infrastructure.CQRS.Business.HardwareEquipments;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
+using System.Security.Claims;
 
 namespace Presentation.Controllers.Business
 {
@@ -27,7 +29,8 @@ namespace Presentation.Controllers.Business
         [HttpPost]
         public async Task<ListActionResult<HardwareEquipment>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            return await _repo.GetAllAsync<HardwareEquipment>(query, cancellationToken);
+            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            return await _repo.GetAllAsync<HardwareEquipment>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
 
         [HttpGet("Find/{id}")]

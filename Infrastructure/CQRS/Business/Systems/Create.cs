@@ -1,7 +1,10 @@
-﻿using AutoMapper;
+﻿using Application.Utility;
+using AutoMapper;
 using Domain.Dtos.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Business.Systems
 {
@@ -33,22 +36,30 @@ namespace Infrastructure.CQRS.Business.Systems
 
         [Required]
         public String SupportType { get; set; }
+
+
     }
 
     public class CreateSystemCommandHandler : IRequestHandler<CreateSystemCommand, CommandResponse>
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CreateSystemCommandHandler(ApplicationDbContext context, IMapper mapper)
+        public CreateSystemCommandHandler(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<CommandResponse> Handle(CreateSystemCommand request, CancellationToken cancellationToken)
         {
             var system = _mapper.Map<Domain.Entities.Business.System>(request);
+
+
+            var comapnyId = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId();
+            system.CompanyId = comapnyId.Value;
 
             _context.Add(system);
 

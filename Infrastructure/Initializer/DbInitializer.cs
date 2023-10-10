@@ -21,7 +21,7 @@ namespace Infrastructure.Initializer
 
         public async Task Execute()
         {
-            //await _context.Database.EnsureDeletedAsync();
+            await _context.Database.EnsureDeletedAsync();
 
             try
             {

@@ -1,8 +1,11 @@
-﻿using AutoMapper;
+﻿using Application.Utility;
+using AutoMapper;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Business.HardwareEquipments
 {
@@ -21,22 +24,30 @@ namespace Infrastructure.CQRS.Business.HardwareEquipments
 
         [Required]
         public String SupportType { get; set; }
+
+        [Required]
+        public Guid CompanyId { get; set; }
     }
 
     public class CreateHardwareEquipmentCommandHandler : IRequestHandler<CreateHardwareEquipmentCommand, CommandResponse>
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CreateHardwareEquipmentCommandHandler(ApplicationDbContext context, IMapper mapper)
+        public CreateHardwareEquipmentCommandHandler(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<CommandResponse> Handle(CreateHardwareEquipmentCommand request, CancellationToken cancellationToken)
         {
             var heq = _mapper.Map<HardwareEquipment>(request);
+
+            var comapnyId = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId();
+            heq.CompanyId = comapnyId.Value;
 
             _context.Add(heq);
 
