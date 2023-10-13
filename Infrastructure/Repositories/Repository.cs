@@ -173,17 +173,21 @@ namespace Infrastructure.Repositories
             return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
 
-        public async Task<List<TDto>> GetAllAsync<TDto>(Expression<Func<TEntity, bool>> filters = null, CancellationToken cancellationToken = default)
+        public async Task<List<TDto>> GetAllAsync<TDto>(
+            Expression<Func<TEntity, bool>> filters = null,
+            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
+            CancellationToken cancellationToken = default)
         {
-            if (filters == null)
-                return
-                await _dbSet
-                    .ProjectTo<TDto>(_mapper.ConfigurationProvider)
-                    .ToListAsync(cancellationToken);
+            IQueryable<TEntity> query = _context.Set<TEntity>();
+
+            if (filters != null)
+                query = query.Where(filters);
+
+            if (include != null)
+                query = include(query);
 
             return
-                await _dbSet
-                    .Where(filters)
+                await query
                     .ProjectTo<TDto>(_mapper.ConfigurationProvider)
                     .ToListAsync(cancellationToken);
         }

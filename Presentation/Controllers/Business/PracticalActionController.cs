@@ -4,6 +4,7 @@ using Domain.Dtos.PracticalActions;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
 using Domain.Queries.Shared;
+using Domain.Utiltiy;
 using Infrastructure.CQRS.Business.PracticalActions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,6 @@ namespace Presentation.Controllers.Business
             _repo = repo;
         }
 
-
         [Route("GetAll")]
         [HttpPost]
         public async Task<ListActionResult<PracticalActionSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
@@ -33,10 +33,22 @@ namespace Presentation.Controllers.Business
         }
 
         [HttpGet("Find/{id}")]
-        public async Task<PracticalActionSummary> Find(Guid id, CancellationToken cancellationToken)
+        public async Task<PracticalActionDetails> Find(Guid id, CancellationToken cancellationToken)
         {
-            return await _repo.FirstOrDefaultAsync<PracticalActionSummary>(b => b.Id == id, cancellationToken: cancellationToken);
+            var data = await _repo.FirstOrDefaultAsync<PracticalActionDetails>(b => b.Id == id, cancellationToken: cancellationToken);
+            if (data == null)
+                return null;
+
+            data.Indicators.ForEach(item =>
+            {
+                item.Progress = Calculator.CalcProgress(item);
+                item.CurrentValue = Calculator.CalcCurrentValue(item);
+            });
+
+            return data;
         }
+
+
 
         [Route("Create")]
         [HttpPost]
@@ -52,6 +64,13 @@ namespace Presentation.Controllers.Business
         public async Task<CommandResponse> Remove([FromQuery] DeletePracticalActionCommand command, CancellationToken cancellation)
         {
             return await _mediator.Send(command, cancellation);
+        }
+
+        [Route("AddIndicator")]
+        [HttpPost]
+        public async Task<CommandResponse> AddIndicator([FromBody] AddPracticalActionIndicatorCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
         }
     }
 }

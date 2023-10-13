@@ -50,6 +50,7 @@ namespace Presentation.Controllers.Account
                nationalId: user.NationalId,
                uswToken: "sdlkasdklasdjklasdklasdkl");
 
+            return Ok();
             return Redirect(redirectUrl);
 
 
@@ -81,6 +82,7 @@ namespace Presentation.Controllers.Account
                nationalId: user.NationalId,
                uswToken: "sdlkasdklasdjklasdklasdkl");
 
+            return Ok();
             return Redirect(redirectUrl);
         }
 
@@ -125,13 +127,13 @@ namespace Presentation.Controllers.Account
         [Route("Logout")]
         public async Task<CommandResponse> Logout()
         {
-            await _authService.LogoutAsync();
-            var httpClient = _clientFactory.CreateClient();
+            return await _authService.LogoutAsync();
+            //var httpClient = _clientFactory.CreateClient();
 
             //var response = await httpClient.GetAsync("https://usw.msrt.ir/oauth2/logout");
             //if (response.IsSuccessStatusCode)
             //{
-            return CommandResponse.Success();
+            //return CommandResponse.Success();
             //}
 
             //return CommandResponse.Failure((int)response.StatusCode);

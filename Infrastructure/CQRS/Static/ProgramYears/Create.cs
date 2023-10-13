@@ -1,5 +1,5 @@
 ﻿using Domain.Dtos.Shared;
-using Domain.Entities.Business;
+using Domain.Entities.Static;
 using MediatR;
 
 namespace Infrastructure.CQRS.Static.ProgramYears

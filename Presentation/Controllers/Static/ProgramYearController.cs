@@ -1,7 +1,7 @@
 ﻿using Application.Repositories;
 using Domain.Dtos.Shared;
 using Domain.Dtos.Static;
-using Domain.Entities.Business;
+using Domain.Entities.Static;
 using Domain.Queries.Shared;
 using Infrastructure.CQRS.Static.ProgramYears;
 using MediatR;

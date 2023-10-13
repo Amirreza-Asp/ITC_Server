@@ -42,7 +42,10 @@ namespace Infrastructure.Profiles
             CreateMap<OperationalObjective, OperationalObjectiveDetails>()
                 .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now))
                 .ForMember(b => b.Projects, d => d.MapFrom(b => b.Projects))
-                .ForMember(b => b.Actions, d => d.MapFrom(b => b.PracticalActions));
+                .ForMember(b => b.Actions, d => d.MapFrom(b => b.PracticalActions))
+                .ForMember(b => b.IndicatorsCount, d => d.MapFrom(b => b.Indicators.Count()))
+                .ForMember(b => b.Progress, d => d.Ignore());
+            CreateMap<OperationalObjectiveIndicator, OperationalObjectiveIndicator>();
 
 
             // Person
@@ -75,10 +78,17 @@ namespace Infrastructure.Profiles
                .ForMember(b => b.LeaderName, d => d.MapFrom(d => String.Concat(d.Leader.Name, ' ', d.Leader.Family)))
                .ForMember(b => b.OperationalObjectiveTitle, d => d.MapFrom(d => d.OperationalObjective.Title));
 
+            CreateMap<PracticalAction, PracticalActionDetails>()
+               .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(d => d.Title)))
+               .ForMember(b => b.LeaderName, d => d.MapFrom(d => String.Concat(d.Leader.Name, ' ', d.Leader.Family)))
+               .ForMember(b => b.OperationalObjectiveTitle, d => d.MapFrom(d => d.OperationalObjective.Title))
+               .ForMember(b => b.Indicators, d => d.MapFrom(d => d.Indicators.Select(e => e.Indicator)));
+
             CreateMap<PracticalAction, ProjectActionCard>()
                 .ForMember(b => b.Active, b => b.MapFrom(d => d.Deadline >= DateTime.Now))
                 .ForMember(b => b.Type, d => d.MapFrom(b => "اقدام کاربردی"))
-                .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(s => s.Title)));
+                .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(s => s.Title)))
+                .ForMember(b => b.IndicatorsCount, d => d.MapFrom(e => e.Indicators.Count()));
 
             // Project
             CreateMap<CreateProjectCommand, Project>()
@@ -92,7 +102,14 @@ namespace Infrastructure.Profiles
                 .ForMember(b => b.Active, b => b.MapFrom(d => d.GuaranteedFulfillmentAt >= DateTime.Now))
                 .ForMember(b => b.Type, b => b.MapFrom(d => "پروژه"))
                 .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(s => s.Title)))
-                .ForMember(b => b.Deadline, d => d.MapFrom(b => b.GuaranteedFulfillmentAt));
+                .ForMember(b => b.Deadline, d => d.MapFrom(b => b.GuaranteedFulfillmentAt))
+                .ForMember(b => b.IndicatorsCount, d => d.MapFrom(e => e.Indicators.Count()));
+            CreateMap<Project, ProjectDetails>()
+               .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(d => d.Title)))
+               .ForMember(b => b.LeaderName, d => d.MapFrom(d => String.Concat(d.Leader.Name, ' ', d.Leader.Family)))
+               .ForMember(b => b.Indicators, d => d.MapFrom(d => d.Indicators.Select(e => e.Indicator)))
+               .ForMember(b => b.OperationalObjectiveTitle, d => d.MapFrom(d => d.OperationalObjective.Title));
+
 
             // Company
             CreateMap<Company, CompanyBigGoals>()
@@ -106,7 +123,11 @@ namespace Infrastructure.Profiles
                 .ForMember(b => b.Province, d => d.MapFrom(e => e.ProvinceName))
                 .ForMember(b => b.City, d => d.MapFrom(e => e.CityName));
 
-        }
 
+            CreateMap<Indicator, IndicatorCard>()
+                .ForMember(b => b.Title, e => e.MapFrom(e => e.Category.Title));
+
+
+        }
     }
 }

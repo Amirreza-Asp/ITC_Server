@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Utiltiy;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Business
@@ -22,11 +23,12 @@ namespace Domain.Entities.Business
         [ForeignKey(nameof(BigGoal))]
         public Guid BigGoalId { get; set; }
 
-        [Range(0, 100)]
-        public short Progress { get; set; }
+        [NotMapped]
+        public int Progress => Calculator.CalcProgress(Indicators.Select(e => e.Indicator));
 
         public BigGoal BigGoal { get; set; }
         public ICollection<Project> Projects { get; set; } = new List<Project>();
         public ICollection<PracticalAction> PracticalActions { get; set; } = new List<PracticalAction>();
+        public ICollection<OperationalObjectiveIndicator> Indicators { get; set; } = new List<OperationalObjectiveIndicator>();
     }
 }

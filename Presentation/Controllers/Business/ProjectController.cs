@@ -4,6 +4,7 @@ using Domain.Dtos.Projects;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
 using Domain.Queries.Shared;
+using Domain.Utiltiy;
 using Infrastructure.CQRS.Business.Projects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -33,10 +34,23 @@ namespace Presentation.Controllers.Business
         }
 
         [HttpGet("Find/{id}")]
-        public async Task<ProjectSummary> Find(Guid id, CancellationToken cancellationToken)
+        public async Task<ProjectDetails> Find(Guid id, CancellationToken cancellationToken)
         {
-            return await _repo.FirstOrDefaultAsync<ProjectSummary>(b => b.Id == id, cancellationToken: cancellationToken);
+            var data = await _repo.FirstOrDefaultAsync<ProjectDetails>(b => b.Id == id, cancellationToken: cancellationToken);
+            if (data == null)
+                return null;
+
+            data.Indicators.ForEach(item =>
+            {
+                item.Progress = Calculator.CalcProgress(item);
+                item.CurrentValue = Calculator.CalcCurrentValue(item);
+            });
+
+            return data;
         }
+
+
+
 
         [Route("Create")]
         [HttpPost]
@@ -50,6 +64,14 @@ namespace Presentation.Controllers.Business
         [HttpDelete]
         [AccessControl(PermissionsSD.Company_RemoveProject)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteProjectCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+
+        [Route("AddIndicator")]
+        [HttpPost]
+        public async Task<CommandResponse> AddIndicator([FromBody] AddProjectIndicatorCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
         }

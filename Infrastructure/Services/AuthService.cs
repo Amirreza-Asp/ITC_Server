@@ -5,11 +5,13 @@ using Domain;
 using Domain.Dtos.Account;
 using Domain.Dtos.Account.Permissions;
 using Domain.Dtos.Account.SSO;
+using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace Infrastructure.Services
@@ -135,23 +137,29 @@ namespace Infrastructure.Services
             return true;
         }
 
-        public async Task LogoutAsync()
+        public async Task<CommandResponse> LogoutAsync()
         {
-            var nationalId = _contextAccessor.HttpContext.User.Claims.First(b => b.Type == AppClaims.NationalId).Value;
+            var nationalId = (_contextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetUserNationalId();
             var token =
                 await _context.Tokens
                     .Where(b => b.User.NationalId == nationalId)
-                    .AsNoTracking()
                     .FirstOrDefaultAsync();
 
             if (token == null)
-                return;
+                return CommandResponse.Failure(400, "کاربر به سیستم وارد نشده است");
 
             token.IsActive = false;
             _context.Tokens.Update(token);
             _memoryCache.Remove($"user-{nationalId}");
 
-            await _context.SaveChangesAsync();
+            _contextAccessor.HttpContext.Response.Cookies.Delete(SD.AuthInfo);
+            _contextAccessor.HttpContext.Response.Cookies.Delete(SD.UswToken);
+
+
+            if (await _context.SaveChangesAsync() > 0)
+                return CommandResponse.Success();
+
+            return CommandResponse.Failure(500, "مشکل داخلی سرور");
         }
 
         public async Task<List<PermissionSummary>> GetPermissionsAsync(string nationalCode)

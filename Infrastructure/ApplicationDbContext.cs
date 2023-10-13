@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Account;
 using Domain.Entities.Business;
+using Domain.Entities.Static;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -9,6 +10,7 @@ namespace Infrastructure
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
+
         public DbSet<BigGoal> BigGoals { get; set; }
         public DbSet<OperationalObjective> OperationalObjectives { get; set; }
         public DbSet<Person> People { get; set; }
@@ -16,7 +18,16 @@ namespace Infrastructure
         public DbSet<Domain.Entities.Business.System> Systems { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<PracticalAction> PracticalActions { get; set; }
+        public DbSet<Indicator> Indicators { get; set; }
+        public DbSet<OperationalObjectiveIndicator> OperationalObjectiveIndicators { get; set; }
+        public DbSet<ProjectIndicator> ProjectIndicators { get; set; }
+        public DbSet<PracticalActionIndicator> PracticalActionIndicators { get; set; }
+
+
+
         public DbSet<ProgramYear> ProgramYears { get; set; }
+        public DbSet<IndicatorCategory> IndicatorCategories { get; set; }
+        public DbSet<IndicatorType> IndicatorTypes { get; set; }
 
 
         public DbSet<Role> Roles { get; set; }
@@ -77,6 +88,15 @@ namespace Infrastructure
             modelBuilder.Entity<UserJoinRequest>()
                 .Property(b => b.CompanyId)
                 .IsRequired(false);
+
+            modelBuilder.Entity<ProjectIndicator>()
+                .HasKey(b => new { b.IndicatorId, b.ProjectId });
+
+            modelBuilder.Entity<OperationalObjectiveIndicator>()
+                .HasKey(b => new { b.IndicatorId, b.OperationalObjectiveId });
+
+            modelBuilder.Entity<PracticalActionIndicator>()
+                .HasKey(b => new { b.IndicatorId, b.PracticalActionId });
         }
     }
 }

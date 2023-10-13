@@ -27,7 +27,10 @@ namespace Application.Repositories
           CancellationToken cancellationToken = default) where TDto : class;
 
 
-        Task<List<TDto>> GetAllAsync<TDto>(Expression<Func<TEntity, bool>> filters = null, CancellationToken cancellationToken = default);
+        Task<List<TDto>> GetAllAsync<TDto>(
+            Expression<Func<TEntity, bool>> filters = null,
+            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
+            CancellationToken cancellationToken = default);
 
         Task<int> CountAsync(CancellationToken cancellationToken);
 

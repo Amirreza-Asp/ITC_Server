@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Account;
+using Domain.Entities.Static;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

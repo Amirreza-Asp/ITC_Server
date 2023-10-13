@@ -24,6 +24,8 @@ namespace Infrastructure.CQRS.Account.Companies
         {
             var data =
                await _context.Projects
+                   .Include(b => b.Indicators)
+                        .ThenInclude(b => b.Indicator)
                    .Where(b =>
                            request.Companies.Contains(b.OperationalObjective.BigGoal.CompanyId) &&
                            (String.IsNullOrWhiteSpace(request.BigGoal) || b.OperationalObjective.BigGoal.Title.Contains(request.BigGoal.Trim())))

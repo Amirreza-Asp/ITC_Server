@@ -11,6 +11,10 @@
 
         public String Type { get; set; }
 
+        public int Progress { get; set; }
+
         public List<String> Financials { get; set; } = new List<String>();
+
+        public int IndicatorsCount { get; set; }
     }
 }

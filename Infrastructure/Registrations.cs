@@ -19,9 +19,9 @@ namespace Infrastructure
             // Sql context
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                //options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                options.UseInMemoryDatabase("ITC");
+                //options.UseInMemoryDatabase("ITC");
             });
 
             // Initializer
@@ -36,6 +36,7 @@ namespace Infrastructure
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
+            services.AddScoped<IIndicatorCategoryRepository, IndicatorCategoryRepository>();
 
             // MediatR
             services.AddMediatR(Assembly.GetExecutingAssembly());

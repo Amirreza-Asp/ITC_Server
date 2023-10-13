@@ -1,4 +1,5 @@
 ﻿using Domain.SubEntities;
+using Domain.Utiltiy;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,8 +20,8 @@ namespace Domain.Entities.Business
 
         public List<Financial> Financials { get; set; } = new List<Financial>();
 
-        [Range(0, 100)]
-        public short Progress { get; set; }
+        [NotMapped]
+        public int Progress => Calculator.CalcProgress(Indicators.Select(e => e.Indicator));
 
         [ForeignKey(nameof(Leader))]
         public Guid LeaderId { get; set; }
@@ -31,6 +32,7 @@ namespace Domain.Entities.Business
 
         public OperationalObjective OperationalObjective { get; set; }
         public Person Leader { get; set; }
+        public ICollection<ProjectIndicator> Indicators { get; set; } = new List<ProjectIndicator>();
     }
 
 }

@@ -11,6 +11,9 @@ namespace Domain.Dtos.OperationalObjectives
 
         public DateTime GuaranteedFulfillmentAt { get; set; }
         public DateTime Deadline { get; set; }
+        public int Progress { get; set; }
+
+        public int IndicatorsCount { get; set; }
 
         public bool Active { get; set; }
 
