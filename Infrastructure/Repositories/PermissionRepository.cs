@@ -1,11 +1,10 @@
 ﻿using Application.Repositories;
-using Application.Utility;
+using Application.Services.Interfaces;
 using Domain;
 using Domain.Dtos.Account.Permissions;
 using Domain.Entities.Account;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Infrastructure.Repositories
 {
@@ -13,16 +12,18 @@ namespace Infrastructure.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IUserAccessor _userAccessor;
 
-        public PermissionRepository(ApplicationDbContext context, IHttpContextAccessor contextAccessor)
+        public PermissionRepository(ApplicationDbContext context, IHttpContextAccessor contextAccessor, IUserAccessor userAccessor)
         {
             _context = context;
             _contextAccessor = contextAccessor;
+            _userAccessor = userAccessor;
         }
 
         public async Task<NestedPermissions> GetNestedPermissionsAsync(CancellationToken cancellationToken)
         {
-            var companyId = (_contextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
 
             var blockedType = companyId.HasValue ? PermissionType.System : PermissionType.Company;
 

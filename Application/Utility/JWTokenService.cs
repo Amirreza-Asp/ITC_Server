@@ -52,13 +52,7 @@ namespace Application.Utility
             return claims.FindFirst(AppClaims.FullName).Value;
         }
 
-        public static Guid? GetCompanyId(this ClaimsIdentity claims)
-        {
-            var companyId = claims.FindFirst(AppClaims.CompanyId).Value;
-            if (Guid.Empty == Guid.Parse(companyId))
-                return null;
-            return Guid.Parse(companyId);
-        }
+
 
         public static DateTime GetTokenExpirationTime(this ClaimsIdentity claims)
         {

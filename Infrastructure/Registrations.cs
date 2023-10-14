@@ -31,6 +31,7 @@ namespace Infrastructure
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISSOService, SSOService>();
             services.AddScoped<ITokenValidate, TokenValidate>();
+            services.AddScoped<IUserAccessor, UserAccessor>();
 
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

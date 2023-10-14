@@ -1,9 +1,8 @@
-﻿using Application.Utility;
+﻿using Application.Services.Interfaces;
 using Domain.Dtos.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Account.Users
 {
@@ -18,11 +17,13 @@ namespace Infrastructure.CQRS.Account.Users
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserAccessor _userAccessor;
 
-        public ManageUserRoleCommandHandler(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+        public ManageUserRoleCommandHandler(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IUserAccessor userAccessor)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _userAccessor = userAccessor;
         }
 
         public async Task<CommandResponse> Handle(ManageUserRoleCommand request, CancellationToken cancellationToken)
@@ -35,7 +36,7 @@ namespace Infrastructure.CQRS.Account.Users
             if (user == null)
                 return CommandResponse.Failure(400, "کاربر انتخاب شده در سیستم وجود ندارد");
 
-            var companyId = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
             if (!_context.Roles.Any(b => b.Id == request.RoleId && b.CompanyId == companyId))
                 return CommandResponse.Failure(400, "نقش انتخاب شده در سیستم وجود ندارد");
 

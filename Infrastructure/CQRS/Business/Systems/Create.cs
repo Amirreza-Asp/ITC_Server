@@ -1,10 +1,9 @@
-﻿using Application.Utility;
+﻿using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Dtos.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Business.Systems
 {
@@ -45,12 +44,14 @@ namespace Infrastructure.CQRS.Business.Systems
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserAccessor _userAccessor;
 
-        public CreateSystemCommandHandler(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public CreateSystemCommandHandler(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor, IUserAccessor userAccessor)
         {
             _context = context;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _userAccessor = userAccessor;
         }
 
         public async Task<CommandResponse> Handle(CreateSystemCommand request, CancellationToken cancellationToken)
@@ -58,7 +59,7 @@ namespace Infrastructure.CQRS.Business.Systems
             var system = _mapper.Map<Domain.Entities.Business.System>(request);
 
 
-            var comapnyId = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId();
+            var comapnyId = _userAccessor.GetCompanyId();
             system.CompanyId = comapnyId.Value;
 
             _context.Add(system);

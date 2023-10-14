@@ -1,5 +1,5 @@
 ﻿using Application.Repositories;
-using Application.Utility;
+using Application.Services.Interfaces;
 using Domain;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
@@ -8,7 +8,6 @@ using Infrastructure.CQRS.Business.HardwareEquipments;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
-using System.Security.Claims;
 
 namespace Presentation.Controllers.Business
 {
@@ -18,18 +17,20 @@ namespace Presentation.Controllers.Business
     {
         private readonly IMediator _mediator;
         private readonly IRepository<HardwareEquipment> _repo;
+        private readonly IUserAccessor _userAccessor;
 
-        public HardwareEquipmentController(IMediator mediator, IRepository<HardwareEquipment> repo)
+        public HardwareEquipmentController(IMediator mediator, IRepository<HardwareEquipment> repo, IUserAccessor userAccessor)
         {
             _mediator = mediator;
             _repo = repo;
+            _userAccessor = userAccessor;
         }
 
         [Route("GetAll")]
         [HttpPost]
         public async Task<ListActionResult<HardwareEquipment>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
             return await _repo.GetAllAsync<HardwareEquipment>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
 

@@ -1,9 +1,8 @@
-﻿using Application.Utility;
+﻿using Application.Services.Interfaces;
 using Domain.Dtos.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Account.Roles
 {
@@ -16,11 +15,13 @@ namespace Infrastructure.CQRS.Account.Roles
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserAccessor _userAccessor;
 
-        public DeleteRoleCommandHandler(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+        public DeleteRoleCommandHandler(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IUserAccessor userAccessor)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _userAccessor = userAccessor;
         }
 
         public async Task<CommandResponse> Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
@@ -30,7 +31,7 @@ namespace Infrastructure.CQRS.Account.Roles
                     .AsNoTracking()
                     .Where(b =>
                         b.Id == request.Id &&
-                        b.CompanyId == (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId())
+                        b.CompanyId == _userAccessor.GetCompanyId())
                     .FirstOrDefaultAsync(cancellationToken);
 
             if (role == null)

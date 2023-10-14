@@ -1,5 +1,5 @@
 ﻿using Application.Repositories;
-using Application.Utility;
+using Application.Services.Interfaces;
 using Domain;
 using Domain.Dtos.Account.Users;
 using Domain.Dtos.Shared;
@@ -9,7 +9,6 @@ using Infrastructure.CQRS.Account.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
-using System.Security.Claims;
 
 namespace Presentation.Controllers.Account
 {
@@ -20,12 +19,14 @@ namespace Presentation.Controllers.Account
         private readonly IRepository<User> _userRepository;
         private readonly IMediator _mediator;
         private readonly IRepository<UserJoinRequest> _userJoinRequestsRepo;
+        private readonly IUserAccessor _userAccessor;
 
-        public UserController(IRepository<User> userRepository, IMediator mediator, IRepository<UserJoinRequest> userJoinRequestsRepo)
+        public UserController(IRepository<User> userRepository, IMediator mediator, IRepository<UserJoinRequest> userJoinRequestsRepo, IUserAccessor userAccessor)
         {
             _userRepository = userRepository;
             _mediator = mediator;
             _userJoinRequestsRepo = userJoinRequestsRepo;
+            _userAccessor = userAccessor;
         }
 
         [HttpPost]
@@ -33,11 +34,9 @@ namespace Presentation.Controllers.Account
         [AccessControl(PermissionsSD.General_UsersList)]
         public async Task<ListActionResult<UserSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
             return
                 await _userRepository
-                    .GetAllAsync<UserSummary>(query, b => b.CompanyId == claimsIdentity.GetCompanyId() && b.IsActive, cancellationToken);
+                    .GetAllAsync<UserSummary>(query, b => b.CompanyId == _userAccessor.GetCompanyId() && b.IsActive, cancellationToken);
         }
 
 
@@ -62,7 +61,7 @@ namespace Presentation.Controllers.Account
         [AccessControl(PermissionsSD.General_UsersRequests)]
         public async Task<ListActionResult<UserRequestsSummary>> GetJoinRequests([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
             return await _userJoinRequestsRepo.GetAllAsync<UserRequestsSummary>(query, b => b.CompanyId == companyId, cancellationToken);
         }
 

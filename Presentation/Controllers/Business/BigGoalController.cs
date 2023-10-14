@@ -1,5 +1,5 @@
 ﻿using Application.Repositories;
-using Application.Utility;
+using Application.Services.Interfaces;
 using Domain;
 using Domain.Dtos.BigGoals;
 using Domain.Dtos.Shared;
@@ -9,7 +9,6 @@ using Infrastructure.CQRS.Business.BigGoals.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
-using System.Security.Claims;
 
 namespace Presentation.Controllers.Business
 {
@@ -19,18 +18,20 @@ namespace Presentation.Controllers.Business
     {
         private readonly IMediator _mediator;
         private readonly IRepository<BigGoal> _repo;
+        private readonly IUserAccessor _userAccessor;
 
-        public BigGoalController(IMediator mediator, IRepository<BigGoal> repo)
+        public BigGoalController(IMediator mediator, IRepository<BigGoal> repo, IUserAccessor userAccessor)
         {
             _mediator = mediator;
             _repo = repo;
+            _userAccessor = userAccessor;
         }
 
         [Route("DropDown")]
         [HttpPost]
         public async Task<ListActionResult<BigGoalSummary>> DropDown(GridQuery query, CancellationToken cancellationToken)
         {
-            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
             return await _repo.GetAllAsync<BigGoalSummary>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
 
@@ -38,7 +39,7 @@ namespace Presentation.Controllers.Business
         [HttpPost]
         public async Task<ListActionResult<BigGoalsListDto>> GetAll(GridQuery query, CancellationToken cancellationToken)
         {
-            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
             return await _repo.GetAllAsync<BigGoalsListDto>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
 

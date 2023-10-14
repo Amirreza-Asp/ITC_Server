@@ -1,6 +1,5 @@
 ﻿using Application.Repositories;
 using Application.Services.Interfaces;
-using Application.Utility;
 using AutoMapper;
 using Domain;
 using Domain.Dtos.Account.User;
@@ -10,7 +9,7 @@ using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 
 namespace Presentation.Controllers.Account
@@ -26,9 +25,11 @@ namespace Presentation.Controllers.Account
         private readonly IRepository<Company> _companyRepo;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ApplicationDbContext _context;
+        private readonly IUserAccessor _userAccessor;
+        private readonly IMemoryCache _memoryCache;
 
 
-        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor, ApplicationDbContext context)
+        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor, ApplicationDbContext context, IUserAccessor userAccessor, IMemoryCache memoryCache)
         {
             _clientFactory = clientFactory;
             _ssoService = ssoService;
@@ -37,6 +38,8 @@ namespace Presentation.Controllers.Account
             _companyRepo = companyRepo;
             _contextAccessor = contextAccessor;
             _context = context;
+            _userAccessor = userAccessor;
+            _memoryCache = memoryCache;
         }
 
         [Route("Login")]
@@ -142,7 +145,8 @@ namespace Presentation.Controllers.Account
         [HttpGet("Profile")]
         public async Task<IActionResult> Profile()
         {
-            var company = await _companyRepo.FirstOrDefaultAsync(b => b.Id == (User.Identity as ClaimsIdentity).GetCompanyId());
+
+            var company = await _companyRepo.FirstOrDefaultAsync(b => b.Id == _userAccessor.GetCompanyId());
             return Ok(new UserProfile
             {
                 Company = company == null ? "وزارت علوم" : company.NameUniversity,

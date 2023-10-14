@@ -1,5 +1,5 @@
 ﻿using Application.Repositories;
-using Application.Utility;
+using Application.Services.Interfaces;
 using Domain;
 using Domain.Dtos.Refrences;
 using Domain.Dtos.Shared;
@@ -8,7 +8,6 @@ using Infrastructure.CQRS.Business.Systems;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
-using System.Security.Claims;
 
 namespace Presentation.Controllers.Business
 {
@@ -18,18 +17,20 @@ namespace Presentation.Controllers.Business
     {
         private readonly IMediator _mediator;
         private readonly IRepository<Domain.Entities.Business.System> _repository;
+        private readonly IUserAccessor _userAccessor;
 
-        public SystemController(IMediator mediator, IRepository<Domain.Entities.Business.System> repository)
+        public SystemController(IMediator mediator, IRepository<Domain.Entities.Business.System> repository, IUserAccessor userAccessor)
         {
             _mediator = mediator;
             _repository = repository;
+            _userAccessor = userAccessor;
         }
 
         [Route("GetAll")]
         [HttpPost]
         public async Task<ListActionResult<SystemDetails>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            var companyId = (User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
             return await _repository.GetAllAsync<SystemDetails>(query, b => b.CompanyId == companyId.Value, cancellationToken);
         }
 

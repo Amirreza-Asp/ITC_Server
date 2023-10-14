@@ -26,7 +26,7 @@ namespace Infrastructure.CQRS.Account.Companies
             var data =
                  await _context.Users
               .Where(b =>
-                      request.Companies.Contains(b.CompanyId.Value))
+                      b.CompanyId.HasValue && request.Companies.Contains(b.CompanyId.Value))
               .Select(op => new CompanyUsers
               {
                   CompanyId = op.CompanyId.Value,

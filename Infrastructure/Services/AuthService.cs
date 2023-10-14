@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
-using System.Security.Claims;
 using System.Text.Json;
 
 namespace Infrastructure.Services
@@ -22,13 +21,15 @@ namespace Infrastructure.Services
         private readonly IMemoryCache _memoryCache;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IMapper _mapper;
+        private readonly IUserAccessor _userAccessor;
 
-        public AuthService(ApplicationDbContext context, IMemoryCache cacheContext, IHttpContextAccessor contextAccessor, IMapper mapper)
+        public AuthService(ApplicationDbContext context, IMemoryCache cacheContext, IHttpContextAccessor contextAccessor, IMapper mapper, IUserAccessor userAccessor)
         {
             _context = context;
             _memoryCache = cacheContext;
             _contextAccessor = contextAccessor;
             _mapper = mapper;
+            _userAccessor = userAccessor;
         }
 
         public async Task<bool> CheckPermission(String nationalCode, String permissionFlag)
@@ -91,6 +92,8 @@ namespace Infrastructure.Services
                     .Where(b => b.NationalId == nationalId)
                     .FirstAsync();
 
+            //_memoryCache.Set("User", new Data { CompanyId = user.CompanyId, NationalId = user.NationalId }, DateTimeOffset.Now.AddDays(1));
+
             var ip = _contextAccessor.HttpContext.Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
             var token = JWTokenService.GenerateToken(nationalId, user.Role.Title, ip, user.CompanyId);
@@ -124,6 +127,9 @@ namespace Infrastructure.Services
             if (rfToken == null || rfToken.IsActive == false || rfToken.Expiration < DateTime.Now || rfToken.User.IsActive == false)
                 return false;
 
+
+            //_memoryCache.Set("User", new Data { CompanyId = rfToken.User.CompanyId, NationalId = rfToken.User.NationalId }, DateTimeOffset.Now.AddDays(1));
+
             var ip = _contextAccessor.HttpContext.Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
             var newToken = JWTokenService.GenerateToken(rfToken.User.NationalId, rfToken.User.Role.Title, ip, rfToken.User.CompanyId);
@@ -139,7 +145,7 @@ namespace Infrastructure.Services
 
         public async Task<CommandResponse> LogoutAsync()
         {
-            var nationalId = (_contextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetUserNationalId();
+            var nationalId = _userAccessor.GetNationalId();
             var token =
                 await _context.Tokens
                     .Where(b => b.User.NationalId == nationalId)
@@ -151,6 +157,9 @@ namespace Infrastructure.Services
             token.IsActive = false;
             _context.Tokens.Update(token);
             _memoryCache.Remove($"user-{nationalId}");
+
+            //_memoryCache.Remove("User");
+
 
             _contextAccessor.HttpContext.Response.Cookies.Delete(SD.AuthInfo);
             _contextAccessor.HttpContext.Response.Cookies.Delete(SD.UswToken);
@@ -296,6 +305,12 @@ namespace Infrastructure.Services
 
         #endregion
 
+    }
+
+    class Data
+    {
+        public Guid? CompanyId { get; set; }
+        public String NationalId { get; set; }
     }
 
 }

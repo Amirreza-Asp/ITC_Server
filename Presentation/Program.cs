@@ -42,7 +42,6 @@ builder.Services.AddControllers(opt =>
     opt.Filters.Add(new AuthorizeFilter(policy));
 });
 
-
 #region JWT
 builder.Services.AddAuthentication(options =>
 {
@@ -110,14 +109,14 @@ app.Lifetime.ApplicationStarted.Register(async () =>
     await initailzier.Execute();
 });
 
+app.UseStaticFiles();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || true)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseStaticFiles();
 
 app.UseCors("CorsPolicy");
 

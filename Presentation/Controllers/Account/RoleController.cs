@@ -1,5 +1,5 @@
 ﻿using Application.Repositories;
-using Application.Utility;
+using Application.Services.Interfaces;
 using Domain;
 using Domain.Dtos.Account.Roles;
 using Domain.Dtos.Shared;
@@ -9,7 +9,6 @@ using Infrastructure.CQRS.Account.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
-using System.Security.Claims;
 
 namespace Presentation.Controllers.Account
 {
@@ -19,23 +18,23 @@ namespace Presentation.Controllers.Account
     {
         private readonly IRepository<Role> _roleRepository;
         private readonly IMediator _mediator;
+        private readonly IUserAccessor _userAccessor;
 
-        public RoleController(IRepository<Role> roleRepository, IMediator mediator)
+        public RoleController(IRepository<Role> roleRepository, IMediator mediator, IUserAccessor userAccessor)
         {
             _roleRepository = roleRepository;
             _mediator = mediator;
+            _userAccessor = userAccessor;
         }
 
         [Route("GetAll")]
         [HttpPost]
         public async Task<ListActionResult<RoleSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
             return
                 await _roleRepository.GetAllAsync<RoleSummary>(
                     query,
-                    filters: b => b.CompanyId == claimsIdentity.GetCompanyId(),
+                    filters: b => b.CompanyId == _userAccessor.GetCompanyId(),
                     cancellationToken);
         }
 
@@ -43,10 +42,8 @@ namespace Presentation.Controllers.Account
         [HttpGet]
         public async Task<List<SelectSummary>> SelectList(CancellationToken cancellationToken)
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
             return
-                await _roleRepository.GetAllAsync<SelectSummary>(b => b.CompanyId == claimsIdentity.GetCompanyId());
+                await _roleRepository.GetAllAsync<SelectSummary>(b => b.CompanyId == _userAccessor.GetCompanyId());
         }
 
         [Route("Find")]

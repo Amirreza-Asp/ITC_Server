@@ -1,10 +1,9 @@
-﻿using Application.Utility;
+﻿using Application.Services.Interfaces;
 using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Account.Roles
 {
@@ -24,11 +23,13 @@ namespace Infrastructure.CQRS.Account.Roles
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserAccessor _userAccessor;
 
-        public CreateRoleCommandHandler(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+        public CreateRoleCommandHandler(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IUserAccessor userAccessor)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _userAccessor = userAccessor;
         }
 
         public async Task<CommandResponse> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
@@ -37,7 +38,7 @@ namespace Infrastructure.CQRS.Account.Roles
                 return CommandResponse.Failure(400, $"نقش با عنوان {request.Title} در سیستم وجود دارد");
 
             var roleId = Guid.NewGuid();
-            var companyId = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId();
+            var companyId = _userAccessor.GetCompanyId();
 
             var role = new Role
             {
