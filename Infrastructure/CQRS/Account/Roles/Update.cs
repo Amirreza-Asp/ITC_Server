@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Infrastructure.CQRS.Account.Roles
 {
@@ -46,7 +47,7 @@ namespace Infrastructure.CQRS.Account.Roles
                 await _context.Roles
                     .Where(b =>
                         b.Id == request.Id &&
-                        b.CompanyId == _userAccessor.GetCompanyId())
+                        b.CompanyId == (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity).GetCompanyId())
                     .Include(b => b.Permissions)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(cancellationToken);
