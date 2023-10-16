@@ -28,34 +28,41 @@ namespace Infrastructure.CQRS.Account.Companies
         public async Task<List<CompanyBigGoals>> Handle(CompanyBigGoalsQuery request, CancellationToken cancellationToken)
         {
             var data =
-                await _context.Company
-                    .Where(b =>
-                            request.Companies.Contains(b.Id) &&
-                            (request.Year == null || b.BigGoals.Any(s => s.ProgramYear.Year.Contains(request.Year))) &&
-                            b.BigGoals.Any(s => s.Progress >= request.ProgressFrom) &&
-                            b.BigGoals.Any(s => s.Progress <= request.ProgressTo))
-                    .Select(company => new CompanyBigGoals
-                    {
-                        CompanyId = company.Id,
-                        CompanyName = company.NameUniversity,
-                        BigGoals =
-                            company.BigGoals
-                              .Where(b =>
-                                (request.Year == null || b.ProgramYear.Year.Contains(request.Year)) &&
-                                b.Progress >= request.ProgressFrom &&
-                                b.Progress <= request.ProgressTo)
-                              .Select(b => new BigGoalsListDto
-                              {
-                                  Id = b.Id,
-                                  Progress = b.Progress,
-                                  Title = b.Title,
-                                  Year = b.ProgramYear.Year
-                              })
-                              .ToList()
-                    })
-                    .ToListAsync(cancellationToken);
+             await _context.BigGoals
+                 .Include(b => b.Indicators)
+                    .ThenInclude(b => b.Indicator)
+                 .Where(b =>
+                         request.Companies.Contains(b.CompanyId) &&
+                         (String.IsNullOrWhiteSpace(request.Year) || b.ProgramYear.Year.Contains(request.Year.Trim())))
+                 .Select(op => new CompanyBigGoals
+                 {
+                     CompanyId = op.CompanyId,
+                     CompanyName = op.Company.NameUniversity,
+                     BigGoals = new List<BigGoalsListDto>
+                     {
+                            new BigGoalsListDto
+                            {
+                                Id = op.Id,
+                                Year = op.ProgramYear.Year,
+                                Title = op.Title,
+                                Progress = op.Progress
+                            }
+                     }
+                 })
+                 .ToListAsync(cancellationToken);
 
-            return data;
+            var coo = new List<CompanyBigGoals>();
+            data.ForEach(item =>
+            {
+                int progress = item.BigGoals.First().Progress;
+
+                if (progress >= request.ProgressFrom && progress <= request.ProgressTo && coo.Any(b => b.CompanyId == item.CompanyId))
+                    coo.Find(b => b.CompanyId == item.CompanyId).BigGoals.Add(item.BigGoals.First());
+                else if (progress >= request.ProgressFrom && progress <= request.ProgressTo)
+                    coo.Add(item);
+            });
+
+            return coo;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Account;
 using Domain.Entities.Static;
+using Domain.Utiltiy;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,9 +19,8 @@ namespace Domain.Entities.Business
         [Required]
         public DateTime Deadline { get; set; }
 
-        [Range(0, 100)]
-        [Required]
-        public short Progress { get; set; }
+        [NotMapped]
+        public int Progress => Calculator.CalcProgress(Indicators.Select(b => b.Indicator));
 
         public Guid? ProgramYearId { get; set; }
         public ProgramYear ProgramYear { get; set; }
@@ -30,5 +30,6 @@ namespace Domain.Entities.Business
         public Company Company { get; set; }
 
         public ICollection<OperationalObjective> OperationalObjectives { get; set; } = new List<OperationalObjective>();
+        public ICollection<BigGoalIndicator> Indicators { get; set; } = new List<BigGoalIndicator>();
     }
 }

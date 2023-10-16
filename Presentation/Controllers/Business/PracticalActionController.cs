@@ -72,5 +72,12 @@ namespace Presentation.Controllers.Business
         {
             return await _mediator.Send(command, cancellationToken);
         }
+
+        [Route("RemoveIndicator")]
+        [HttpDelete]
+        public async Task<CommandResponse> RemoveIndicator([FromQuery] RemovePracticalActionIndicatorCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
     }
 }

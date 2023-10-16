@@ -7,14 +7,14 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace Infrastructure.CQRS.Business.BigGoals.Commands
+namespace Infrastructure.CQRS.Business.BigGoals
 {
     public class CreateBigGoalCommand : IRequest<CommandResponse>
     {
         [Required]
-        public String Title { get; set; }
+        public string Title { get; set; }
 
-        public String Description { get; set; }
+        public string Description { get; set; }
 
         [Required]
         public DateTime StartedAt { get; set; }

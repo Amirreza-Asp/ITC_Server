@@ -8,6 +8,9 @@ namespace Domain.Utiltiy
 
         public static int CalcProgress(IndicatorCard inc)
         {
+            if (inc.FromDate > DateTime.Now)
+                return 0;
+
             if (inc.Period == IndicatorPeriod.Day)
             {
                 var date = inc.ToDate - inc.FromDate;
@@ -59,6 +62,15 @@ namespace Domain.Utiltiy
         }
 
         public static int CalcProgress(IEnumerable<Indicator> incs)
+        {
+            int total = 0;
+            foreach (var inc in incs)
+                total += CalcProgress(inc);
+
+            return total / Math.Max(incs.Count(), 1);
+        }
+
+        public static int CalcProgress(IEnumerable<IndicatorCard> incs)
         {
             int total = 0;
             foreach (var inc in incs)

@@ -60,8 +60,20 @@ namespace Infrastructure.Initializer
                         bigGoal.CompanyId = comp.Id;
                         var random = new Random();
                         bigGoal.ProgramYearId = ProgramYears[random.Next(ProgramYears.Count)].Id;
-                        _context.BigGoals.Add(bigGoal);
 
+                        var rnd = new Random();
+
+                        for (int i = 0; i < rnd.Next(1, 6); i++)
+                        {
+                            var customeInd = CustomeIndicator;
+                            customeInd.Id = Guid.NewGuid();
+                            var bid = new BigGoalIndicator { BigGoalId = bigGoal.Id, IndicatorId = customeInd.Id };
+
+                            _context.Indicators.Add(customeInd);
+                            _context.BigGoalIndicators.Add(bid);
+                        }
+
+                        _context.BigGoals.Add(bigGoal);
 
                         List<Guid> peopleId = new List<Guid>();
 
@@ -80,7 +92,6 @@ namespace Infrastructure.Initializer
                             opo.BigGoalId = bigGoal.Id;
                             _context.OperationalObjectives.Add(opo);
 
-                            var rnd = new Random();
 
                             for (int i = 0; i < rnd.Next(1, 6); i++)
                             {
@@ -248,7 +259,6 @@ namespace Infrastructure.Initializer
                     Title = "مجازی سازی دانشگاه" ,
                     Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
                     ProgramYearId = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30E"),
-                    Progress = 94
                 },
                 new BigGoal{
                     Id =  Guid.NewGuid(),
@@ -257,7 +267,6 @@ namespace Infrastructure.Initializer
                     Title = "هوشمند سازی کلاس ها" ,
                     Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
                     ProgramYearId = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30F"),
-                    Progress = 73
                 },
                 new BigGoal{
                     Id =  Guid.Parse("4C6B36FE-4C0F-4D81-8F72-E9DBF80FC9DC"),
@@ -266,7 +275,6 @@ namespace Infrastructure.Initializer
                     Title = "افزایش سنوات دانشجویان" ,
                     Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
                     ProgramYearId = Guid.NewGuid(),
-                    Progress = 73
                 },
             };
 

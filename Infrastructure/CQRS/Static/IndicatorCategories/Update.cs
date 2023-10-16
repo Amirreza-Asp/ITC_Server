@@ -34,10 +34,12 @@ namespace Infrastructure.CQRS.Static.IndicatorCategories
 
             inc.Title = request.Title;
 
+            _context.IndicatorCategories.Update(inc);
+
             if (await _context.SaveChangesAsync() > 0)
                 return CommandResponse.Success();
 
-            return CommandResponse.Failure(500);
+            return CommandResponse.Failure(500, "مشکل داخلی سرور");
         }
     }
 }

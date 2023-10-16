@@ -5,7 +5,8 @@ using Domain.Dtos.BigGoals;
 using Domain.Dtos.Shared;
 using Domain.Entities.Business;
 using Domain.Queries.Shared;
-using Infrastructure.CQRS.Business.BigGoals.Commands;
+using Domain.Utiltiy;
+using Infrastructure.CQRS.Business.BigGoals;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.CustomeAttributes;
@@ -44,9 +45,18 @@ namespace Presentation.Controllers.Business
         }
 
         [HttpGet("Find/{id}")]
-        public async Task<BigGoal> Find(Guid id, CancellationToken cancellationToken)
+        public async Task<BigGoalDetails> Find(Guid id, CancellationToken cancellationToken)
         {
-            return await _repo.FirstOrDefaultAsync(b => b.Id == id, cancellationToken: cancellationToken);
+            var data = await _repo.FirstOrDefaultAsync<BigGoalDetails>(b => b.Id == id, cancellationToken: cancellationToken);
+            data.Progress = Calculator.CalcProgress(data.Indicators);
+
+            data.Indicators.ToList().ForEach(item =>
+            {
+                item.Progress = Calculator.CalcProgress(item);
+                item.CurrentValue = Calculator.CalcCurrentValue(item);
+            });
+
+            return data;
         }
 
         [Route("Create")]
@@ -56,5 +66,19 @@ namespace Presentation.Controllers.Business
             await _mediator.Send(command, cancellationToken);
 
 
+        [Route("AddIndicator")]
+        [HttpPost]
+        public async Task<CommandResponse> AddIndicator([FromBody] AddBigGoalIndicatorCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+
+        [Route("RemoveIndicator")]
+        [HttpDelete]
+        public async Task<CommandResponse> RemoveIndicator([FromQuery] RemoveBigGoalIndicatorCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
     }
 }

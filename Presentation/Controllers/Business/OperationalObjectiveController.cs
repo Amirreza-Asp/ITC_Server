@@ -40,9 +40,9 @@ namespace Presentation.Controllers.Business
         }
 
         [HttpGet("GetAllByBigGoalId/{bigGoalId}")]
-        public async Task<List<OperationalObjectiveDetails>> GetAll(Guid bigGoalId, CancellationToken cancellationToken)
+        public async Task<List<OperationalObjectiveCard>> GetAll(Guid bigGoalId, CancellationToken cancellationToken)
         {
-            var data = await _repo.GetAllAsync<OperationalObjectiveDetails>(
+            var data = await _repo.GetAllAsync<OperationalObjectiveCard>(
                  b => b.BigGoalId == bigGoalId,
                  include: source => source
                     .Include(e => e.Projects)
@@ -66,12 +66,28 @@ namespace Presentation.Controllers.Business
 
         [Route("Find")]
         [HttpGet]
-        public async Task<OperationalObjectiveDetails> Find([FromQuery] Guid id, CancellationToken cancellationToken)
+        public async Task<OperationalObjectiveCard> Find([FromQuery] Guid id, CancellationToken cancellationToken)
         {
             return
-                await _repo.FirstOrDefaultAsync<OperationalObjectiveDetails>(b => b.Id == id);
+                await _repo.FirstOrDefaultAsync<OperationalObjectiveCard>(b => b.Id == id);
         }
 
+        [Route("Details")]
+        [HttpGet]
+        public async Task<OperationalObjectiveDetails> Details([FromQuery] Guid id, CancellationToken cancellationToken)
+        {
+            var data = await _repo.FirstOrDefaultAsync<OperationalObjectiveDetails>(b => b.Id == id, cancellationToken);
+
+            data.Progress = Calculator.CalcProgress(data.Indicators);
+
+            data.Indicators.ForEach(item =>
+            {
+                item.Progress = Calculator.CalcProgress(item);
+                item.CurrentValue = Calculator.CalcCurrentValue(item);
+            });
+
+            return data;
+        }
 
         [Route("Create")]
         [HttpPost]
@@ -94,6 +110,14 @@ namespace Presentation.Controllers.Business
         public async Task<CommandResponse> AddIndicator([FromBody] AddOperationalObjectiveIndicatorCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
+        }
+
+
+        [HttpDelete]
+        [Route("RemoveIndicator")]
+        public async Task<CommandResponse> RemoveIndicator([FromQuery] RemoveOperationalObjectiveIndicatorCommand command, CancellationToken cancellation)
+        {
+            return await _mediator.Send(command, cancellation);
         }
     }
 }

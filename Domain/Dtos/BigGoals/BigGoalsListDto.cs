@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public String Title { get; set; }
         public String Year { get; set; }
-        public short Progress { get; set; }
+        public int Progress { get; set; }
     }
 
 }

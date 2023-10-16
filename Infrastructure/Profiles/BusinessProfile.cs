@@ -10,7 +10,7 @@ using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using Domain.Entities.Business;
 using Domain.SubEntities;
-using Infrastructure.CQRS.Business.BigGoals.Commands;
+using Infrastructure.CQRS.Business.BigGoals;
 using Infrastructure.CQRS.Business.HardwareEquipments;
 using Infrastructure.CQRS.Business.OperationalObjectives;
 using Infrastructure.CQRS.Business.People;
@@ -28,25 +28,37 @@ namespace Infrastructure.Profiles
             // Big goal
             CreateMap<BigGoal, BigGoal>();
             CreateMap<BigGoal, BigGoalSummary>()
-                .ForMember(b => b.OperationalObjectiveCount, d => d.MapFrom(d => d.OperationalObjectives.Count()));
+                .ForMember(b => b.OperationalObjectiveCount, d => d.MapFrom(d => d.OperationalObjectives.Count()))
+                .ForMember(b => b.IndicatorsCount, d => d.MapFrom(d => d.Indicators.Count()));
+
             CreateMap<BigGoal, BigGoalsListDto>()
                 .ForMember(b => b.Year, d => d.MapFrom(e => e.ProgramYear.Year));
             CreateMap<CreateBigGoalCommand, BigGoal>()
                .ForMember(b => b.Id, d => d.MapFrom(e => Guid.NewGuid()));
+            CreateMap<BigGoal, BigGoalDetails>()
+                .ForMember(b => b.ProgramYear, d => d.MapFrom(e => e.ProgramYear.Year))
+                .ForMember(b => b.Progress, d => d.Ignore())
+                .ForMember(b => b.OperationalObjectiveCount, d => d.MapFrom(e => e.OperationalObjectives.Count()))
+                .ForMember(b => b.Indicators, d => d.MapFrom(e => e.Indicators.Select(e => e.Indicator)));
 
             // Operational objective
             CreateMap<CreateOperationalObjectiveCommand, OperationalObjective>()
                 .ForMember(b => b.Id, d => d.MapFrom(e => Guid.NewGuid()))
                 .ForMember(b => b.Budget, d => d.MapFrom(e => -1));
             CreateMap<OperationalObjective, OperationalObjectiveSummary>();
-            CreateMap<OperationalObjective, OperationalObjectiveDetails>()
+            CreateMap<OperationalObjective, OperationalObjectiveCard>()
                 .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now))
                 .ForMember(b => b.Projects, d => d.MapFrom(b => b.Projects))
                 .ForMember(b => b.Actions, d => d.MapFrom(b => b.PracticalActions))
                 .ForMember(b => b.IndicatorsCount, d => d.MapFrom(b => b.Indicators.Count()))
                 .ForMember(b => b.Progress, d => d.Ignore());
             CreateMap<OperationalObjectiveIndicator, OperationalObjectiveIndicator>();
-
+            CreateMap<OperationalObjective, OperationalObjectiveDetails>()
+              .ForMember(b => b.ProjectsCount, d => d.MapFrom(b => b.Projects.Count()))
+              .ForMember(b => b.Active, d => d.MapFrom(b => b.Deadline >= DateTime.Now))
+              .ForMember(b => b.PracticalActionsCount, d => d.MapFrom(b => b.PracticalActions.Count()))
+              .ForMember(b => b.Indicators, d => d.MapFrom(b => b.Indicators.Select(e => e.Indicator)))
+              .ForMember(b => b.Progress, d => d.Ignore());
 
             // Person
             CreateMap<Person, PersonSummary>()

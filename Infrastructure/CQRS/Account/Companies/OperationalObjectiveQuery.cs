@@ -29,11 +29,11 @@ namespace Infrastructure.CQRS.Account.Companies
         {
             var data =
                 await _context.OperationalObjectives
+                    .Include(b => b.Indicators)
+                        .ThenInclude(b => b.Indicator)
                     .Where(b =>
                             request.Companies.Contains(b.BigGoal.CompanyId) &&
-                            (String.IsNullOrWhiteSpace(request.BigGoal) || b.BigGoal.Title.Contains(request.BigGoal.Trim())) &&
-                            b.Progress >= request.ProgressFrom &&
-                            b.Progress <= request.ProgressTo)
+                            (String.IsNullOrWhiteSpace(request.BigGoal) || b.BigGoal.Title.Contains(request.BigGoal.Trim())))
                     .Select(op => new CompanyOperationalObjectives
                     {
                         CompanyId = op.BigGoal.CompanyId,
@@ -54,9 +54,12 @@ namespace Infrastructure.CQRS.Account.Companies
             var coo = new List<CompanyOperationalObjectives>();
             data.ForEach(item =>
             {
-                if (coo.Any(b => b.CompanyId == item.CompanyId))
+                int progress = item.OperationalObjecives.First().Progress;
+
+                if (progress >= request.ProgressFrom && progress <= request.ProgressTo &&
+                    coo.Any(b => b.CompanyId == item.CompanyId))
                     coo.Find(b => b.CompanyId == item.CompanyId).OperationalObjecives.Add(item.OperationalObjecives.First());
-                else
+                else if (progress >= request.ProgressFrom && progress <= request.ProgressTo)
                     coo.Add(item);
             });
 

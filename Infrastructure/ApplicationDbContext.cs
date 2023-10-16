@@ -22,6 +22,7 @@ namespace Infrastructure
         public DbSet<OperationalObjectiveIndicator> OperationalObjectiveIndicators { get; set; }
         public DbSet<ProjectIndicator> ProjectIndicators { get; set; }
         public DbSet<PracticalActionIndicator> PracticalActionIndicators { get; set; }
+        public DbSet<BigGoalIndicator> BigGoalIndicators { get; set; }
 
 
 
@@ -97,6 +98,9 @@ namespace Infrastructure
 
             modelBuilder.Entity<PracticalActionIndicator>()
                 .HasKey(b => new { b.IndicatorId, b.PracticalActionId });
+
+            modelBuilder.Entity<BigGoalIndicator>()
+                .HasKey(b => new { b.IndicatorId, b.BigGoalId });
         }
     }
 }
