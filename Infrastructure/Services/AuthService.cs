@@ -161,8 +161,20 @@ namespace Infrastructure.Services
             //_memoryCache.Remove("User");
 
 
-            _contextAccessor.HttpContext.Response.Cookies.Delete(SD.AuthInfo);
-            _contextAccessor.HttpContext.Response.Cookies.Delete(SD.UswToken);
+            _contextAccessor.HttpContext.Response.Cookies.Delete(SD.AuthInfo, new CookieOptions
+            {
+                Secure = true,
+                //HttpOnly = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            });
+            _contextAccessor.HttpContext.Response.Cookies.Delete(SD.UswToken, new CookieOptions
+            {
+                Secure = true,
+                //HttpOnly = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            });
 
 
             if (await _context.SaveChangesAsync() > 0)
@@ -202,7 +214,7 @@ namespace Infrastructure.Services
             _contextAccessor.HttpContext.Response.Cookies.Append(SD.AuthInfo, JsonSerializer.Serialize(authInfo), new CookieOptions()
             {
                 Expires = DateTime.Now.AddMonths(1),
-                HttpOnly = true,
+                //HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.None
@@ -211,7 +223,7 @@ namespace Infrastructure.Services
             _contextAccessor.HttpContext.Response.Cookies.Append(SD.UswToken, ProtectorData.Encrypt(uswToken), new CookieOptions()
             {
                 Expires = DateTime.Now.AddMonths(1),
-                HttpOnly = true,
+                //HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.None

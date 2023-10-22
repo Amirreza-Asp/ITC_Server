@@ -57,7 +57,7 @@ namespace Domain.Utiltiy
 
         public static long CalcCurrentValue(IndicatorCard inc)
         {
-            var progress = inc.Progress;
+            var progress = inc.ScheduleProgress;
             return (inc.GoalValue - inc.InitValue) / 100 * progress;
         }
 

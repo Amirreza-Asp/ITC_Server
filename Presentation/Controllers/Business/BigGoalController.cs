@@ -52,8 +52,8 @@ namespace Presentation.Controllers.Business
 
             data.Indicators.ToList().ForEach(item =>
             {
-                item.Progress = Calculator.CalcProgress(item);
-                item.CurrentValue = Calculator.CalcCurrentValue(item);
+                item.ScheduleProgress = Calculator.CalcProgress(item);
+                item.ScheduleCurrentValue = Calculator.CalcCurrentValue(item);
             });
 
             return data;
@@ -65,9 +65,18 @@ namespace Presentation.Controllers.Business
         public async Task<CommandResponse> Create([FromBody] CreateBigGoalCommand command, CancellationToken cancellationToken) =>
             await _mediator.Send(command, cancellationToken);
 
+        [Route("Remove")]
+        [HttpDelete]
+        [AccessControl(PermissionsSD.Company_RemoveBigGoal)]
+        public async Task<CommandResponse> Remove([FromQuery] DeleteBigGoalCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
 
         [Route("AddIndicator")]
         [HttpPost]
+        [AccessControl(PermissionsSD.Company_ManageBigGoalIndicator)]
         public async Task<CommandResponse> AddIndicator([FromBody] AddBigGoalIndicatorCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -76,6 +85,7 @@ namespace Presentation.Controllers.Business
 
         [Route("RemoveIndicator")]
         [HttpDelete]
+        [AccessControl(PermissionsSD.Company_ManageBigGoalIndicator)]
         public async Task<CommandResponse> RemoveIndicator([FromQuery] RemoveBigGoalIndicatorCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

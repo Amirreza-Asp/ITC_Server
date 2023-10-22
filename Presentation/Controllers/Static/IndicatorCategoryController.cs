@@ -1,10 +1,12 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.Shared;
 using Domain.Dtos.Static;
 using Infrastructure.CQRS.Static.IndicatorCategories;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Static
 {
@@ -38,6 +40,7 @@ namespace Presentation.Controllers.Static
 
         [HttpPost]
         [Route("Create")]
+        [AccessControl(PermissionsSD.System_AddIndicatorCategory)]
         public async Task<CommandResponse> Creare([FromBody] CreateIndicatorCategoryCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -45,6 +48,7 @@ namespace Presentation.Controllers.Static
 
         [HttpPut]
         [Route("Update")]
+        [AccessControl(PermissionsSD.System_EditIndicatorCategory)]
         public async Task<CommandResponse> Update([FromBody] UpdateIndicatorCategoryCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -52,6 +56,7 @@ namespace Presentation.Controllers.Static
 
         [HttpDelete]
         [Route("Delete")]
+        [AccessControl(PermissionsSD.System_RemoveIndicatorCategory)]
         public async Task<CommandResponse> Delete([FromQuery] DeleteIndicatorCategoryCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

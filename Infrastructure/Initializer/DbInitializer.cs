@@ -69,6 +69,16 @@ namespace Infrastructure.Initializer
                             customeInd.Id = Guid.NewGuid();
                             var bid = new BigGoalIndicator { BigGoalId = bigGoal.Id, IndicatorId = customeInd.Id };
 
+                            for (int j = 0; j < rnd.Next(0, 7); j++)
+                            {
+                                var progressIndicator = IndicatorProgress;
+                                progressIndicator.Id = Guid.NewGuid();
+                                progressIndicator.IndicatorId = customeInd.Id;
+                                progressIndicator.Value = rnd.NextInt64(customeInd.InitValue, customeInd.GoalValue);
+
+                                _context.IndicatorProgresses.Add(progressIndicator);
+                            }
+
                             _context.Indicators.Add(customeInd);
                             _context.BigGoalIndicators.Add(bid);
                         }
@@ -101,6 +111,16 @@ namespace Infrastructure.Initializer
                                 var opoInd = new OperationalObjectiveIndicator
                                 { IndicatorId = ind.Id, OperationalObjectiveId = opo.Id };
 
+                                for (int j = 0; j < rnd.Next(0, 7); j++)
+                                {
+                                    var progressIndicator = IndicatorProgress;
+                                    progressIndicator.Id = Guid.NewGuid();
+                                    progressIndicator.IndicatorId = ind.Id;
+                                    progressIndicator.Value = rnd.NextInt64(ind.InitValue, ind.GoalValue);
+
+                                    _context.IndicatorProgresses.Add(progressIndicator);
+                                }
+
                                 _context.Indicators.Add(ind);
                                 _context.OperationalObjectiveIndicators.Add(opoInd);
                             }
@@ -117,6 +137,16 @@ namespace Infrastructure.Initializer
                                     ind.Id = Guid.NewGuid();
 
                                     var projectInd = new ProjectIndicator { IndicatorId = ind.Id, ProjectId = project.Id };
+
+                                    for (int j = 0; j < rnd.Next(0, 7); j++)
+                                    {
+                                        var progressIndicator = IndicatorProgress;
+                                        progressIndicator.Id = Guid.NewGuid();
+                                        progressIndicator.IndicatorId = ind.Id;
+                                        progressIndicator.Value = rnd.NextInt64(ind.InitValue, ind.GoalValue);
+
+                                        _context.IndicatorProgresses.Add(progressIndicator);
+                                    }
 
                                     _context.Indicators.Add(ind);
                                     _context.ProjectIndicators.Add(projectInd);
@@ -137,6 +167,16 @@ namespace Infrastructure.Initializer
                                     ind.Id = Guid.NewGuid();
 
                                     var prInd = new PracticalActionIndicator { IndicatorId = ind.Id, PracticalActionId = practicalAction.Id };
+
+                                    for (int j = 0; j < rnd.Next(0, 7); j++)
+                                    {
+                                        var progressIndicator = IndicatorProgress;
+                                        progressIndicator.Id = Guid.NewGuid();
+                                        progressIndicator.IndicatorId = ind.Id;
+                                        progressIndicator.Value = rnd.NextInt64(ind.InitValue, ind.GoalValue);
+
+                                        _context.IndicatorProgresses.Add(progressIndicator);
+                                    }
 
                                     _context.Indicators.Add(ind);
                                     _context.PracticalActionIndicators.Add(prInd);
@@ -508,6 +548,13 @@ namespace Infrastructure.Initializer
                 },
             };
 
+        private IndicatorProgress IndicatorProgress =>
+            new IndicatorProgress
+            {
+                Id = Guid.NewGuid(),
+                ProgressTime = DateTime.Now.AddDays(new Random().Next(-300, 300)),
+            };
+
         #endregion
 
         #region Account
@@ -578,13 +625,26 @@ namespace Infrastructure.Initializer
                                     new PermissionItem("ویرایش سال برنامه", PermissionType.System , PermissionsSD.System_EditProgramYear),
                                     new PermissionItem("حذف سال برنامه", PermissionType.System , PermissionsSD.System_RemoveProgramYear),
                                 }),
+                            new PermissionContainer("طبقه بندی شاخص" , PermissionType.System ,
+                                new List<Permission> {
+                                    new PermissionItem("افزودن طبقه بندی شاخص", PermissionType.System , PermissionsSD.System_AddIndicatorCategory),
+                                    new PermissionItem("ویرایش طبقه بندی شاخص", PermissionType.System , PermissionsSD.System_EditIndicatorCategory),
+                                    new PermissionItem("حذف طبقه بندی شاخص ", PermissionType.System , PermissionsSD.System_RemoveIndicatorCategory),
+                                }),
+                            new PermissionContainer("واحد های شاخص" , PermissionType.System ,
+                                new List<Permission> {
+                                    new PermissionItem("افزودن واحد شاخص", PermissionType.System , PermissionsSD.System_AddIndicatorType),
+                                    new PermissionItem("ویرایش واحد شاخص", PermissionType.System , PermissionsSD.System_EditIndicatorType),
+                                    new PermissionItem("حذف واحد شاخص ", PermissionType.System , PermissionsSD.System_RemoveIndicatorType),
+                                }),
                             //********* company *********
                             new PermissionContainer("اهداف کلان" , PermissionType.Company ,
                                 new List<Permission>
                             {
                                 new PermissionItem("افزودن هدف کلان" , PermissionType.Company , PermissionsSD.Company_AddBigGoal),
                                 new PermissionItem("ویرایش هدف کلان", PermissionType.Company , PermissionsSD.Company_EditBigGoal),
-                                new PermissionItem("حذف هدف کلان" , PermissionType.Company,  PermissionsSD.Company_RemoveBigGoal)
+                                new PermissionItem("حذف هدف کلان" , PermissionType.Company,  PermissionsSD.Company_RemoveBigGoal),
+                                new PermissionItem("مدیریت شاخص های هدف کلان" , PermissionType.Company,  PermissionsSD.Company_ManageBigGoalIndicator)
                             }),
                             new PermissionContainer("اهداف عملیاتی" , PermissionType.Company ,
                                 new List<Permission>
@@ -592,6 +652,7 @@ namespace Infrastructure.Initializer
                                 new PermissionItem("افزودن هدف عملیاتی"  , PermissionType.Company,  PermissionsSD.Company_AddOperationalObjective),
                                 new PermissionItem("ویرایش هدف عملیاتی" , PermissionType.Company ,  PermissionsSD.Company_EditOperationalObjective),
                                 new PermissionItem("حذف هدف عملیاتی" , PermissionType.Company ,  PermissionsSD.Company_RemoveOperationalObjective),
+                                new PermissionItem("مدیریت شاخص‌ های هدف عملیاتی" , PermissionType.Company ,  PermissionsSD.Company_ManageOperationalObjectiveIndicator),
                             }),
                             new PermissionContainer("منابع" , PermissionType.Company ,
                                 new List<Permission>{
@@ -625,14 +686,16 @@ namespace Infrastructure.Initializer
                                     {
                                         new PermissionItem("افزودن پروژه" , PermissionType.Company ,  PermissionsSD.Company_AddProject),
                                         new PermissionItem("ویرایش پروژه" , PermissionType.Company ,  PermissionsSD.Company_EditProject),
-                                        new PermissionItem("حذف پروژه" , PermissionType.Company ,  PermissionsSD.Company_RemoveProject)
+                                        new PermissionItem("حذف پروژه" , PermissionType.Company ,  PermissionsSD.Company_RemoveProject),
+                                        new PermissionItem("مدیریت شاخص های پروژه" , PermissionType.Company ,  PermissionsSD.Company_ManageProjectIndicator)
                                     }),
                                 new PermissionContainer("اقدامات کاربری" , PermissionType.Company ,
                                     new List<Permission>
                                     {
                                         new PermissionItem("افزودن اقدام کاربردی" , PermissionType.Company ,  PermissionsSD.Company_AddPracticalAction),
                                         new PermissionItem("ویرایش اقدام کاربردی" , PermissionType.Company ,  PermissionsSD.Company_EditPracticalAction),
-                                        new PermissionItem("حذف اقدام کاربردی" , PermissionType.Company ,  PermissionsSD.Company_RemovePracticalAction)
+                                        new PermissionItem("حذف اقدام کاربردی" , PermissionType.Company ,  PermissionsSD.Company_RemovePracticalAction),
+                                        new PermissionItem("مدیریت شاخص های اقدام کاربردی" , PermissionType.Company ,  PermissionsSD.Company_ManagePracticalActionIndicator)
                                     }),
                             }),
                         }),

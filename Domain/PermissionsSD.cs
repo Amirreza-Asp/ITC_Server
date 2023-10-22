@@ -30,6 +30,16 @@
         public const String System_AddProgramYear = "System_AddProgramYear";
         public const String System_EditProgramYear = "System_EditProgramYear";
         public const String System_RemoveProgramYear = "System_RemoveProgramYear";
+
+        // IndicatorCategories
+        public const String System_AddIndicatorCategory = "System_AddIndicatorCategory";
+        public const String System_RemoveIndicatorCategory = "System_RemoveIndicatorCategory";
+        public const String System_EditIndicatorCategory = "System_EditIndicatorCategory";
+
+        // IndicatorType
+        public const String System_AddIndicatorType = "System_AddIndicatorType";
+        public const String System_EditIndicatorType = "System_EditIndicatorType";
+        public const String System_RemoveIndicatorType = "System_RemoveIndicatorType";
         #endregion
 
         #region Company
@@ -37,21 +47,25 @@
         public const String Company_AddBigGoal = "Company_CreateBigGoal";
         public const String Company_RemoveBigGoal = "Company_RemoveBigGoal";
         public const String Company_EditBigGoal = "Company_EditBigGoal";
+        public const String Company_ManageBigGoalIndicator = "Company_ManageBigGoalIndicator";
 
         // operational objective
         public const String Company_AddOperationalObjective = "Company_AddOperationalObjective";
         public const String Company_RemoveOperationalObjective = "Company_RemoveOperationalObjective";
         public const String Company_EditOperationalObjective = "Company_EditOperationalObjective";
+        public const String Company_ManageOperationalObjectiveIndicator = "Company_ManageOperationalObjectiveIndicator";
 
         // project
         public const String Company_AddProject = "Company_AddProject";
         public const String Company_EditProject = "Company_EditProject";
         public const String Company_RemoveProject = "Company_RemoveProject";
+        public const String Company_ManageProjectIndicator = "Company_ManageProjectIndicator";
 
         // practical action
         public const String Company_AddPracticalAction = "Company_AddPracticalAction";
         public const String Company_EditPracticalAction = "Company_EditPracticalAction";
         public const String Company_RemovePracticalAction = "Company_RemovePracticalAction";
+        public const String Company_ManagePracticalActionIndicator = "Company_ManagePracticalActionIndicator";
 
         // person
         public const String Company_AddPerson = "Company_AddPerson";

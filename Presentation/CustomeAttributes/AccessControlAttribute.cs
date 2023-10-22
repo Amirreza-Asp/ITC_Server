@@ -4,7 +4,7 @@ namespace Presentation.CustomeAttributes
 {
     public class AccessControlAttribute : ActionFilterAttribute
     {
-        public String Permission { get; set; }
+        public dynamic Permission { get; set; }
 
         public AccessControlAttribute(string permission)
         {

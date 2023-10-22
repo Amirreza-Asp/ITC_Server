@@ -29,5 +29,7 @@ namespace Domain.Entities.Business
 
         [ForeignKey(nameof(TypeId))]
         public IndicatorType Type { get; set; }
+
+        public ICollection<IndicatorProgress> Progresses { get; set; } = new List<IndicatorProgress>();
     }
 }

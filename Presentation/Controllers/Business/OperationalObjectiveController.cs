@@ -82,8 +82,8 @@ namespace Presentation.Controllers.Business
 
             data.Indicators.ForEach(item =>
             {
-                item.Progress = Calculator.CalcProgress(item);
-                item.CurrentValue = Calculator.CalcCurrentValue(item);
+                item.ScheduleProgress = Calculator.CalcProgress(item);
+                item.ScheduleCurrentValue = Calculator.CalcCurrentValue(item);
             });
 
             return data;
@@ -107,6 +107,7 @@ namespace Presentation.Controllers.Business
 
         [HttpPost]
         [Route("AddIndicator")]
+        [AccessControl(PermissionsSD.Company_ManageOperationalObjectiveIndicator)]
         public async Task<CommandResponse> AddIndicator([FromBody] AddOperationalObjectiveIndicatorCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -115,6 +116,7 @@ namespace Presentation.Controllers.Business
 
         [HttpDelete]
         [Route("RemoveIndicator")]
+        [AccessControl(PermissionsSD.Company_ManageOperationalObjectiveIndicator)]
         public async Task<CommandResponse> RemoveIndicator([FromQuery] RemoveOperationalObjectiveIndicatorCommand command, CancellationToken cancellation)
         {
             return await _mediator.Send(command, cancellation);

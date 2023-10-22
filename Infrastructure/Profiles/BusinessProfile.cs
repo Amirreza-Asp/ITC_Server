@@ -137,7 +137,14 @@ namespace Infrastructure.Profiles
 
 
             CreateMap<Indicator, IndicatorCard>()
-                .ForMember(b => b.Title, e => e.MapFrom(e => e.Category.Title));
+                .ForMember(b => b.Title, e => e.MapFrom(e => e.Category.Title))
+                .ForMember(b => b.RealCurrentValue, e => e.MapFrom(e =>
+                     e.Progresses.Any() ?
+                        e.Progresses.OrderByDescending(b => b.ProgressTime).First().Value : 0))
+                .ForMember(b => b.RealProgress, e => e.MapFrom(e =>
+                     e.Progresses.Any() ?
+                        Convert.ToInt32((e.Progresses.OrderByDescending(b => b.ProgressTime).First().Value - e.InitValue) * 100 /
+                        (e.GoalValue - e.InitValue)) : 0));
 
 
         }

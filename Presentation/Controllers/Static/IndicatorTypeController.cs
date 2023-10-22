@@ -1,10 +1,12 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.Shared;
 using Domain.Entities.Static;
 using Domain.Queries.Shared;
 using Infrastructure.CQRS.Static.IndicatorTypes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Static
 {
@@ -40,9 +42,9 @@ namespace Presentation.Controllers.Static
         public async Task<IndicatorType> Find([FromQuery] Guid id, CancellationToken cancellationToken) =>
             await _intRepo.FirstOrDefaultAsync<IndicatorType>(b => b.Id == id, cancellationToken: cancellationToken);
 
-
         [Route("Create")]
         [HttpPost]
+        [AccessControl(PermissionsSD.System_AddIndicatorType)]
         public async Task<CommandResponse> Create([FromBody] CreateIndicatorTypeCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -50,6 +52,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Update")]
         [HttpPut]
+        [AccessControl(PermissionsSD.System_EditIndicatorType)]
         public async Task<CommandResponse> Update([FromBody] UpdateIndicatorTypeCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -57,6 +60,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Remove")]
         [HttpDelete]
+        [AccessControl(PermissionsSD.System_RemoveIndicatorType)]
         public async Task<CommandResponse> Remove([FromQuery] RemoveIndicatorTypeCommand command, CancellationToken cancellationToken) =>
             await _mediator.Send(command);
     }

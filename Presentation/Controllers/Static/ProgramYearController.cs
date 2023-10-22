@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Domain;
 using Domain.Dtos.Shared;
 using Domain.Dtos.Static;
 using Domain.Entities.Static;
@@ -6,6 +7,7 @@ using Domain.Queries.Shared;
 using Infrastructure.CQRS.Static.ProgramYears;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Static
 {
@@ -44,6 +46,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Create")]
         [HttpPost]
+        [AccessControl(PermissionsSD.System_AddProgramYear)]
         public async Task<CommandResponse> Create([FromBody] CreateProgramYearCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -51,6 +54,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Update")]
         [HttpPut]
+        [AccessControl(PermissionsSD.System_EditProgramYear)]
         public async Task<CommandResponse> Update([FromBody] UpdateProgramYearCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -58,6 +62,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Remove")]
         [HttpDelete]
+        [AccessControl(PermissionsSD.System_RemoveProgramYear)]
         public async Task<CommandResponse> Remove([FromQuery] RemoveProgramYearCommand command, CancellationToken cancellationToken) =>
             await _mediator.Send(command);
     }

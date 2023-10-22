@@ -23,6 +23,7 @@ namespace Infrastructure
         public DbSet<ProjectIndicator> ProjectIndicators { get; set; }
         public DbSet<PracticalActionIndicator> PracticalActionIndicators { get; set; }
         public DbSet<BigGoalIndicator> BigGoalIndicators { get; set; }
+        public DbSet<IndicatorProgress> IndicatorProgresses { get; set; }
 
 
 
