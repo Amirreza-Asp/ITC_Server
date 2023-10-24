@@ -9,7 +9,6 @@ using Domain.Utiltiy;
 using Infrastructure.CQRS.Business.OperationalObjectives;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
@@ -39,29 +38,11 @@ namespace Presentation.Controllers.Business
             return await _repo.GetAllAsync<OperationalObjectiveSummary>(query, cancellationToken);
         }
 
-        [HttpGet("GetAllByBigGoalId/{bigGoalId}")]
-        public async Task<List<OperationalObjectiveCard>> GetAll(Guid bigGoalId, CancellationToken cancellationToken)
+        [Route("GetAllByBigGoalId")]
+        [HttpGet]
+        public async Task<List<OperationalObjectiveCard>> GetAll([FromQuery] GetOperationalObjectivesByBigGoalIdQuery query, CancellationToken cancellationToken)
         {
-            var data = await _repo.GetAllAsync<OperationalObjectiveCard>(
-                 b => b.BigGoalId == bigGoalId,
-                 include: source => source
-                    .Include(e => e.Projects)
-                        .ThenInclude(e => e.Indicators)
-                            .ThenInclude(b => b.Indicator)
-                    .Include(e => e.PracticalActions)
-                        .ThenInclude(e => e.Indicators)
-                            .ThenInclude(b => b.Indicator),
-                 cancellationToken: cancellationToken);
-
-            var incs = await _increpo.GetAllAsync<OperationalObjectiveIndicator>(
-                b => data.Select(b => b.Id).Contains(b.OperationalObjectiveId), include: source => source.Include(b => b.OperationalObjective));
-
-            data.ForEach(item =>
-            {
-                item.Progress = Calculator.CalcProgress(incs.Where(b => b.OperationalObjectiveId == item.Id).Select(b => b.Indicator));
-            });
-
-            return data;
+            return await _mediator.Send(query, cancellationToken);
         }
 
         [Route("Find")]

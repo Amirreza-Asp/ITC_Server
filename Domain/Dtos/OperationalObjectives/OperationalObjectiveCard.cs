@@ -15,6 +15,8 @@ namespace Domain.Dtos.OperationalObjectives
 
         public int IndicatorsCount { get; set; }
 
+        public int RealProgress { get; set; }
+
         public bool Active { get; set; }
 
         public List<ProjectActionCard> Projects { get; set; } = new List<ProjectActionCard>();

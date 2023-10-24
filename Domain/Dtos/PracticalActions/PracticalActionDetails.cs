@@ -14,6 +14,8 @@ namespace Domain.Dtos.PracticalActions
 
         public DateTime Deadline { get; set; }
 
+        public DateTime StartedAt { get; set; }
+
         public List<String> Financials { get; set; } = new List<String>();
 
 

@@ -92,7 +92,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://itc-client.vercel.app", "http://localhost:5173").AllowCredentials();
+        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://itc-client.vercel.app", "http://localhost:5173", "https://itc-client-u2gu.vercel.app").AllowCredentials();
         //policy.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
     });
 });

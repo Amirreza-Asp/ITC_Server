@@ -16,6 +16,9 @@ namespace Infrastructure.CQRS.Business.PracticalActions
         [Required]
         public DateTime Deadline { get; set; }
 
+        [Required]
+        public DateTime StartedAt { get; set; }
+
         public List<String> Financials { get; set; } = new List<String>();
 
         [Required]
@@ -40,6 +43,9 @@ namespace Infrastructure.CQRS.Business.PracticalActions
         {
             try
             {
+                if (request.StartedAt > request.Deadline)
+                    return CommandResponse.Failure(400, "زمان شروع نمیتواند از زمان پایان بیشتر باشد");
+
                 if (!_context.People.Any(b => b.Id == request.LeaderId))
                     return CommandResponse.Failure(400, "راهبر انتخاب شده نامعتبر است");
 

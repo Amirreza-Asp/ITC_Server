@@ -412,6 +412,7 @@ namespace Infrastructure.Initializer
                     Deadline = DateTime.Now.AddYears(1),
                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "خرید پروژکتور",
+                    StartedAt = DateTime.Now.AddDays(new Random().Next(-365 , 0)),
                     Financials = new List<Domain.SubEntities.Financial>
                     {
                         new Domain.SubEntities.Financial
@@ -435,6 +436,7 @@ namespace Infrastructure.Initializer
                     Deadline = DateTime.Now.AddYears(1),
                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "خرید کابل های ازمایشگاه ها",
+                    StartedAt = DateTime.Now.AddYears(new Random().Next(-500 , 0)),
                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
                     Financials = new List<Domain.SubEntities.Financial>
                     {

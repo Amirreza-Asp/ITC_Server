@@ -15,6 +15,9 @@ namespace Domain.Entities.Business
         [Required]
         public DateTime Deadline { get; set; }
 
+        [Required]
+        public DateTime StartedAt { get; set; }
+
         public List<Financial> Financials { get; set; } = new List<Financial>();
 
         [NotMapped]
