@@ -1,4 +1,5 @@
-﻿using Domain.Dtos.Account.Users;
+﻿using Domain;
+using Domain.Dtos.Account.Users;
 using Domain.Dtos.Companies;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,22 +25,22 @@ namespace Infrastructure.CQRS.Account.Companies
             var rnd = new Random();
 
             var data =
-                 await _context.Users
+                 await _context.Act
               .Where(b =>
-                      b.CompanyId.HasValue && request.Companies.Contains(b.CompanyId.Value))
+                       request.Companies.Contains(b.CompanyId))
               .Select(op => new CompanyUsers
               {
-                  CompanyId = op.CompanyId.Value,
-                  CompanyName = op.Company.NameUniversity,
+                  CompanyId = op.CompanyId,
+                  CompanyName = op.Company.Title,
                   Users = new List<UserListDto>
                   {
                             new UserListDto
                             {
                                 Id = op.Id,
-                                NationalId = op.NationalId,
+                                NationalId = op.User.NationalId,
                                 FullName = Names[rnd.Next(6)] + " " + Families[rnd.Next(6)],
-                                IsAdmin = op.IsAdmin,
-                                PhoneNumber = "0" + rnd.NextInt64(1000000000, 9999999999)
+                                PhoneNumber = "0" + rnd.NextInt64(1000000000, 9999999999),
+                                IsAdmin = op.RoleId == SD.AgentId
                             }
                   }
               })

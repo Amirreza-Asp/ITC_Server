@@ -30,14 +30,13 @@ namespace Infrastructure.CQRS.Account.Roles
                 await _context.Roles
                     .AsNoTracking()
                     .Where(b =>
-                        b.Id == request.Id &&
-                        b.CompanyId == _userAccessor.GetCompanyId())
+                        b.Id == request.Id)
                     .FirstOrDefaultAsync(cancellationToken);
 
             if (role == null)
                 return CommandResponse.Success();
 
-            if (_context.Users.Any(b => b.RoleId == request.Id))
+            if (_context.Act.Any(b => b.RoleId == request.Id))
                 return CommandResponse.Failure(400, "این نقش در سیستم برای برخی کاربران استفاده شده و نمیتوان ان را حذف کرد");
 
             _context.Roles.Remove(role);

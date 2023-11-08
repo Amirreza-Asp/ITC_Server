@@ -45,7 +45,6 @@ namespace Infrastructure.CQRS.Account.Roles
                 Id = roleId,
                 Title = request.Title,
                 Description = request.Description,
-                CompanyId = companyId,
                 Permissions = request.Permissions.Select(permissionId => new RolePermission
                 {
                     Id = Guid.NewGuid(),

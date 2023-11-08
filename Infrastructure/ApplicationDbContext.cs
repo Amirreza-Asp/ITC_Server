@@ -24,6 +24,7 @@ namespace Infrastructure
         public DbSet<PracticalActionIndicator> PracticalActionIndicators { get; set; }
         public DbSet<BigGoalIndicator> BigGoalIndicators { get; set; }
         public DbSet<IndicatorProgress> IndicatorProgresses { get; set; }
+        public DbSet<CompanyIndicator> CompanyIndicators { get; set; }
 
 
 
@@ -42,6 +43,7 @@ namespace Infrastructure
         public DbSet<Token> Tokens { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<UserJoinRequest> UsersJoinRequests { get; set; }
+        public DbSet<Act> Act { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -83,10 +85,6 @@ namespace Infrastructure
                 .WithMany(b => b.Projects)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Role>()
-                .Property(b => b.CompanyId)
-                .IsRequired(false);
-
             modelBuilder.Entity<UserJoinRequest>()
                 .Property(b => b.CompanyId)
                 .IsRequired(false);
@@ -102,6 +100,9 @@ namespace Infrastructure
 
             modelBuilder.Entity<BigGoalIndicator>()
                 .HasKey(b => new { b.IndicatorId, b.BigGoalId });
+
+            modelBuilder.Entity<CompanyIndicator>()
+                .HasKey(b => new { b.IndicatorId, b.CompanyId });
         }
     }
 }

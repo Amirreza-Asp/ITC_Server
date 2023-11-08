@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Account
 {
@@ -8,18 +7,14 @@ namespace Domain.Entities.Account
         [Required]
         public String NationalId { get; set; }
 
+        public String Name { get; set; }
+        public String Family { get; set; }
+
         public bool IsActive { get; set; } = true;
-        public bool IsAdmin { get; set; }
 
-        [ForeignKey(nameof(Role))]
-        public Guid RoleId { get; set; }
-
-        [ForeignKey(nameof(Company))]
-        public Guid? CompanyId { get; set; }
-
-        public Role Role { get; set; }
         public Token Token { get; set; }
         public RefreshToken RefreshToken { get; set; }
-        public Company Company { get; set; }
+
+        public ICollection<Act> Act { get; set; } = new List<Act>();
     }
 }

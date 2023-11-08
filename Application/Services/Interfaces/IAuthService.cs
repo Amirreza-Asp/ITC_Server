@@ -1,4 +1,5 @@
-﻿using Domain.Dtos.Account.Permissions;
+﻿using Domain.Dtos.Account.Acts;
+using Domain.Dtos.Account.Permissions;
 using Domain.Dtos.Account.SSO;
 using Domain.Dtos.Shared;
 
@@ -11,6 +12,7 @@ namespace Application.Services.Interfaces
 
         Task<String> GetRoleAsync(String nationalCode);
         Task LoginAsync(String nationalId, String uswToken);
+        Task<CommandResponse> ChooseActAsync(ChooseActDto model);
         Task<bool> LoginWithRefreshTokenAsync(Guid refreshToken);
         Task<CommandResponse> LogoutAsync();
 

@@ -1,7 +1,10 @@
 ﻿using Application.Repositories;
 using Application.Services.Interfaces;
+using Application.Utility;
 using AutoMapper;
 using Domain;
+using Domain.Dtos.Account.Acts;
+using Domain.Dtos.Account.Cookies;
 using Domain.Dtos.Account.User;
 using Domain.Dtos.Shared;
 using Domain.Entities.Account;
@@ -11,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
+using System.Text.Json;
 
 namespace Presentation.Controllers.Account
 {
@@ -27,9 +31,9 @@ namespace Presentation.Controllers.Account
         private readonly ApplicationDbContext _context;
         private readonly IUserAccessor _userAccessor;
         private readonly IMemoryCache _memoryCache;
+        private readonly IRepository<Act> _actRepo;
 
-
-        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor, ApplicationDbContext context, IUserAccessor userAccessor, IMemoryCache memoryCache)
+        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor, ApplicationDbContext context, IUserAccessor userAccessor, IMemoryCache memoryCache, IRepository<Act> actRepo)
         {
             _clientFactory = clientFactory;
             _ssoService = ssoService;
@@ -40,6 +44,7 @@ namespace Presentation.Controllers.Account
             _context = context;
             _userAccessor = userAccessor;
             _memoryCache = memoryCache;
+            _actRepo = actRepo;
         }
 
         [Route("Login")]
@@ -47,13 +52,16 @@ namespace Presentation.Controllers.Account
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromQuery] String redirectUrl)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(b => b.CompanyId == null);
+            var user =
+                await _context.Users
+                    .Where(b => b.Act
+                    .Any(b => b.UserId == Guid.Parse("06797131-356F-4E99-A413-8E08104E4CB0")))
+                    .FirstOrDefaultAsync();
 
             await _authService.LoginAsync(
                nationalId: user.NationalId,
                uswToken: "sdlkasdklasdjklasdklasdkl");
 
-            return Ok();
             return Redirect(redirectUrl);
 
 
@@ -79,13 +87,17 @@ namespace Presentation.Controllers.Account
         [AllowAnonymous]
         public async Task<IActionResult> RaziLogin([FromQuery] String redirectUrl)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(b => b.CompanyId == Guid.Parse("aa12b4d2-652c-407a-a569-9edcd1e2c467"));
+            var user =
+                await _context.Act
+                    .Where(b => b.CompanyId == Guid.Parse("aa12b4d2-652c-407a-a569-9edcd1e2c467"))
+                    .Select(b => b.User)
+                    .FirstOrDefaultAsync();
 
             await _authService.LoginAsync(
                nationalId: user.NationalId,
                uswToken: "sdlkasdklasdjklasdklasdkl");
 
-            return Ok();
+            //return Ok();
             return Redirect(redirectUrl);
         }
 
@@ -126,6 +138,26 @@ namespace Presentation.Controllers.Account
             return Redirect(redirect);
         }
 
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("ChooseAct")]
+        public async Task<CommandResponse> ChooseAct([FromBody] ChooseActDto command, CancellationToken cancellationToken)
+        {
+            return await _authService.ChooseActAsync(command);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("GetUserActs")]
+        public async Task<List<ActSummary>> GetUserActs()
+        {
+            var jsonUserTempInfo = HttpContext.Request.Cookies["user-temp-info"];
+            var userTempInfo = JsonSerializer.Deserialize<UserTempDataCookies>(jsonUserTempInfo);
+
+            return await _actRepo.GetAllAsync<ActSummary>(b => b.UserId == Guid.Parse(ProtectorData.Decrypt(userTempInfo.UserId)));
+        }
+
         [HttpGet]
         [Route("Logout")]
         public async Task<CommandResponse> Logout()
@@ -149,8 +181,8 @@ namespace Presentation.Controllers.Account
             var company = await _companyRepo.FirstOrDefaultAsync(b => b.Id == _userAccessor.GetCompanyId());
             return Ok(new UserProfile
             {
-                Company = company == null ? "وزارت علوم" : company.NameUniversity,
-                CompanyId = company?.Id,
+                Company = company.Id == Guid.Parse("7992db78-0f89-4cdb-b13d-0e2e500deb06") ? "وزارت علوم" : company.Title,
+                CompanyId = company.Id == Guid.Parse("7992DB78-0F89-4CDB-B13D-0E2E500DEB06") ? null : company.Id,
                 FullName = "امیررضا محمدی",
                 Gender = "مرد",
                 Mobile = "09211573936",

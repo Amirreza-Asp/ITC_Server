@@ -20,7 +20,7 @@ namespace Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 //options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 options.UseInMemoryDatabase("ITC");
             });
 

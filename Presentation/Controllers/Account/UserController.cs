@@ -20,13 +20,15 @@ namespace Presentation.Controllers.Account
         private readonly IMediator _mediator;
         private readonly IRepository<UserJoinRequest> _userJoinRequestsRepo;
         private readonly IUserAccessor _userAccessor;
+        private readonly IRepository<Act> _actRepository;
 
-        public UserController(IRepository<User> userRepository, IMediator mediator, IRepository<UserJoinRequest> userJoinRequestsRepo, IUserAccessor userAccessor)
+        public UserController(IRepository<User> userRepository, IMediator mediator, IRepository<UserJoinRequest> userJoinRequestsRepo, IUserAccessor userAccessor, IRepository<Act> actRepository)
         {
             _userRepository = userRepository;
             _mediator = mediator;
             _userJoinRequestsRepo = userJoinRequestsRepo;
             _userAccessor = userAccessor;
+            _actRepository = actRepository;
         }
 
         [HttpPost]
@@ -35,8 +37,8 @@ namespace Presentation.Controllers.Account
         public async Task<ListActionResult<UserSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
             return
-                await _userRepository
-                    .GetAllAsync<UserSummary>(query, b => b.CompanyId == _userAccessor.GetCompanyId() && b.IsActive, cancellationToken);
+                await _actRepository
+                    .GetAllAsync<UserSummary>(query, b => b.CompanyId == _userAccessor.GetCompanyId() && b.User.IsActive, cancellationToken);
         }
 
 

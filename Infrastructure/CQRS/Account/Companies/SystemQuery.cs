@@ -32,7 +32,7 @@ namespace Infrastructure.CQRS.Account.Companies
                    .Select(op => new CompanySystem
                    {
                        CompanyId = op.CompanyId,
-                       CompanyName = op.Company.NameUniversity,
+                       CompanyName = op.Company.Title,
                        Systems = new List<SystemDto>
                        {
                             new SystemDto

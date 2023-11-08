@@ -3,6 +3,8 @@ using Application.Utility;
 using AutoMapper;
 using Domain;
 using Domain.Dtos.Account;
+using Domain.Dtos.Account.Acts;
+using Domain.Dtos.Account.Cookies;
 using Domain.Dtos.Account.Permissions;
 using Domain.Dtos.Account.SSO;
 using Domain.Dtos.Shared;
@@ -52,9 +54,11 @@ namespace Infrastructure.Services
 
         public async Task<String> GetRoleAsync(string nationalCode)
         {
+            var companyId = _userAccessor.GetCompanyId();
+
             return
-                await _context.Users
-                    .Where(b => b.NationalId == nationalCode)
+                await _context.Act
+                    .Where(b => b.User.NationalId == nationalCode && b.CompanyId == companyId)
                     .Select(b => b.Role.Title)
                     .FirstOrDefaultAsync();
         }
@@ -70,8 +74,7 @@ namespace Infrastructure.Services
             {
                 Id = Guid.NewGuid(),
                 NationalId = user.data.nationalId,
-                IsActive = true,
-                RoleId = SD.AdminRoleId
+                IsActive = true
             };
 
             _context.Users.Add(userRole);
@@ -83,33 +86,71 @@ namespace Infrastructure.Services
             if (!await _context.Users.AnyAsync(b => b.NationalId == nationalId))
                 await AddUserAsync(nationalId);
 
-            var user =
+            var userId =
                 await _context.Users
                     .AsNoTracking()
-                    .Include(b => b.Role)
-                    .Include(b => b.Token)
-                    .Include(b => b.RefreshToken)
                     .Where(b => b.NationalId == nationalId)
-                    .FirstAsync();
+                    .Select(b => b.Id)
+                    .FirstOrDefaultAsync();
 
-            //_memoryCache.Set("User", new Data { CompanyId = user.CompanyId, NationalId = user.NationalId }, DateTimeOffset.Now.AddDays(1));
+            var data = new UserTempDataCookies { UserId = ProtectorData.Encrypt(userId.ToString()), UswToken = ProtectorData.Encrypt(uswToken) };
+
+            _contextAccessor.HttpContext.Response.Cookies.Append("user-temp-info", JsonSerializer.Serialize(data), new CookieOptions()
+            {
+                Expires = DateTime.Now.AddMonths(1),
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            });
+        }
+
+
+        public async Task<CommandResponse> ChooseActAsync(ChooseActDto model)
+        {
+            var jsonUserTempData = _contextAccessor.HttpContext.Request.Cookies["user-temp-info"];
+
+            if (jsonUserTempData == null)
+                return CommandResponse.Failure(400, "اطلاعات شما پیدا نشد ، لطفا دوباره وارد شوید");
+
+            var userTempData = JsonSerializer.Deserialize<UserTempDataCookies>(jsonUserTempData);
+
+            var act =
+                await _context.Act
+                    .Include(b => b.User)
+                        .ThenInclude(b => b.Token)
+                    .Include(b => b.User)
+                        .ThenInclude(b => b.RefreshToken)
+                    .FirstOrDefaultAsync(b =>
+                        b.Id == model.ActId);
+
+            if (act == null || act.User == null)
+                return CommandResponse.Failure(400, "اطلاعات شما پیدا نشد ، لطفا دوباره وارد شوید");
 
             var ip = _contextAccessor.HttpContext.Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
-            var token = JWTokenService.GenerateToken(nationalId, user.Role.Title, ip, user.CompanyId);
+            var token = JWTokenService.GenerateToken(act.User.NationalId, act.RoleId.ToString(), ip, act.CompanyId);
             var hashedToken = ProtectorData.Encrypt(token);
 
-            UpsertToken(ip, hashedToken, user);
-            var rfValue = UpsertRefreshToken(user);
+            UpsertToken(ip, hashedToken, act.User);
+            var rfValue = UpsertRefreshToken(act.User);
 
-            await _context.SaveChangesAsync();
+            if (await _context.SaveChangesAsync() > 0)
+            {
+                SetCookie(hashedToken, rfValue, ProtectorData.Decrypt(userTempData.UswToken));
+                return CommandResponse.Success();
+            }
 
-            SetCookie(hashedToken, rfValue, uswToken);
+            return CommandResponse.Failure(400, "مشکل در احراز هویت کاربر");
         }
+
 
         public async Task<bool> LoginWithRefreshTokenAsync(Guid refreshToken)
         {
             var uswToken = _contextAccessor.HttpContext.Request.Cookies[SD.UswToken];
+            var userToken = _contextAccessor.HttpContext.Request.Cookies[SD.AuthInfo];
+
+            return false;
 
             if (uswToken == null)
                 return false;
@@ -120,11 +161,11 @@ namespace Infrastructure.Services
                     .Include(b => b.User)
                         .ThenInclude(b => b.Token)
                     .Include(b => b.User)
-                        .ThenInclude(b => b.Role)
+                        .ThenInclude(b => b.Act)
                     .AsNoTracking()
                     .FirstOrDefaultAsync();
 
-            if (rfToken == null || rfToken.IsActive == false || rfToken.Expiration < DateTime.Now || rfToken.User.IsActive == false)
+            if (rfToken == null || rfToken.User == null || rfToken.IsActive == false || rfToken.Expiration < DateTime.Now || rfToken.User.IsActive == false)
                 return false;
 
 
@@ -132,13 +173,14 @@ namespace Infrastructure.Services
 
             var ip = _contextAccessor.HttpContext.Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
-            var newToken = JWTokenService.GenerateToken(rfToken.User.NationalId, rfToken.User.Role.Title, ip, rfToken.User.CompanyId);
-            var tokenHash = ProtectorData.Encrypt(newToken);
-            UpsertToken(ip, tokenHash, rfToken.User);
+            // rfToken.User.Role.Title
+            //var newToken = JWTokenService.GenerateToken(rfToken.User.NationalId, "", ip, rfToken.User.Companies.First().Id);
+            //var tokenHash = ProtectorData.Encrypt(newToken);
+            //UpsertToken(ip, tokenHash, rfToken.User);
 
             await _context.SaveChangesAsync();
 
-            SetCookie(tokenHash, refreshToken, ProtectorData.Decrypt(uswToken));
+            //SetCookie(tokenHash, refreshToken, ProtectorData.Decrypt(uswToken));
 
             return true;
         }
@@ -188,7 +230,7 @@ namespace Infrastructure.Services
             var permissons =
                 await _context.Permissions
                     .Where(b => b.Discriminator == nameof(PermissionItem) &&
-                                b.Roles.Any(b => b.Role.Users.Any(b => b.NationalId == nationalCode)))
+                                b.Roles.Any(b => b.Role.Acts.Any(b => b.User.NationalId == nationalCode)))
                     .ToListAsync();
 
             List<PermissionSummary> data = new List<PermissionSummary>();
@@ -237,7 +279,7 @@ namespace Infrastructure.Services
                 Id = Guid.NewGuid(),
                 IsActive = true,
                 NationalId = nationalId,
-                RoleId = SD.AdminRoleId
+                //RoleId = SD.AdminRoleId
             };
 
             _context.Users.Add(userRole);
@@ -300,7 +342,7 @@ namespace Infrastructure.Services
         private async Task<List<String>> GetFromContext(String nationalCode)
         {
             // get user role
-            var userRole = await _context.Users.FirstOrDefaultAsync(b => b.NationalId == nationalCode);
+            var userRole = await _context.Act.FirstOrDefaultAsync(b => b.User.NationalId == nationalCode);
 
             if (userRole == null)
                 return new List<String>();
@@ -319,10 +361,7 @@ namespace Infrastructure.Services
 
     }
 
-    class Data
-    {
-        public Guid? CompanyId { get; set; }
-        public String NationalId { get; set; }
-    }
+
+
 
 }

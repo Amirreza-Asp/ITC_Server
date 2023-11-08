@@ -13,18 +13,18 @@ namespace Infrastructure.Repositories
             _memoryCache = memoryCache;
         }
 
-        public override void Update(Role entity)
+        public override void Update(Role role)
         {
             var usersNationalIds =
-                _context.Users
-                    .Where(b => b.RoleId == entity.Id)
-                    .Select(b => b.NationalId)
+                _context.Act
+                    .Where(b => b.RoleId == role.Id)
+                    .Select(b => b.User.NationalId)
                     .ToList();
 
             foreach (var nationalId in usersNationalIds)
                 _memoryCache.Remove($"permissions-{nationalId}");
 
-            base.Update(entity);
+            base.Update(role);
         }
     }
 }

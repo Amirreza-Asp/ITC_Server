@@ -39,12 +39,19 @@ namespace Infrastructure.CQRS.Account.Users
                 var user = new User
                 {
                     Id = Guid.NewGuid(),
-                    CompanyId = joinRequest.CompanyId,
-                    NationalId = joinRequest.NationalId,
+                    NationalId = joinRequest.NationalId
+                };
+
+                var userCompany = new Act
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    CompanyId = joinRequest.CompanyId.Value,
                     RoleId = request.RoleId
                 };
 
                 _context.Users.Add(user);
+                _context.Act.Add(userCompany);
                 _context.UsersJoinRequests.Remove(joinRequest);
 
                 if (await _context.SaveChangesAsync(cancellationToken) > 0)

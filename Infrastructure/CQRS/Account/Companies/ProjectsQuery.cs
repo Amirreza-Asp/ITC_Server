@@ -32,7 +32,7 @@ namespace Infrastructure.CQRS.Account.Companies
                    .Select(op => new CompanyProjects
                    {
                        CompanyId = op.OperationalObjective.BigGoal.CompanyId,
-                       CompanyName = op.OperationalObjective.BigGoal.Company.NameUniversity,
+                       CompanyName = op.OperationalObjective.BigGoal.Company.Title,
                        Projects = new List<ProjectListDto>
                        {
                             new ProjectListDto

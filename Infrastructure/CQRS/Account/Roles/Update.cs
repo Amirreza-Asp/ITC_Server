@@ -45,8 +45,7 @@ namespace Infrastructure.CQRS.Account.Roles
             var role =
                 await _context.Roles
                     .Where(b =>
-                        b.Id == request.Id &&
-                        b.CompanyId == _userAccessor.GetCompanyId())
+                        b.Id == request.Id)
                     .Include(b => b.Permissions)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(cancellationToken);
@@ -78,9 +77,9 @@ namespace Infrastructure.CQRS.Account.Roles
             if (await _context.SaveChangesAsync(cancellationToken) > 0)
             {
                 var usersNationalIds =
-                    await _context.Users
+                    await _context.Act
                         .Where(b => b.RoleId == role.Id)
-                        .Select(b => b.NationalId)
+                        .Select(b => b.User.NationalId)
                         .AsNoTracking()
                         .ToListAsync(cancellationToken);
 

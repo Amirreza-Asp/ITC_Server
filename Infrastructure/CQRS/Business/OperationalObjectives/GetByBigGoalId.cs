@@ -60,7 +60,7 @@ namespace Infrastructure.CQRS.Business.OperationalObjectives
 
                     var sumProjectsRealProgress = data[i].Projects.ElementAt(j).Indicators.Sum(
                                     e => (!e.Indicator.Progresses.Any() ? 0 : e.Indicator.Progresses.OrderByDescending(b => b.ProgressTime).First().Value - e.Indicator.InitValue) * 100 / (e.Indicator.GoalValue - e.Indicator.InitValue));
-                    opCards[i].Projects.ElementAt(j).RealProgress = data[i].Indicators.Any() ? (int)sumRealProgress / data[i].Indicators.Count() : 0;
+                    opCards[i].Projects.ElementAt(j).RealProgress = data[i].Projects.ElementAt(j).Indicators.Any() ? (int)sumProjectsRealProgress / data[i].Projects.ElementAt(j).Indicators.Count() : 0;
 
                 }
 
@@ -71,7 +71,7 @@ namespace Infrastructure.CQRS.Business.OperationalObjectives
 
                     var sumActionsRealProgress = data[i].PracticalActions.ElementAt(j).Indicators.Sum(
                                   e => (!e.Indicator.Progresses.Any() ? 0 : e.Indicator.Progresses.OrderByDescending(b => b.ProgressTime).First().Value - e.Indicator.InitValue) * 100 / (e.Indicator.GoalValue - e.Indicator.InitValue));
-                    opCards[i].Projects.ElementAt(j).RealProgress = data[i].Indicators.Any() ? (int)sumRealProgress / data[i].Indicators.Count() : 0;
+                    opCards[i].Actions.ElementAt(j).RealProgress = data[i].PracticalActions.ElementAt(j).Indicators.Any() ? (int)sumActionsRealProgress / data[i].PracticalActions.ElementAt(j).Indicators.Count() : 0;
                 }
             };
 

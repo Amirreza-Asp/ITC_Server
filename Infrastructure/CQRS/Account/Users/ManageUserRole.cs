@@ -1,4 +1,5 @@
 ﻿using Application.Services.Interfaces;
+using Domain;
 using Domain.Dtos.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -28,19 +29,24 @@ namespace Infrastructure.CQRS.Account.Users
 
         public async Task<CommandResponse> Handle(ManageUserRoleCommand request, CancellationToken cancellationToken)
         {
+            var companyId = _userAccessor.GetCompanyId();
+
+            if (_context.Act.Any(b => b.CompanyId == companyId.Value && b.RoleId == SD.AgentId))
+                return CommandResponse.Failure(400, "یک سازمان نمیتواند بیشتر از یک نماینده داشته باشد");
+
+
             var user =
-                await _context.Users
-                    .Include(b => b.Token)
-                    .FirstOrDefaultAsync(b => b.IsActive && request.Id == b.Id);
+            await _context.Users
+                .Include(b => b.Token)
+                .FirstOrDefaultAsync(b => b.IsActive && request.Id == b.Id);
 
             if (user == null)
                 return CommandResponse.Failure(400, "کاربر انتخاب شده در سیستم وجود ندارد");
 
-            var companyId = _userAccessor.GetCompanyId();
-            if (!_context.Roles.Any(b => b.Id == request.RoleId && b.CompanyId == companyId))
+            if (!_context.Roles.Any(b => b.Id == request.RoleId))
                 return CommandResponse.Failure(400, "نقش انتخاب شده در سیستم وجود ندارد");
 
-            user.RoleId = request.RoleId;
+            //user.RoleId = request.RoleId;
             _context.Users.Update(user);
 
             if (user.Token != null)

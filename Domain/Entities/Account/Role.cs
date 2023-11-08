@@ -8,9 +8,7 @@ namespace Domain.Entities.Account
         public String Title { get; set; }
         public String Description { get; set; }
 
-        public Guid? CompanyId { get; set; }
-
         public ICollection<RolePermission> Permissions { get; set; } = new List<RolePermission>();
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<Act> Acts { get; set; } = new List<Act>();
     }
 }

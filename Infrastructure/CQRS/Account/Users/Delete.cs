@@ -32,11 +32,9 @@ namespace Infrastructure.CQRS.Account.Users
                 return CommandResponse.Success();
 
             var companyId = _userAccessor.GetCompanyId();
-            if (user.CompanyId == companyId)
-                return CommandResponse.Failure(400, "نمیتواند حساب کاربری خودتان را حذف کنید");
 
-            if (user.IsAdmin)
-                return CommandResponse.Failure(400, "نماینده سازمان را نمیتوان حذف کرد");
+            //if ((bool)(user.Companies.Where(b => b.Id == companyId).FirstOrDefault()?.IsAdmin))
+            //    return CommandResponse.Failure(400, "نماینده سازمان را نمیتوان حذف کرد");
 
             user.IsActive = false;
             _context.Users.Update(user);

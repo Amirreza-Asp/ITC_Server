@@ -49,7 +49,7 @@ namespace Infrastructure.CQRS.Business.PracticalActions
         public async Task<CommandResponse> Handle(AddPracticalActionIndicatorCommand request, CancellationToken cancellationToken)
         {
             if (!_context.PracticalActions.Any(b => b.Id == request.PracticalActionId))
-                return CommandResponse.Failure(400, "اقدام کاربردی انتخاب شده در سیستم وجود ندارد");
+                return CommandResponse.Failure(400, "اقدام انتخاب شده در سیستم وجود ندارد");
 
             if (!_context.IndicatorCategories.Any(b => b.Id == request.CategoryId))
                 return CommandResponse.Failure(400, "طبقه بندی شاخص انتخاب شده در سیستم وجود ندارد");

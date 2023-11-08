@@ -23,6 +23,45 @@ namespace Presentation.Controllers.Account
             _repo = repo;
         }
 
+
+        [Route("GetNestedChilds")]
+        [HttpGet]
+        public async Task<NestedCompanies> GetNestedChilds(CancellationToken cancellationToken)
+        {
+            return await _repo.GetNestedAsync(cancellationToken);
+        }
+
+        [Route("AddIndicator")]
+        [HttpPost]
+        public async Task<CommandResponse> AddIndicator([FromBody] AddCompanyIndicatorCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+        [Route("Delete")]
+        [HttpDelete]
+        public async Task<CommandResponse> Remove([FromQuery] RemoveCompanyCommand command, CancellationToken cancellationToken) =>
+            await _mediator.Send(command);
+
+
+        [Route("Create")]
+        [HttpPost]
+        public async Task<CommandResponse> Create([FromBody] CreateCompanyCommand command, CancellationToken cancellationToken) =>
+            await _mediator.Send(command, cancellationToken);
+
+
+        [Route("AddUser")]
+        [HttpPost]
+        public async Task<CommandResponse> AddUser([FromBody] AddUserToCompanyCommand command, CancellationToken cancellationToken) =>
+            await _mediator.Send(command, cancellationToken);
+
+        [Route("SelectListUsers")]
+        [HttpGet]
+        public async Task<List<SelectSummary>> SelectListUsers(CancellationToken cancellationToken)
+        {
+            return await _repo.GetSelectListUsersAsync(cancellationToken);
+        }
+
         [Route("GetAll")]
         [HttpPost]
         public async Task<ListActionResult<CompanySummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)

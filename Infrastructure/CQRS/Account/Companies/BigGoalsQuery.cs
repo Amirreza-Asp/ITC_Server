@@ -37,7 +37,7 @@ namespace Infrastructure.CQRS.Account.Companies
                  .Select(op => new CompanyBigGoals
                  {
                      CompanyId = op.CompanyId,
-                     CompanyName = op.Company.NameUniversity,
+                     CompanyName = op.Company.Title,
                      BigGoals = new List<BigGoalsListDto>
                      {
                             new BigGoalsListDto

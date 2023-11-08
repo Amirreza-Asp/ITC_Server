@@ -22,13 +22,39 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("Domain.Entities.Account.Act", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Act");
+                });
+
             modelBuilder.Entity("Domain.Entities.Account.Company", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CityName")
+                    b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CreateAt")
@@ -37,34 +63,36 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Latitude")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LogoUniversity")
+                    b.Property<string>("Logo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Longitude")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NameUniversity")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NationalSerial")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PortalUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProvinceName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SingleWindowUrl")
+                    b.Property<string>("Province")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UniversityType")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Company");
                 });
@@ -134,9 +162,6 @@ namespace Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -218,33 +243,26 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Family")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NationalId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
 
                     b.HasIndex("NationalId")
                         .IsUnique();
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
@@ -329,6 +347,21 @@ namespace Infrastructure.Migrations
                     b.HasIndex("BigGoalId");
 
                     b.ToTable("BigGoalIndicators");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.CompanyIndicator", b =>
+                {
+                    b.Property<Guid>("IndicatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("IndicatorId", "CompanyId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanyIndicators");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.HardwareEquipment", b =>
@@ -751,6 +784,42 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("PermissionItem");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Account.Act", b =>
+                {
+                    b.HasOne("Domain.Entities.Account.Company", "Company")
+                        .WithMany("Acts")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Account.Role", "Role")
+                        .WithMany("Acts")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Account.User", "User")
+                        .WithMany("Act")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Account.Company", b =>
+                {
+                    b.HasOne("Domain.Entities.Account.Company", "Parent")
+                        .WithMany("Childs")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("Domain.Entities.Account.Permission", b =>
                 {
                     b.HasOne("Domain.Entities.Account.PermissionContainer", null)
@@ -799,23 +868,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Account.User", b =>
-                {
-                    b.HasOne("Domain.Entities.Account.Company", "Company")
-                        .WithMany("Users")
-                        .HasForeignKey("CompanyId");
-
-                    b.HasOne("Domain.Entities.Account.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("Domain.Entities.Account.UserJoinRequest", b =>
                 {
                     b.HasOne("Domain.Entities.Account.Company", "Company")
@@ -857,6 +909,25 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("BigGoal");
+
+                    b.Navigation("Indicator");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.CompanyIndicator", b =>
+                {
+                    b.HasOne("Domain.Entities.Account.Company", "Company")
+                        .WithMany("Indicators")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Business.Indicator", "Indicator")
+                        .WithMany()
+                        .HasForeignKey("IndicatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
 
                     b.Navigation("Indicator");
                 });
@@ -1119,9 +1190,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Account.Company", b =>
                 {
+                    b.Navigation("Acts");
+
                     b.Navigation("BigGoals");
 
-                    b.Navigation("Users");
+                    b.Navigation("Childs");
+
+                    b.Navigation("Indicators");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.Permission", b =>
@@ -1131,13 +1206,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Account.Role", b =>
                 {
-                    b.Navigation("Permissions");
+                    b.Navigation("Acts");
 
-                    b.Navigation("Users");
+                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Account.User", b =>
                 {
+                    b.Navigation("Act");
+
                     b.Navigation("RefreshToken");
 
                     b.Navigation("Token");

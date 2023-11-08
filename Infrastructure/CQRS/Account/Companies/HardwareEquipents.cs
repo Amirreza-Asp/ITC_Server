@@ -30,7 +30,7 @@ namespace Infrastructure.CQRS.Account.Companies
              .Select(op => new CompanyHardwareEquipments
              {
                  CompanyId = op.CompanyId,
-                 CompanyName = op.Company.NameUniversity,
+                 CompanyName = op.Company.Title,
                  hardwareEquipments = new List<HardwareEquipmentDto>
                  {
                             new HardwareEquipmentDto

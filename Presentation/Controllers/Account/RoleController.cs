@@ -34,7 +34,6 @@ namespace Presentation.Controllers.Account
             return
                 await _roleRepository.GetAllAsync<RoleSummary>(
                     query,
-                    filters: b => b.CompanyId == _userAccessor.GetCompanyId(),
                     cancellationToken);
         }
 
@@ -43,7 +42,7 @@ namespace Presentation.Controllers.Account
         public async Task<List<SelectSummary>> SelectList(CancellationToken cancellationToken)
         {
             return
-                await _roleRepository.GetAllAsync<SelectSummary>(b => b.CompanyId == _userAccessor.GetCompanyId());
+                await _roleRepository.GetAllAsync<SelectSummary>();
         }
 
         [Route("Find")]

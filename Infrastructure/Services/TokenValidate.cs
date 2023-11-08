@@ -55,7 +55,8 @@ namespace Infrastructure.Services
             if (!_memoryCache.TryGetValue(userCacheKey, out user))
             {
                 user = await _context.Users
-                    .Include(b => b.Role)
+                    .Include(b => b.Act)
+                        .ThenInclude(b => b.Role)
                     .Include(x => x.Token)
                     .Include(b => b.RefreshToken)
                     .AsNoTracking()
@@ -101,7 +102,7 @@ namespace Infrastructure.Services
                 return;
             }
 
-            if (user.Role.Title != role)
+            if (!user.Act.Any(b => b.Role.Id.ToString() == role))
             {
                 context.Fail("احراز هویت نامعتبر می باشد");
                 return;

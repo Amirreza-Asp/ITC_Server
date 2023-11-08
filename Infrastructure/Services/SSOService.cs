@@ -1,6 +1,9 @@
 ﻿using Application.Services.Interfaces;
+using AutoMapper;
 using Domain;
 using Domain.Dtos.Account.SSO;
+using Domain.Entities.Account;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
@@ -13,11 +16,15 @@ namespace Infrastructure.Services
     {
         private readonly IHttpClientFactory _clientFactory;
         private readonly IHttpContextAccessor _accessor;
+        private readonly IWebHostEnvironment _hostEnv;
+        private readonly IMapper _mapper;
 
-        public SSOService(IHttpClientFactory clientFactory, IHttpContextAccessor accessor)
+        public SSOService(IHttpClientFactory clientFactory, IHttpContextAccessor accessor, IWebHostEnvironment hostEnv, IMapper mapepr)
         {
             _clientFactory = clientFactory;
             _accessor = accessor;
+            _hostEnv = hostEnv;
+            _mapper = mapepr;
         }
 
         public async Task<ProfileRequest> GetProfileAsync(string token)
@@ -67,5 +74,17 @@ namespace Infrastructure.Services
 
             return null;
         }
+
+        public async Task<List<Company>> GetCompaniesAsync()
+        {
+            var path = _hostEnv.WebRootPath + "/Files/small-universities-json.txt";
+            var data = await File.ReadAllTextAsync(path);
+
+            var companies = JsonSerializer.Deserialize<List<CompsRequestData>>(data);
+
+            return _mapper.Map<List<Company>>(companies);
+        }
     }
+
+
 }

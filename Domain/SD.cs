@@ -11,8 +11,9 @@ namespace Domain
         public const String AuthInfo = "auth_info";
         public const String UswToken = "usw-token";
 
-        public static Guid AdminRoleId = Guid.Parse("08151D71-9D6C-43EF-85A6-16043ADB6B3A");
         public static Guid TopPermissionId = Guid.Parse("08151D71-9D6C-43EF-85A6-16043DCB6B3A");
+
+        public static Guid AgentId = Guid.Parse("64BEFD80-D431-47CD-828C-C791EFD5A1CF");
 
         public const int ExpirationTime = 15;
 

@@ -66,17 +66,21 @@ namespace Infrastructure.Profiles
             // Person
             CreateMap<Person, PersonSummary>()
                 .ForMember(b => b.Expertises, d => d.MapFrom(b => b.Expertises.Select(d => d.Title)));
+            CreateMap<Person, SelectSummary>()
+                .ForMember(b => b.Title, d => d.MapFrom(e => e.Name + " " + e.Family));
             CreateMap<CreatePersonCommand, Person>()
                 .ForMember(b => b.Expertises, d => d.MapFrom(b => b.Expertises.Select(d => new Expertise { Title = d })))
                 .ForMember(b => b.Id, d => d.MapFrom(d => Guid.NewGuid()));
 
             // Hardware equipment
             CreateMap<HardwareEquipment, HardwareEquipment>();
+            CreateMap<HardwareEquipment, SelectSummary>();
             CreateMap<CreateHardwareEquipmentCommand, HardwareEquipment>()
                 .ForMember(b => b.Id, d => d.MapFrom(r => Guid.NewGuid()));
 
             // System
             CreateMap<Domain.Entities.Business.System, Domain.Entities.Business.System>();
+            CreateMap<Domain.Entities.Business.System, SelectSummary>();
             CreateMap<Domain.Entities.Business.System, SystemDetails>();
             CreateMap<CreateSystemCommand, Domain.Entities.Business.System>()
                 .ForMember(b => b.Id, d => d.MapFrom(r => Guid.NewGuid()))
@@ -102,7 +106,7 @@ namespace Infrastructure.Profiles
 
             CreateMap<PracticalAction, ProjectActionCard>()
                 .ForMember(b => b.Active, b => b.MapFrom(d => d.Deadline >= DateTime.Now))
-                .ForMember(b => b.Type, d => d.MapFrom(b => "اقدام کاربردی"))
+                .ForMember(b => b.Type, d => d.MapFrom(b => "اقدام"))
                 .ForMember(b => b.Financials, d => d.MapFrom(b => b.Financials.Select(s => s.Title)))
                 .ForMember(b => b.IndicatorsCount, d => d.MapFrom(e => e.Indicators.Count()));
 
@@ -130,15 +134,15 @@ namespace Infrastructure.Profiles
 
             // Company
             CreateMap<Company, CompanyBigGoals>()
-                .ForMember(b => b.CompanyName, d => d.MapFrom(e => e.NameUniversity))
+                .ForMember(b => b.CompanyName, d => d.MapFrom(e => e.Title))
                 .ForMember(b => b.CompanyId, d => d.MapFrom(e => e.Id))
                 .ForMember(b => b.BigGoals, d => d.MapFrom(e => e.BigGoals));
 
 
             CreateMap<Company, CompanySummary>()
-                .ForMember(b => b.Title, d => d.MapFrom(e => e.NameUniversity))
-                .ForMember(b => b.Province, d => d.MapFrom(e => e.ProvinceName))
-                .ForMember(b => b.City, d => d.MapFrom(e => e.CityName));
+                .ForMember(b => b.Title, d => d.MapFrom(e => e.Title))
+                .ForMember(b => b.Province, d => d.MapFrom(e => e.Province))
+                .ForMember(b => b.City, d => d.MapFrom(e => e.City));
 
 
             CreateMap<Indicator, IndicatorCard>()
