@@ -56,6 +56,14 @@ namespace Presentation.Controllers.Business
             return await _mediator.Send(command, cancellationToken);
         }
 
+        [Route("Update")]
+        [HttpPut]
+        [AccessControl(PermissionsSD.Company_EditPracticalAction)]
+        public async Task<CommandResponse> Update([FromBody] UpdatePracticalActionCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
         [Route("Delete")]
         [HttpDelete]
         [AccessControl(PermissionsSD.Company_RemovePracticalAction)]

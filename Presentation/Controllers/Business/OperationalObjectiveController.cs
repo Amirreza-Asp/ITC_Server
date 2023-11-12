@@ -78,6 +78,15 @@ namespace Presentation.Controllers.Business
             return await _mediator.Send(command, cancellationToken);
         }
 
+
+        [Route("Update")]
+        [HttpPut]
+        [AccessControl(PermissionsSD.Company_EditOperationalObjective)]
+        public async Task<CommandResponse> Update([FromBody] UpdateOperationalObjectiveCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
         [HttpDelete]
         [Route("Delete")]
         [AccessControl(PermissionsSD.Company_RemoveOperationalObjective)]

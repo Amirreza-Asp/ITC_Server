@@ -3,6 +3,7 @@ using Domain;
 using Domain.Entities.Account;
 using Domain.Entities.Business;
 using Domain.Entities.Static;
+using Domain.SubEntities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,7 @@ namespace Infrastructure.Initializer
         public async Task Execute()
         {
             //await _context.Database.EnsureDeletedAsync();
+
 
             try
             {
@@ -233,6 +235,10 @@ namespace Infrastructure.Initializer
                                 project.OperationalObjectiveId = opo.Id;
                                 project.LeaderId = peopleId[rnd.Next(peopleId.Count - 1)];
 
+                                project.Financials = People.Take(rnd.Next(0, People.Count - 1)).Select(b => new Financial { Title = b.Name }).ToList();
+                                project.Financials.AddRange(HardwareEquipments.Take(rnd.Next(0, HardwareEquipments.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
+                                project.Financials.AddRange(Systems.Take(rnd.Next(0, Systems.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
+
                                 for (int i = 0; i < rnd.Next(1, 6); i++)
                                 {
                                     var ind = CustomeIndicator;
@@ -262,6 +268,11 @@ namespace Infrastructure.Initializer
                                 practicalAction.Id = Guid.NewGuid();
                                 practicalAction.OperationalObjectiveId = opo.Id;
                                 practicalAction.LeaderId = peopleId[rnd.Next(peopleId.Count - 1)];
+
+                                practicalAction.Financials = People.Take(rnd.Next(0, People.Count - 1)).Select(b => new Financial { Title = b.Name }).ToList();
+                                practicalAction.Financials.AddRange(HardwareEquipments.Take(rnd.Next(0, HardwareEquipments.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
+                                practicalAction.Financials.AddRange(Systems.Take(rnd.Next(0, Systems.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
+
 
                                 for (int i = 0; i < rnd.Next(1, 6); i++)
                                 {
@@ -366,7 +377,7 @@ namespace Infrastructure.Initializer
                         }
                 },
                 new Person{
-                    Id = Guid.NewGuid() ,
+                    Id = Guid.Parse("440FF1EF-B4DD-4C6B-B943-A20EA411E9D8") ,
                     Name = "پریسا" ,
                     Family = "مرادی" ,
                     Education = "لیسانس" ,
@@ -377,7 +388,7 @@ namespace Infrastructure.Initializer
                         }
                 },
                 new Person{
-                    Id = Guid.NewGuid() ,
+                    Id = Guid.Parse("440FF1EF-A4DD-4C6B-B943-A20EA411E9D8"),
                     Name = "پیمان" ,
                     Family = "حیدری" ,
                     Education = "لیسانس" ,
@@ -561,7 +572,7 @@ namespace Infrastructure.Initializer
             {
                 new HardwareEquipment
                 {
-                    Id = Guid.NewGuid(),
+                    Id =  Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "سرور",
                     BrandName = "hp",
                     Count = 3,
@@ -570,7 +581,7 @@ namespace Infrastructure.Initializer
                 },
                 new HardwareEquipment
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("540FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "مانیتور",
                     BrandName = "apple",
                     Count = 3,
@@ -579,7 +590,7 @@ namespace Infrastructure.Initializer
                 },
                 new HardwareEquipment
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("640FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "کیبورد",
                     BrandName = "dell",
                     Count = 20,
@@ -588,7 +599,7 @@ namespace Infrastructure.Initializer
                 },
                 new HardwareEquipment
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("740FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "ماوس",
                     BrandName = "dell",
                     Count = 20,
@@ -602,7 +613,7 @@ namespace Infrastructure.Initializer
             {
                 new Domain.Entities.Business.System
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("441FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "سیستم 1",
                     Database = "SQL Server",
                     Development = lorem,
@@ -615,7 +626,7 @@ namespace Infrastructure.Initializer
                 },
                 new Domain.Entities.Business.System
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("442FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "سیستم 2",
                     Database = "Mongo",
                     Development = lorem,
@@ -628,7 +639,7 @@ namespace Infrastructure.Initializer
                 },
                 new Domain.Entities.Business.System
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("443FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     Title = "سیستم 3",
                     Database = "Elastic Search",
                     Development = lorem,

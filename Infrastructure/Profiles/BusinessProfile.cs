@@ -34,7 +34,8 @@ namespace Infrastructure.Profiles
             CreateMap<BigGoal, BigGoalsListDto>()
                 .ForMember(b => b.Year, d => d.MapFrom(e => e.ProgramYear.Year));
             CreateMap<CreateBigGoalCommand, BigGoal>()
-               .ForMember(b => b.Id, d => d.MapFrom(e => Guid.NewGuid()));
+               .ForMember(b => b.Id, d => d.MapFrom(e => Guid.NewGuid()))
+               .ForMember(b => b.ProgramYearId, d => d.MapFrom(e => e.ProgramYearId));
             CreateMap<BigGoal, BigGoalDetails>()
                 .ForMember(b => b.ProgramYear, d => d.MapFrom(e => e.ProgramYear.Year))
                 .ForMember(b => b.Progress, d => d.Ignore())

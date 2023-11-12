@@ -19,9 +19,9 @@ namespace Infrastructure
             // Sql context
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                //options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-                //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                options.UseInMemoryDatabase("ITC");
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                //options.UseInMemoryDatabase("ITC");
             });
 
             // Initializer

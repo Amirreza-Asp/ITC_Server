@@ -21,6 +21,8 @@ namespace Infrastructure.CQRS.Business.BigGoals
 
         [Required]
         public DateTime Deadline { get; set; }
+
+        public Guid? ProgramYearId { get; set; }
     }
 
     public class CreateBigGoalCommandHandler : IRequestHandler<CreateBigGoalCommand, CommandResponse>

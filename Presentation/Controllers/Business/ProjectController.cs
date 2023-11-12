@@ -49,10 +49,19 @@ namespace Presentation.Controllers.Business
             return data;
         }
 
+
         [Route("Create")]
         [HttpPost]
         [AccessControl(PermissionsSD.Company_AddProject)]
         public async Task<CommandResponse> Create([FromBody] CreateProjectCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+        [Route("Update")]
+        [HttpPut]
+        [AccessControl(PermissionsSD.Company_EditProject)]
+        public async Task<CommandResponse> Update([FromBody] UpdateProjectCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
         }

@@ -59,6 +59,13 @@ namespace Presentation.Controllers.Business
             return data;
         }
 
+        [Route("Update")]
+        [HttpPut]
+        public async Task<CommandResponse> Update([FromBody] UpdateBigGoalCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
         [Route("Create")]
         [HttpPost]
         [AccessControl(PermissionsSD.Company_AddBigGoal)]
