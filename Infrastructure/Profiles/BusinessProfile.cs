@@ -131,6 +131,9 @@ namespace Infrastructure.Profiles
                .ForMember(b => b.Indicators, d => d.MapFrom(d => d.Indicators.Select(e => e.Indicator)))
                .ForMember(b => b.Title, d => d.MapFrom(e => e.OperationalObjective.BigGoal.Title + " > " + e.OperationalObjective.Title + " > " + e.Title))
                .ForMember(b => b.OperationalObjectiveTitle, d => d.MapFrom(d => d.OperationalObjective.Title));
+            CreateMap<ProjectIndicator, IndicatorDetails>()
+                .ForAllMembers(e => e.MapFrom(d => d.Indicator));
+
 
 
             // Company
@@ -146,6 +149,7 @@ namespace Infrastructure.Profiles
                 .ForMember(b => b.City, d => d.MapFrom(e => e.City));
 
 
+            // Indicators
             CreateMap<Indicator, IndicatorCard>()
                 .ForMember(b => b.Title, e => e.MapFrom(e => e.Category.Title))
                 .ForMember(b => b.RealCurrentValue, e => e.MapFrom(e =>
@@ -156,7 +160,16 @@ namespace Infrastructure.Profiles
                         Convert.ToInt32((e.Progresses.OrderByDescending(b => b.ProgressTime).First().Value - e.InitValue) * 100 /
                         (e.GoalValue - e.InitValue)) : 0));
 
-
+            CreateMap<Indicator, IndicatorDetails>()
+                  .ForMember(b => b.Title, e => e.MapFrom(e => e.Category.Title))
+                .ForMember(b => b.RealCurrentValue, e => e.MapFrom(e =>
+                     e.Progresses.Any() ?
+                        e.Progresses.OrderByDescending(b => b.ProgressTime).First().Value : 0))
+                .ForMember(b => b.RealProgress, e => e.MapFrom(e =>
+                     e.Progresses.Any() ?
+                        Convert.ToInt32((e.Progresses.OrderByDescending(b => b.ProgressTime).First().Value - e.InitValue) * 100 /
+                        (e.GoalValue - e.InitValue)) : 0))
+                .ForMember(b => b.PeriodDisplay, d => d.MapFrom(e => e.Period.ToString()));
         }
     }
 }

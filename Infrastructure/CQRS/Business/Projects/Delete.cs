@@ -1,5 +1,6 @@
 ﻿using Domain.Dtos.Shared;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.CQRS.Business.Projects
@@ -21,7 +22,7 @@ namespace Infrastructure.CQRS.Business.Projects
 
         public async Task<CommandResponse> Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
         {
-            var entity = await _context.Projects.FindAsync(request.Id);
+            var entity = await _context.Projects.Include(b => b.Financials).FirstOrDefaultAsync(b => b.Id == request.Id, cancellationToken);
 
             if (entity == null)
                 return CommandResponse.Success(200);

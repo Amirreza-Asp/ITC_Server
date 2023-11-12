@@ -17,12 +17,14 @@ namespace Presentation.Controllers.Business
     public class ProjectController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IRepository<Project> _repo;
+        private readonly IRepository<Project> _projectRepo;
+        private readonly IRepository<ProjectIndicator> _projectIndicatorRepo;
 
-        public ProjectController(IMediator mediator, IRepository<Project> repo)
+        public ProjectController(IMediator mediator, IRepository<Project> repo, IRepository<ProjectIndicator> projectIndicatorRepo)
         {
             _mediator = mediator;
-            _repo = repo;
+            _projectRepo = repo;
+            _projectIndicatorRepo = projectIndicatorRepo;
         }
 
 
@@ -30,13 +32,13 @@ namespace Presentation.Controllers.Business
         [HttpPost]
         public async Task<ListActionResult<ProjectSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
-            return await _repo.GetAllAsync<ProjectSummary>(query, cancellationToken);
+            return await _projectRepo.GetAllAsync<ProjectSummary>(query, cancellationToken);
         }
 
         [HttpGet("Find/{id}")]
         public async Task<ProjectDetails> Find(Guid id, CancellationToken cancellationToken)
         {
-            var data = await _repo.FirstOrDefaultAsync<ProjectDetails>(b => b.Id == id, cancellationToken: cancellationToken);
+            var data = await _projectRepo.FirstOrDefaultAsync<ProjectDetails>(b => b.Id == id, cancellationToken: cancellationToken);
             if (data == null)
                 return null;
 
@@ -81,6 +83,14 @@ namespace Presentation.Controllers.Business
         public async Task<CommandResponse> AddIndicator([FromBody] AddProjectIndicatorCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
+        }
+
+
+        [Route("GetIndicators")]
+        [HttpGet]
+        public async Task<List<IndicatorDetails>> GetIndicators([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            return await _projectIndicatorRepo.GetAllAsync<IndicatorDetails>(b => b.ProjectId == id, cancellationToken: cancellationToken);
         }
 
         [Route("RemoveIndicator")]
