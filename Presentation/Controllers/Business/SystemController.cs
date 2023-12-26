@@ -28,6 +28,7 @@ namespace Presentation.Controllers.Business
 
         [Route("GetAll")]
         [HttpPost]
+        [AccessControl(PermissionsSD.QuerySystem)]
         public async Task<ListActionResult<SystemDetails>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
             var companyId = _userAccessor.GetCompanyId();
@@ -35,6 +36,7 @@ namespace Presentation.Controllers.Business
         }
 
         [HttpGet("Find/{id}")]
+        [AccessControl(PermissionsSD.QuerySystem)]
         public async Task<SystemDetails> Find(Guid id, CancellationToken cancellationToken)
         {
             return await _repository.FirstOrDefaultAsync<SystemDetails>(b => b.Id == id, cancellationToken: cancellationToken);
@@ -42,8 +44,24 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(PermissionsSD.Company_AddSystem)]
+        [AccessControl(PermissionsSD.CommandSystem)]
         public async Task<CommandResponse> Create([FromBody] CreateSystemCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+        [Route("Update")]
+        [HttpPut]
+        [AccessControl(PermissionsSD.CommandSystem)]
+        public async Task<CommandResponse> Update([FromBody] UpdateSystemCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
+        [Route("Delete")]
+        [HttpDelete]
+        [AccessControl(PermissionsSD.CommandSystem)]
+        public async Task<CommandResponse> Delete([FromQuery] DeleteSystemCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
         }

@@ -44,7 +44,6 @@ namespace Infrastructure.CQRS.Business.BigGoals
             bigGoal.Description = request.Description;
             bigGoal.Deadline = request.Deadline;
             bigGoal.StartedAt = request.StartedAt;
-            bigGoal.ProgramYearId = request.ProgramYearId;
 
             _context.BigGoals.Update(bigGoal);
 

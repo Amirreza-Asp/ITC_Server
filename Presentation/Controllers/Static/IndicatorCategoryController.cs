@@ -40,7 +40,7 @@ namespace Presentation.Controllers.Static
 
         [HttpPost]
         [Route("Create")]
-        [AccessControl(PermissionsSD.System_AddIndicatorCategory)]
+        [AccessControl(PermissionsSD.CommandIndicatorCategory)]
         public async Task<CommandResponse> Creare([FromBody] CreateIndicatorCategoryCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -48,7 +48,7 @@ namespace Presentation.Controllers.Static
 
         [HttpPut]
         [Route("Update")]
-        [AccessControl(PermissionsSD.System_EditIndicatorCategory)]
+        [AccessControl(PermissionsSD.CommandIndicatorCategory)]
         public async Task<CommandResponse> Update([FromBody] UpdateIndicatorCategoryCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -56,7 +56,7 @@ namespace Presentation.Controllers.Static
 
         [HttpDelete]
         [Route("Delete")]
-        [AccessControl(PermissionsSD.System_RemoveIndicatorCategory)]
+        [AccessControl(PermissionsSD.CommandIndicatorCategory)]
         public async Task<CommandResponse> Delete([FromQuery] DeleteIndicatorCategoryCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

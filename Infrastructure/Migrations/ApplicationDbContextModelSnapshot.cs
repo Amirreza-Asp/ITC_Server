@@ -303,7 +303,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CompanyId")
+                    b.Property<Guid?>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -550,26 +550,51 @@ namespace Infrastructure.Migrations
                     b.ToTable("People");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.PracticalAction", b =>
+            modelBuilder.Entity("Domain.Entities.Business.Perspective", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Contractor")
+                    b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("Deadline")
+                    b.Property<Guid>("ProgramId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProgramId")
+                        .IsUnique();
+
+                    b.ToTable("Perspective");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.Program", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("LeaderId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("OperationalObjectiveId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("EndAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("datetime2");
@@ -580,78 +605,73 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeaderId");
+                    b.HasIndex("CompanyId");
 
-                    b.HasIndex("OperationalObjectiveId");
-
-                    b.ToTable("PracticalActions");
+                    b.ToTable("Program");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.PracticalActionIndicator", b =>
+            modelBuilder.Entity("Domain.Entities.Business.ProgramBigGoal", b =>
                 {
-                    b.Property<Guid>("IndicatorId")
+                    b.Property<Guid>("BigGoalId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PracticalActionId")
+                    b.Property<Guid>("ProgramId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("IndicatorId", "PracticalActionId");
+                    b.HasKey("BigGoalId", "ProgramId");
 
-                    b.HasIndex("PracticalActionId");
+                    b.HasIndex("ProgramId");
 
-                    b.ToTable("PracticalActionIndicators");
+                    b.ToTable("ProgramBigGoal");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.Project", b =>
+            modelBuilder.Entity("Domain.Entities.Business.Strategy", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Contractor")
+                    b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("GuaranteedFulfillmentAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("LeaderId")
+                    b.Property<Guid>("ProgramId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("OperationalObjectiveId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeaderId");
+                    b.HasIndex("ProgramId");
 
-                    b.HasIndex("OperationalObjectiveId");
-
-                    b.ToTable("Projects");
+                    b.ToTable("Strategy");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.ProjectIndicator", b =>
+            modelBuilder.Entity("Domain.Entities.Business.SWOT", b =>
                 {
-                    b.Property<Guid>("IndicatorId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProjectId")
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProgramId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("IndicatorId", "ProjectId");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
-                    b.HasIndex("ProjectId");
+                    b.HasKey("Id");
 
-                    b.ToTable("ProjectIndicators");
+                    b.HasIndex("ProgramId");
+
+                    b.ToTable("SWOT");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.System", b =>
@@ -706,6 +726,75 @@ namespace Infrastructure.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Systems");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.Transition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Contractor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LeaderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OperationalObjectiveId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LeaderId");
+
+                    b.HasIndex("OperationalObjectiveId");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Transitions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.TransitionIndicator", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IndicatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("Transition")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TransitionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IndicatorId");
+
+                    b.HasIndex("Transition");
+
+                    b.ToTable("TransitionIndicators");
                 });
 
             modelBuilder.Entity("Domain.Entities.Static.IndicatorCategory", b =>
@@ -879,19 +968,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Business.BigGoal", b =>
                 {
-                    b.HasOne("Domain.Entities.Account.Company", "Company")
+                    b.HasOne("Domain.Entities.Account.Company", null)
                         .WithMany("BigGoals")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyId");
 
-                    b.HasOne("Domain.Entities.Static.ProgramYear", "ProgramYear")
+                    b.HasOne("Domain.Entities.Static.ProgramYear", null)
                         .WithMany("BigGoals")
                         .HasForeignKey("ProgramYearId");
-
-                    b.Navigation("Company");
-
-                    b.Navigation("ProgramYear");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.BigGoalIndicator", b =>
@@ -1040,132 +1123,67 @@ namespace Infrastructure.Migrations
                     b.Navigation("Expertises");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.PracticalAction", b =>
+            modelBuilder.Entity("Domain.Entities.Business.Perspective", b =>
                 {
-                    b.HasOne("Domain.Entities.Business.Person", "Leader")
-                        .WithMany("PracticalActions")
-                        .HasForeignKey("LeaderId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Business.OperationalObjective", "OperationalObjective")
-                        .WithMany("PracticalActions")
-                        .HasForeignKey("OperationalObjectiveId")
+                    b.HasOne("Domain.Entities.Business.Program", "Program")
+                        .WithOne("Perspective")
+                        .HasForeignKey("Domain.Entities.Business.Perspective", "ProgramId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Domain.SubEntities.Financial", "Financials", b1 =>
-                        {
-                            b1.Property<Guid>("PracticalActionId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1L, 1);
-
-                            b1.Property<string>("Title")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("title");
-
-                            b1.HasKey("PracticalActionId", "Id");
-
-                            b1.ToTable("PracticalActions_Financials");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PracticalActionId");
-                        });
-
-                    b.Navigation("Financials");
-
-                    b.Navigation("Leader");
-
-                    b.Navigation("OperationalObjective");
+                    b.Navigation("Program");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.PracticalActionIndicator", b =>
+            modelBuilder.Entity("Domain.Entities.Business.Program", b =>
                 {
-                    b.HasOne("Domain.Entities.Business.Indicator", "Indicator")
+                    b.HasOne("Domain.Entities.Account.Company", "Company")
                         .WithMany()
-                        .HasForeignKey("IndicatorId")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Business.PracticalAction", "PracticalAction")
-                        .WithMany("Indicators")
-                        .HasForeignKey("PracticalActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Indicator");
-
-                    b.Navigation("PracticalAction");
+                    b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.Project", b =>
+            modelBuilder.Entity("Domain.Entities.Business.ProgramBigGoal", b =>
                 {
-                    b.HasOne("Domain.Entities.Business.Person", "Leader")
-                        .WithMany("Projects")
-                        .HasForeignKey("LeaderId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Business.OperationalObjective", "OperationalObjective")
-                        .WithMany("Projects")
-                        .HasForeignKey("OperationalObjectiveId")
+                    b.HasOne("Domain.Entities.Business.BigGoal", "BigGoal")
+                        .WithMany("Programs")
+                        .HasForeignKey("BigGoalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Domain.SubEntities.Financial", "Financials", b1 =>
-                        {
-                            b1.Property<Guid>("ProjectId")
-                                .HasColumnType("uniqueidentifier");
+                    b.HasOne("Domain.Entities.Business.Program", "Program")
+                        .WithMany("BigGoals")
+                        .HasForeignKey("ProgramId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
+                    b.Navigation("BigGoal");
 
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1L, 1);
-
-                            b1.Property<string>("Title")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("title");
-
-                            b1.HasKey("ProjectId", "Id");
-
-                            b1.ToTable("Projects_Financials");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProjectId");
-                        });
-
-                    b.Navigation("Financials");
-
-                    b.Navigation("Leader");
-
-                    b.Navigation("OperationalObjective");
+                    b.Navigation("Program");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.ProjectIndicator", b =>
+            modelBuilder.Entity("Domain.Entities.Business.Strategy", b =>
                 {
-                    b.HasOne("Domain.Entities.Business.Indicator", "Indicator")
+                    b.HasOne("Domain.Entities.Business.Program", "Program")
                         .WithMany()
-                        .HasForeignKey("IndicatorId")
+                        .HasForeignKey("ProgramId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Business.Project", "Project")
-                        .WithMany("Indicators")
-                        .HasForeignKey("ProjectId")
+                    b.Navigation("Program");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.SWOT", b =>
+                {
+                    b.HasOne("Domain.Entities.Business.Program", "Program")
+                        .WithMany()
+                        .HasForeignKey("ProgramId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Indicator");
-
-                    b.Navigation("Project");
+                    b.Navigation("Program");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.System", b =>
@@ -1177,6 +1195,74 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.Transition", b =>
+                {
+                    b.HasOne("Domain.Entities.Business.Person", "Leader")
+                        .WithMany("Transitions")
+                        .HasForeignKey("LeaderId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Business.OperationalObjective", "OperationalObjective")
+                        .WithMany("Transitions")
+                        .HasForeignKey("OperationalObjectiveId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Business.Transition", "Parent")
+                        .WithMany("Childs")
+                        .HasForeignKey("ParentId");
+
+                    b.OwnsMany("Domain.SubEntities.Financial", "Financials", b1 =>
+                        {
+                            b1.Property<Guid>("TransitionId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1L, 1);
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("title");
+
+                            b1.HasKey("TransitionId", "Id");
+
+                            b1.ToTable("Financial");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TransitionId");
+                        });
+
+                    b.Navigation("Financials");
+
+                    b.Navigation("Leader");
+
+                    b.Navigation("OperationalObjective");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Business.TransitionIndicator", b =>
+                {
+                    b.HasOne("Domain.Entities.Business.Indicator", "Indicator")
+                        .WithMany()
+                        .HasForeignKey("IndicatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Business.Transition", "Project")
+                        .WithMany("Indicators")
+                        .HasForeignKey("Transition");
+
+                    b.Navigation("Indicator");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Domain.Entities.Static.IndicatorCategory", b =>
@@ -1225,6 +1311,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("Indicators");
 
                     b.Navigation("OperationalObjectives");
+
+                    b.Navigation("Programs");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.Indicator", b =>
@@ -1236,25 +1324,25 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("Indicators");
 
-                    b.Navigation("PracticalActions");
-
-                    b.Navigation("Projects");
+                    b.Navigation("Transitions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Business.Person", b =>
                 {
-                    b.Navigation("PracticalActions");
-
-                    b.Navigation("Projects");
+                    b.Navigation("Transitions");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.PracticalAction", b =>
+            modelBuilder.Entity("Domain.Entities.Business.Program", b =>
                 {
-                    b.Navigation("Indicators");
+                    b.Navigation("BigGoals");
+
+                    b.Navigation("Perspective");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Business.Project", b =>
+            modelBuilder.Entity("Domain.Entities.Business.Transition", b =>
                 {
+                    b.Navigation("Childs");
+
                     b.Navigation("Indicators");
                 });
 

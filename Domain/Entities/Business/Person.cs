@@ -24,8 +24,7 @@ namespace Domain.Entities.Business
         [ForeignKey(nameof(CompanyId))]
         public Company Company { get; set; }
 
-        public ICollection<PracticalAction> PracticalActions { get; set; }
-        public ICollection<Project> Projects { get; set; }
+        public ICollection<Transition> Transitions { get; set; }
     }
 
     public class Expertise

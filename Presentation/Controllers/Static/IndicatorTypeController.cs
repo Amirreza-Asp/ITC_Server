@@ -44,7 +44,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(PermissionsSD.System_AddIndicatorType)]
+        [AccessControl(PermissionsSD.CommandIndicatorType)]
         public async Task<CommandResponse> Create([FromBody] CreateIndicatorTypeCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -52,7 +52,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Update")]
         [HttpPut]
-        [AccessControl(PermissionsSD.System_EditIndicatorType)]
+        [AccessControl(PermissionsSD.CommandIndicatorType)]
         public async Task<CommandResponse> Update([FromBody] UpdateIndicatorTypeCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -60,7 +60,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Remove")]
         [HttpDelete]
-        [AccessControl(PermissionsSD.System_RemoveIndicatorType)]
+        [AccessControl(PermissionsSD.CommandIndicatorType)]
         public async Task<CommandResponse> Remove([FromQuery] RemoveIndicatorTypeCommand command, CancellationToken cancellationToken) =>
             await _mediator.Send(command);
     }

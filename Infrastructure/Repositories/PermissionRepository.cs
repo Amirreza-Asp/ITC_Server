@@ -25,39 +25,69 @@ namespace Infrastructure.Repositories
         {
             var companyId = _userAccessor.GetCompanyId();
 
-            var blockedType = companyId.HasValue ? PermissionType.System : PermissionType.Company;
-
             var permissions = await _context.Permissions
                 .Where(b =>
-                    b.Discriminator == nameof(PermissionContainer) &&
-                    b.Type != blockedType)
+                    b.Discriminator == nameof(PermissionContainer))
                 .Include(b => ((PermissionContainer)b).Childrens)
                 .ToListAsync(cancellationToken);
 
             var containerList = permissions.Select(b => (PermissionContainer)b).ToList();
             var parent = containerList.First(b => b.Id == SD.TopPermissionId);
 
-            return ConvertToSelectListPermissions(containerList, parent, blockedType);
+            return ConvertToSelectListPermissions(containerList, parent);
         }
 
+        public async Task<PermissionTask> Task(CancellationToken cancellationToken)
+        {
+            var roleId = _userAccessor.RoleId();
+            var permissions =
+                await _context.Permissions
+                    .Where(b => b.Roles.Any(u => u.RoleId == roleId) && b.Discriminator == nameof(PermissionContainer))
+                    .Include(b => ((PermissionContainer)b).Childrens)
+                    .ToListAsync(cancellationToken);
 
-        private NestedPermissions ConvertToSelectListPermissions(List<PermissionContainer> permissionContainers, PermissionContainer permission, PermissionType blockedType)
+            var containers = permissions.Select(b => ((PermissionContainer)b)).ToList();
+            var parent = containers.First(b => b.Id == SD.TopPermissionId);
+            return ConvertToSelectListTask(containers, parent);
+        }
+
+        private NestedPermissions ConvertToSelectListPermissions(List<PermissionContainer> permissionContainers, PermissionContainer permission)
         {
             var selectListPermission = new NestedPermissions(permission.Id, permission.Title);
 
             foreach (var pe in permission.Childrens)
             {
-                if (pe.Discriminator == nameof(PermissionContainer) && pe.Type != blockedType)
+                if (pe.Discriminator == nameof(PermissionContainer))
                 {
                     var convertedChild =
                         ConvertToSelectListPermissions(
                             permissionContainers,
-                            permissionContainers.First(b => b.Id == pe.Id),
-                            blockedType);
+                            permissionContainers.First(b => b.Id == pe.Id));
                     selectListPermission.Childs.Add(convertedChild);
                 }
-                else if (pe.Type != blockedType)
+                else
                     selectListPermission.Childs.Add(new NestedPermissions(pe.Id, pe.Title));
+            }
+
+            return selectListPermission;
+        }
+
+        private PermissionTask ConvertToSelectListTask(List<PermissionContainer> permissionContainers, PermissionContainer permission)
+        {
+            var selectListPermission = new PermissionTask(permission.Title);
+
+            foreach (var pe in permission.Childrens)
+            {
+                if (pe.Discriminator == nameof(PermissionContainer))
+                {
+                    var convertedChild =
+                        ConvertToSelectListTask(
+                            permissionContainers,
+                            permissionContainers.First(b => b.Id == pe.Id));
+                    selectListPermission.Childs.Add(convertedChild);
+                }
+                else
+                    selectListPermission.Childs.Add(new PermissionTask(pe.Title));
             }
 
             return selectListPermission;

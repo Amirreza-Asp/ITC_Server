@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Application.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Presentation.CustomeAttributes
 {
@@ -13,17 +15,16 @@ namespace Presentation.CustomeAttributes
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            await base.OnActionExecutionAsync(context, next);
-            //var s = context.HttpContext.User.Claims;
+            var s = context.HttpContext.User.Claims;
 
-            //var _authService = context.HttpContext.RequestServices.GetService<IAuthService>();
+            var _authService = context.HttpContext.RequestServices.GetService<IAuthService>();
 
-            //var permissionResult = await _authService.CheckPermission("1234567890", Permission);
+            var permissionResult = await _authService.CheckPermission(Permission);
 
-            //if (permissionResult)
-            //    await base.OnActionExecutionAsync(context, next);
-            //else
-            //    context.Result = new BadRequestObjectResult("not access in action");
+            if (permissionResult)
+                await base.OnActionExecutionAsync(context, next);
+            else
+                context.Result = new BadRequestObjectResult("به این صفحه دسترسی ندارید");
         }
     }
 }

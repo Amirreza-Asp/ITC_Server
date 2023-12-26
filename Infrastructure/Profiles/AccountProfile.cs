@@ -1,11 +1,13 @@
 ﻿using Application.Services.Interfaces;
 using AutoMapper;
+using Domain;
 using Domain.Dtos.Account.Acts;
 using Domain.Dtos.Account.Permissions;
 using Domain.Dtos.Account.Roles;
 using Domain.Dtos.Account.SSO;
 using Domain.Dtos.Account.User;
 using Domain.Dtos.Account.Users;
+using Domain.Dtos.Companies;
 using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using System.Data;
@@ -67,6 +69,14 @@ namespace Infrastructure.Profiles
                 .ForMember(b => b.UniversityType, d => d.MapFrom(e => e.universityType))
                 .ForMember(b => b.Status, d => d.MapFrom(e => e.status))
                 .ForMember(b => b.CreateAt, d => d.MapFrom(e => e.createAt));
+
+            CreateMap<Company, NestedCompanies>()
+               .ForMember(b => b.IndicatorCount, d => d.MapFrom(e => e.Indicators.Count))
+               .ForMember(b => b.UsersCount, d => d.MapFrom(e => e.Acts.DistinctBy(b => b.UserId).Count()))
+               .ForMember(b => b.Childs, d => d.Ignore())
+               .ForMember(b => b.Agent, d => d.MapFrom(e =>
+                    e.Acts.Any(b => b.RoleId == SD.AgentId) ?
+                    e.Acts.First(b => b.RoleId == SD.AgentId).User.Name + " " + e.Acts.First(b => b.RoleId == SD.AgentId).User.Family : null));
 
 
             // Acts

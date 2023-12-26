@@ -38,6 +38,7 @@ namespace Infrastructure
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IIndicatorCategoryRepository, IndicatorCategoryRepository>();
+            services.AddScoped<IBigGoalRepository, BigGoalRepository>();
 
             // MediatR
             services.AddMediatR(Assembly.GetExecutingAssembly());

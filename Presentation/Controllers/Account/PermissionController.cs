@@ -22,5 +22,12 @@ namespace Presentation.Controllers.Account
             return await _permissionRepo.GetNestedPermissionsAsync(cancellationToken);
         }
 
+        [Route("Tasks")]
+        [HttpGet]
+        public async Task<PermissionTask> Tasks(CancellationToken cancellationToken)
+        {
+            return await _permissionRepo.Task(cancellationToken);
+        }
+
     }
 }

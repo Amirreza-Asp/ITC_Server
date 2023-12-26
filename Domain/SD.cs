@@ -14,6 +14,7 @@ namespace Domain
         public static Guid TopPermissionId = Guid.Parse("08151D71-9D6C-43EF-85A6-16043DCB6B3A");
 
         public static Guid AgentId = Guid.Parse("64BEFD80-D431-47CD-828C-C791EFD5A1CF");
+        public static Guid ManagmentPermissionId = Guid.Parse("8B078358-17DA-4DD0-9BE4-31125D5F7914");
 
         public const int ExpirationTime = 15;
 

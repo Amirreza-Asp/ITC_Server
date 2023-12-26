@@ -192,9 +192,48 @@ namespace Infrastructure.Repositories
                     .ToListAsync(cancellationToken);
         }
 
+
+        public async Task<List<TDto>> GetAllAsync<TDto>(GridQuery query, Expression<Func<TEntity, bool>> filters = null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, CancellationToken cancellationToken = default)
+        {
+            var queryContext = _dbSet.AsQueryable();
+
+            //filter
+            if (query.Filters != null && query.Filters.Any())
+            {
+                for (int i = 0; i < query.Filters.Count; i++)
+                {
+                    var filterExpression = QueryUtility.FilterExpression<TEntity>(query.Filters[i].column, query.Filters[i].value);
+                    if (filterExpression != null)
+                        queryContext = queryContext.Where(filterExpression);
+                }
+            }
+
+            if (filters != null)
+                queryContext = queryContext.Where(filters);
+
+            if (include != null)
+                queryContext = include(queryContext);
+
+            //sort
+            if (query.Sorted != null && query.Sorted.Length > 0)
+            {
+                for (int i = 0; i < query.Sorted.Length; i++)
+                {
+                    queryContext = queryContext.SortMeDynamically(query.Sorted[i].column, query.Sorted[i].desc);
+                }
+            }
+
+            var result = await queryContext
+                .ProjectTo<TDto>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            return result;
+        }
+
         public async Task<int> CountAsync(CancellationToken cancellationToken)
         {
             return await _dbSet.CountAsync(cancellationToken);
         }
+
     }
 }

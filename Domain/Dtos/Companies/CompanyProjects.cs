@@ -1,4 +1,4 @@
-﻿using Domain.Dtos.Projects;
+﻿using Domain.Dtos.Transitions;
 
 namespace Domain.Dtos.Companies
 {
@@ -6,6 +6,6 @@ namespace Domain.Dtos.Companies
     {
         public Guid CompanyId { get; set; }
         public String CompanyName { get; set; }
-        public List<ProjectListDto> Projects { get; set; }
+        public List<TransitionListDto> Projects { get; set; }
     }
 }

@@ -32,18 +32,18 @@ namespace Infrastructure.CQRS.Account.Companies
                  .Include(b => b.Indicators)
                     .ThenInclude(b => b.Indicator)
                  .Where(b =>
-                         request.Companies.Contains(b.CompanyId) &&
-                         (String.IsNullOrWhiteSpace(request.Year) || b.ProgramYear.Year.Contains(request.Year.Trim())))
+                         request.Companies.Contains(b.Programs.Select(b => b.Program.CompanyId).First()) &&
+                         (String.IsNullOrWhiteSpace(request.Year) || b.Programs.Any(b => b.Program.StartedAt.Year.ToString() == request.Year.Trim())))
                  .Select(op => new CompanyBigGoals
                  {
-                     CompanyId = op.CompanyId,
-                     CompanyName = op.Company.Title,
+                     CompanyId = op.Programs.First().Program.CompanyId,
+                     CompanyName = op.Programs.First().Program.Company.Title,
                      BigGoals = new List<BigGoalsListDto>
                      {
                             new BigGoalsListDto
                             {
                                 Id = op.Id,
-                                Year = op.ProgramYear.Year,
+                                Year = op.Programs.First().Program.StartedAt.Year.ToString(),
                                 Title = op.Title,
                                 Progress = op.Progress
                             }

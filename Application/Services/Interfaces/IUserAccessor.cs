@@ -4,5 +4,6 @@
     {
         Guid? GetCompanyId();
         String GetNationalId();
+        Guid RoleId();
     }
 }

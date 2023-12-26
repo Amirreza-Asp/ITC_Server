@@ -16,15 +16,13 @@ namespace Presentation.Controllers.Account
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IRepository<User> _userRepository;
         private readonly IMediator _mediator;
         private readonly IRepository<UserJoinRequest> _userJoinRequestsRepo;
         private readonly IUserAccessor _userAccessor;
         private readonly IRepository<Act> _actRepository;
 
-        public UserController(IRepository<User> userRepository, IMediator mediator, IRepository<UserJoinRequest> userJoinRequestsRepo, IUserAccessor userAccessor, IRepository<Act> actRepository)
+        public UserController(IMediator mediator, IRepository<UserJoinRequest> userJoinRequestsRepo, IUserAccessor userAccessor, IRepository<Act> actRepository)
         {
-            _userRepository = userRepository;
             _mediator = mediator;
             _userJoinRequestsRepo = userJoinRequestsRepo;
             _userAccessor = userAccessor;
@@ -33,7 +31,7 @@ namespace Presentation.Controllers.Account
 
         [HttpPost]
         [Route("GetAll")]
-        [AccessControl(PermissionsSD.General_UsersList)]
+        [AccessControl(PermissionsSD.UsersList)]
         public async Task<ListActionResult<UserSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
             return
@@ -44,7 +42,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Delete")]
         [HttpDelete]
-        [AccessControl(PermissionsSD.General_RemoveUser)]
+        [AccessControl(PermissionsSD.RemoveUser)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteUserCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -52,7 +50,7 @@ namespace Presentation.Controllers.Account
 
         [Route("ManageRole")]
         [HttpPut]
-        [AccessControl(PermissionsSD.General_ManageUserRole)]
+        [AccessControl(PermissionsSD.ManageUserRole)]
         public async Task<CommandResponse> ManageUserRole([FromBody] ManageUserRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -60,7 +58,7 @@ namespace Presentation.Controllers.Account
 
         [Route("JoinRequests")]
         [HttpPost]
-        [AccessControl(PermissionsSD.General_UsersRequests)]
+        [AccessControl(PermissionsSD.UsersRequests)]
         public async Task<ListActionResult<UserRequestsSummary>> GetJoinRequests([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
             var companyId = _userAccessor.GetCompanyId();
@@ -69,7 +67,7 @@ namespace Presentation.Controllers.Account
 
         [HttpPost]
         [Route("RequestResult")]
-        [AccessControl(PermissionsSD.General_UsersRequests)]
+        [AccessControl(PermissionsSD.UsersRequests)]
         public async Task<CommandResponse> RequestResult([FromBody] UserRequestResultCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

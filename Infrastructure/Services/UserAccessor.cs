@@ -16,6 +16,7 @@ namespace Infrastructure.Services
 
         public Guid? GetCompanyId()
         {
+            return Guid.Parse("aa12b4d2-652c-407a-a569-9edcd1e2c467");
             var claims = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity);
             var companyId = claims.FindFirst(AppClaims.CompanyId).Value;
             if (Guid.Empty == Guid.Parse(companyId))
@@ -27,6 +28,24 @@ namespace Infrastructure.Services
         {
             var claims = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity);
             return claims.FindFirst(AppClaims.NationalId).Value;
+        }
+
+        public Guid RoleId()
+        {
+            var claims = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity);
+            var roleId = claims.FindFirst(AppClaims.Role).Value;
+
+            if (String.IsNullOrEmpty(roleId))
+                return Guid.Empty;
+
+            try
+            {
+                return Guid.Parse(roleId);
+            }
+            catch (Exception ex)
+            {
+                return Guid.Empty;
+            }
         }
     }
 }

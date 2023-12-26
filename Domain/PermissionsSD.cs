@@ -4,83 +4,74 @@
     {
         #region General
         // role
-        public const String General_AddRole = "General_AddRole";
-        public const String General_EditRole = "General_EditRole";
-        public const String General_RemoveRole = "General_RemoveRole";
+        public const String QueryRole = "QueryRole";
+        public const String CommandRole = "CommandRole";
 
         // user
-        public const String General_UsersList = "General_UsersList";
-        public const String General_UsersRequests = "General_UsersRequests";
-        public const String General_RemoveUser = "General_RemoveUser";
-        public const String General_ManageUserRole = "General_ManageUserRole";
+        public const String UsersList = "UsersList";
+        public const String UsersRequests = "UsersRequests";
+        public const String RemoveUser = "RemoveUser";
+        public const String ManageUserRole = "ManageUserRole";
         #endregion
 
         #region System
         // Companies
-        public const String System_ShowBigGoals = "System_ShowBigGoals";
-        public const String System_ShowOperationalObjectives = "System_ShowOperationalObjectives";
-        public const String System_ShowProjects = "System_ShowProjects";
-        public const String System_ShowPracticalActions = "System_ShowPracticalActions";
-        public const String System_ShowManpowers = "System_ShowManpowers";
-        public const String System_ShowHardwareEquipments = "System_ShowHardwareEquipments";
-        public const String System_ShowSystems = "System_ShowSystems";
-        public const String System_ShowUsers = "System_ShowUsers";
+        public const String QueryCompany = "QueryCompany";
+        public const String CommandCompany = "CommandCompany";
+
+        public const String FilterCompany = "FilterCompany";
+
+        // Programs
+        public const String QueryProgramYear = "QueryProgramYear";
+        public const String CommandProgramYear = "CommandProgramYear";
+
+        // Strategies
+        public const String QueryStrategy = "QueryStrategy";
+        public const String CommandStrategy = "CommandStrategy";
+
+        // SWOT
+        public const String QuerySWOT = "QuerySWOT";
+        public const String CommandSWOT = "CommandSWOT";
 
         // ProgramYears
-        public const String System_AddProgramYear = "System_AddProgramYear";
-        public const String System_EditProgramYear = "System_EditProgramYear";
-        public const String System_RemoveProgramYear = "System_RemoveProgramYear";
+        public const String QueryProgram = "QueryProgram";
+        public const String CommandProgram = "CommandProgram";
+        public const String SeePerspective = "SeePerspective";
+        public const String UpsertPerspective = "UpsertPerspective";
 
         // IndicatorCategories
-        public const String System_AddIndicatorCategory = "System_AddIndicatorCategory";
-        public const String System_RemoveIndicatorCategory = "System_RemoveIndicatorCategory";
-        public const String System_EditIndicatorCategory = "System_EditIndicatorCategory";
+        public const String QueryIndicatorCategory = "QueryIndicatorCategory";
+        public const String CommandIndicatorCategory = "CommandIndicatorCategory";
 
         // IndicatorType
-        public const String System_AddIndicatorType = "System_AddIndicatorType";
-        public const String System_EditIndicatorType = "System_EditIndicatorType";
-        public const String System_RemoveIndicatorType = "System_RemoveIndicatorType";
+        public const String QueryIndicatorType = "QueryIndicatorType";
+        public const String CommandIndicatorType = "CommandIndicatorType";
         #endregion
 
         #region Company
         // big goal
-        public const String Company_AddBigGoal = "Company_CreateBigGoal";
-        public const String Company_RemoveBigGoal = "Company_RemoveBigGoal";
-        public const String Company_EditBigGoal = "Company_EditBigGoal";
-        public const String Company_ManageBigGoalIndicator = "Company_ManageBigGoalIndicator";
+        public const String QueryBigGoal = "QueryBigGoal";
+        public const String CommandBigGoal = "CommandBigGoal";
 
         // operational objective
-        public const String Company_AddOperationalObjective = "Company_AddOperationalObjective";
-        public const String Company_RemoveOperationalObjective = "Company_RemoveOperationalObjective";
-        public const String Company_EditOperationalObjective = "Company_EditOperationalObjective";
-        public const String Company_ManageOperationalObjectiveIndicator = "Company_ManageOperationalObjectiveIndicator";
+        public const String QueryOperationalObjective = "QueryOperationalObjective";
+        public const String CommandOperationalObjective = "CommandOperationalObjective";
 
-        // project
-        public const String Company_AddProject = "Company_AddProject";
-        public const String Company_EditProject = "Company_EditProject";
-        public const String Company_RemoveProject = "Company_RemoveProject";
-        public const String Company_ManageProjectIndicator = "Company_ManageProjectIndicator";
-
-        // practical action
-        public const String Company_AddPracticalAction = "Company_AddPracticalAction";
-        public const String Company_EditPracticalAction = "Company_EditPracticalAction";
-        public const String Company_RemovePracticalAction = "Company_RemovePracticalAction";
-        public const String Company_ManagePracticalActionIndicator = "Company_ManagePracticalActionIndicator";
+        // transition
+        public const String QueryTransition = "QueryTransition";
+        public const String CommandTransition = "CommandTransition";
 
         // person
-        public const String Company_AddPerson = "Company_AddPerson";
-        public const String Company_EditPerson = "Company_EditPerson";
-        public const String Company_RemovePerson = "Company_RemovePerson";
+        public const String QueryPerson = "QueryPerson";
+        public const String CommandPerson = "CommandPerson";
 
         // hardware equipment
-        public const String Company_AddHardwareEquipment = "Company_AddHardwareEquipment";
-        public const String Company_EditHardwareEquipment = "Company_EditHardwareEquipment";
-        public const String Company_RemoveHardwareEquipment = "Company_RemoveHardwareEquipment";
+        public const String QueryHardwareEquipment = "QueryHardwareEquipment";
+        public const String CommandHardwareEquipment = "CommandHardwareEquipment";
 
         // system
-        public const String Company_AddSystem = "Company_AddSystem";
-        public const String Company_EditSystem = "Company_EditSystem";
-        public const String Company_RemoveSystem = "Company_RemoveSystem";
+        public const String QuerySystem = "QuerySystem";
+        public const String CommandSystem = "CommandSystem";
 
         #endregion
     }

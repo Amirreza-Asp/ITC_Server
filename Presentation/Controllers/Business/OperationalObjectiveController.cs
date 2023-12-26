@@ -9,6 +9,7 @@ using Domain.Utiltiy;
 using Infrastructure.CQRS.Business.OperationalObjectives;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Presentation.CustomeAttributes;
 
 namespace Presentation.Controllers.Business
@@ -30,23 +31,33 @@ namespace Presentation.Controllers.Business
             _increpo = increpo;
         }
 
-
         [Route("GetAll")]
         [HttpPost]
-        public async Task<ListActionResult<OperationalObjectiveSummary>> GetAll(GridQuery query, CancellationToken cancellationToken)
+        [AccessControl(PermissionsSD.QueryOperationalObjective)]
+        public async Task<List<OperationalObjectiveSummary>> GetAll(GridQuery query, CancellationToken cancellationToken)
         {
-            return await _repo.GetAllAsync<OperationalObjectiveSummary>(query, cancellationToken);
+            return
+                await _repo.GetAllAsync<OperationalObjectiveSummary>(
+                    query: query,
+                    filters: null,
+                    include:
+                        source => source
+                            .Include(b => b.Indicators)
+                                .ThenInclude(b => b.Indicator),
+                    cancellationToken);
         }
 
         [Route("GetAllByBigGoalId")]
         [HttpGet]
-        public async Task<List<OperationalObjectiveCard>> GetAll([FromQuery] GetOperationalObjectivesByBigGoalIdQuery query, CancellationToken cancellationToken)
+        [AccessControl(PermissionsSD.QueryOperationalObjective)]
+        public async Task<List<OperationalObjectiveCard>> GetAll([FromQuery] OperationalObjectivesByBigGoalIdQuery query, CancellationToken cancellationToken)
         {
             return await _mediator.Send(query, cancellationToken);
         }
 
         [Route("Find")]
         [HttpGet]
+        [AccessControl(PermissionsSD.QueryOperationalObjective)]
         public async Task<OperationalObjectiveCard> Find([FromQuery] Guid id, CancellationToken cancellationToken)
         {
             return
@@ -55,6 +66,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Details")]
         [HttpGet]
+        [AccessControl(PermissionsSD.QueryOperationalObjective)]
         public async Task<OperationalObjectiveDetails> Details([FromQuery] Guid id, CancellationToken cancellationToken)
         {
             var data = await _repo.FirstOrDefaultAsync<OperationalObjectiveDetails>(b => b.Id == id, cancellationToken);
@@ -72,7 +84,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(PermissionsSD.Company_AddOperationalObjective)]
+        [AccessControl(PermissionsSD.CommandOperationalObjective)]
         public async Task<CommandResponse> Create([FromBody] CreateOperationalObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -81,7 +93,7 @@ namespace Presentation.Controllers.Business
 
         [Route("Update")]
         [HttpPut]
-        [AccessControl(PermissionsSD.Company_EditOperationalObjective)]
+        [AccessControl(PermissionsSD.CommandOperationalObjective)]
         public async Task<CommandResponse> Update([FromBody] UpdateOperationalObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -89,7 +101,7 @@ namespace Presentation.Controllers.Business
 
         [HttpDelete]
         [Route("Delete")]
-        [AccessControl(PermissionsSD.Company_RemoveOperationalObjective)]
+        [AccessControl(PermissionsSD.CommandOperationalObjective)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteOperationObjectiveCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -97,7 +109,7 @@ namespace Presentation.Controllers.Business
 
         [HttpPost]
         [Route("AddIndicator")]
-        [AccessControl(PermissionsSD.Company_ManageOperationalObjectiveIndicator)]
+        [AccessControl(PermissionsSD.CommandOperationalObjective)]
         public async Task<CommandResponse> AddIndicator([FromBody] AddOperationalObjectiveIndicatorCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -106,7 +118,7 @@ namespace Presentation.Controllers.Business
 
         [HttpDelete]
         [Route("RemoveIndicator")]
-        [AccessControl(PermissionsSD.Company_ManageOperationalObjectiveIndicator)]
+        [AccessControl(PermissionsSD.CommandOperationalObjective)]
         public async Task<CommandResponse> RemoveIndicator([FromQuery] RemoveOperationalObjectiveIndicatorCommand command, CancellationToken cancellation)
         {
             return await _mediator.Send(command, cancellation);

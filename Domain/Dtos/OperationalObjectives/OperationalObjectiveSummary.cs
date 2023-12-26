@@ -7,14 +7,13 @@
 
         public String Title { get; set; }
 
-        public String Description { get; set; }
-
-        public DateTime GuaranteedFulfillmentAt { get; set; }
+        public DateTime StartedAt { get; set; }
 
         public DateTime Deadline { get; set; }
+        public int ProjectsCount { get; set; }
+        public int ActionsCount { get; set; }
+        public int IndicatorsCount { get; set; }
+        public int Progress { get; set; }
 
-        public long Budget { get; set; }
-
-        public Guid BigGoalId { get; set; }
     }
 }

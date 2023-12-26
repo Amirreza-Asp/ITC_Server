@@ -32,12 +32,12 @@ namespace Infrastructure.CQRS.Account.Companies
                     .Include(b => b.Indicators)
                         .ThenInclude(b => b.Indicator)
                     .Where(b =>
-                            request.Companies.Contains(b.BigGoal.CompanyId) &&
+                            request.Companies.Contains(b.BigGoal.Programs.First().Program.CompanyId) &&
                             (String.IsNullOrWhiteSpace(request.BigGoal) || b.BigGoal.Title.Contains(request.BigGoal.Trim())))
                     .Select(op => new CompanyOperationalObjectives
                     {
-                        CompanyId = op.BigGoal.CompanyId,
-                        CompanyName = op.BigGoal.Company.Title,
+                        CompanyId = op.BigGoal.Programs.First().Program.CompanyId,
+                        CompanyName = op.BigGoal.Programs.First().Program.Company.Title,
                         OperationalObjecives = new List<OperationalObjectiveListDto>
                         {
                             new OperationalObjectiveListDto

@@ -9,8 +9,7 @@ namespace Application.Utility
     public static class JWTokenService
     {
         public static SymmetricSecurityKey Key =>
-           new SymmetricSecurityKey(Encoding.UTF8.GetBytes("dklfnasdklsdjlfsdjlfnlfnsdklfnklefnsdklfnasdklfnsdjlfwofwifewfoiwf"));
-
+           new SymmetricSecurityKey(Encoding.UTF8.GetBytes("dklfnasdklsdjlfsdjlfnlfnsdkl564564fnklefnsdklfnasdklfnsdjlfsds455wofwifewfoiwf"));
 
         public static string GenerateToken(String nationalId, String roleId, String ipAddress, Guid? companyId)
         {
@@ -51,8 +50,6 @@ namespace Application.Utility
         {
             return claims.FindFirst(AppClaims.FullName).Value;
         }
-
-
 
         public static DateTime GetTokenExpirationTime(this ClaimsIdentity claims)
         {

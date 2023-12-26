@@ -1,6 +1,4 @@
-﻿using Domain.Entities.Account;
-using Domain.Entities.Static;
-using Domain.Utiltiy;
+﻿using Domain.Utiltiy;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,12 +20,7 @@ namespace Domain.Entities.Business
         [NotMapped]
         public int Progress => Calculator.CalcProgress(Indicators.Select(b => b.Indicator));
 
-        public Guid? ProgramYearId { get; set; }
-        public ProgramYear ProgramYear { get; set; }
-
-        [ForeignKey(nameof(Company))]
-        public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
+        public ICollection<ProgramBigGoal> Programs { get; set; }
 
         public ICollection<OperationalObjective> OperationalObjectives { get; set; } = new List<OperationalObjective>();
         public ICollection<BigGoalIndicator> Indicators { get; set; } = new List<BigGoalIndicator>();

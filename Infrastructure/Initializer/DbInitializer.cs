@@ -169,15 +169,41 @@ namespace Infrastructure.Initializer
                         _context.Systems.Add(system);
                     }
 
+
+                    List<Guid> programsId = new List<Guid>();
+
+                    foreach (var program in Programs)
+                    {
+                        program.Id = Guid.NewGuid();
+                        programsId.Add(program.Id);
+                        program.CompanyId = comp.Id;
+
+                        _context.Program.Add(program);
+
+                        foreach (var item in SWOTs)
+                        {
+                            item.Id = Guid.NewGuid();
+                            item.ProgramId = program.Id;
+                            _context.SWOT.Add(item);
+                        }
+
+                        foreach (var item in Strategies)
+                        {
+                            item.Id = Guid.NewGuid();
+                            item.ProgramId = program.Id;
+                            _context.Strategy.Add(item);
+                        }
+
+                    }
+
                     foreach (var bigGoal in BigGoals)
                     {
                         bigGoal.Id = Guid.NewGuid();
-                        bigGoal.CompanyId = comp.Id;
                         var random = new Random();
-                        bigGoal.ProgramYearId = ProgramYears[random.Next(ProgramYears.Count)].Id;
 
                         var rnd = new Random();
 
+                        // set Indicator
                         for (int i = 0; i < rnd.Next(1, 6); i++)
                         {
                             var customeInd = CustomeIndicator;
@@ -196,6 +222,15 @@ namespace Infrastructure.Initializer
 
                             _context.Indicators.Add(customeInd);
                             _context.BigGoalIndicators.Add(bid);
+                        }
+
+                        var from = rnd.Next(1, programsId.Count);
+                        var to = programsId.Count - 1;
+
+                        for (int j = from; j <= to; j++)
+                        {
+                            var bigGoalProgram = new ProgramBigGoal { BigGoalId = bigGoal.Id, ProgramId = programsId[j] };
+                            _context.ProgramBigGoal.Add(bigGoalProgram);
                         }
 
                         _context.BigGoals.Add(bigGoal);
@@ -229,76 +264,14 @@ namespace Infrastructure.Initializer
                                 _context.OperationalObjectiveIndicators.Add(opoInd);
                             }
 
-                            foreach (var project in Projects)
+                            foreach (var transition in Transitions)
                             {
-                                project.Id = Guid.NewGuid();
-                                project.OperationalObjectiveId = opo.Id;
-                                project.LeaderId = peopleId[rnd.Next(peopleId.Count - 1)];
-
-                                project.Financials = People.Take(rnd.Next(0, People.Count - 1)).Select(b => new Financial { Title = b.Name }).ToList();
-                                project.Financials.AddRange(HardwareEquipments.Take(rnd.Next(0, HardwareEquipments.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
-                                project.Financials.AddRange(Systems.Take(rnd.Next(0, Systems.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
-
-                                for (int i = 0; i < rnd.Next(1, 6); i++)
-                                {
-                                    var ind = CustomeIndicator;
-                                    ind.Id = Guid.NewGuid();
-
-                                    var projectInd = new ProjectIndicator { IndicatorId = ind.Id, ProjectId = project.Id };
-
-                                    for (int j = 0; j < rnd.Next(0, 7); j++)
-                                    {
-                                        var progressIndicator = IndicatorProgress;
-                                        progressIndicator.Id = Guid.NewGuid();
-                                        progressIndicator.IndicatorId = ind.Id;
-                                        progressIndicator.Value = rnd.NextInt64(ind.InitValue, ind.GoalValue);
-
-                                        _context.IndicatorProgresses.Add(progressIndicator);
-                                    }
-
-                                    _context.Indicators.Add(ind);
-                                    _context.ProjectIndicators.Add(projectInd);
-                                }
-
-                                _context.Projects.Add(project);
+                                AddTransition(transition, opo.Id, peopleId, null, rnd.Next(0, 2) == 1 ? TransitionType.Project : TransitionType.Action);
                             }
 
-                            foreach (var practicalAction in PracticalActions)
-                            {
-                                practicalAction.Id = Guid.NewGuid();
-                                practicalAction.OperationalObjectiveId = opo.Id;
-                                practicalAction.LeaderId = peopleId[rnd.Next(peopleId.Count - 1)];
-
-                                practicalAction.Financials = People.Take(rnd.Next(0, People.Count - 1)).Select(b => new Financial { Title = b.Name }).ToList();
-                                practicalAction.Financials.AddRange(HardwareEquipments.Take(rnd.Next(0, HardwareEquipments.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
-                                practicalAction.Financials.AddRange(Systems.Take(rnd.Next(0, Systems.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
-
-
-                                for (int i = 0; i < rnd.Next(1, 6); i++)
-                                {
-                                    var ind = CustomeIndicator;
-                                    ind.Id = Guid.NewGuid();
-
-                                    var prInd = new PracticalActionIndicator { IndicatorId = ind.Id, PracticalActionId = practicalAction.Id };
-
-                                    for (int j = 0; j < rnd.Next(0, 7); j++)
-                                    {
-                                        var progressIndicator = IndicatorProgress;
-                                        progressIndicator.Id = Guid.NewGuid();
-                                        progressIndicator.IndicatorId = ind.Id;
-                                        progressIndicator.Value = rnd.NextInt64(ind.InitValue, ind.GoalValue);
-
-                                        _context.IndicatorProgresses.Add(progressIndicator);
-                                    }
-
-                                    _context.Indicators.Add(ind);
-                                    _context.PracticalActionIndicators.Add(prInd);
-                                }
-
-                                _context.PracticalActions.Add(practicalAction);
-                            }
                         }
                     }
+
 
                     for (int h = 0; h < Users.Count; h++)
                     {
@@ -352,14 +325,100 @@ namespace Infrastructure.Initializer
 
             if (!_context.RolePermissions.Any())
             {
-                var permissions = _context.Permissions.Where(b => b.Discriminator == nameof(PermissionItem)).ToList();
+                var permissions = _context.Permissions.ToList();
                 var agentPermissions = permissions.Select(b => new RolePermission { Id = Guid.NewGuid(), PermissionId = b.Id, RoleId = SD.AgentId });
                 _context.RolePermissions.AddRange(agentPermissions.DistinctBy(b => b.Id));
                 await _context.SaveChangesAsync();
             }
         }
 
+        private void AddTransition(Transition transition, Guid opId, List<Guid> peopleId, Guid? parentId, TransitionType type)
+        {
+            var rnd = new Random();
+            transition.Id = Guid.NewGuid();
+            transition.ParentId = parentId;
+            transition.OperationalObjectiveId = opId;
+            transition.LeaderId = peopleId[rnd.Next(peopleId.Count - 1)];
+            transition.Type = type;
+
+            transition.Financials = People.Take(rnd.Next(0, People.Count - 1)).Select(b => new Financial { Title = b.Name + " " + b.Family }).ToList();
+            transition.Financials.AddRange(HardwareEquipments.Take(rnd.Next(0, HardwareEquipments.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
+            transition.Financials.AddRange(Systems.Take(rnd.Next(0, Systems.Count - 1)).Select(b => new Financial { Title = b.Title }).ToList());
+
+
+            for (int i = 0; i < rnd.Next(1, 6); i++)
+            {
+                var ind = CustomeIndicator;
+                ind.Id = Guid.NewGuid();
+
+                var projectInd = new TransitionIndicator { IndicatorId = ind.Id, TransitionId = transition.Id };
+
+                for (int j = 0; j < rnd.Next(0, 7); j++)
+                {
+                    var progressIndicator = IndicatorProgress;
+                    progressIndicator.Id = Guid.NewGuid();
+                    progressIndicator.IndicatorId = ind.Id;
+                    progressIndicator.Value = rnd.NextInt64(ind.InitValue, ind.GoalValue);
+
+                    _context.IndicatorProgresses.Add(progressIndicator);
+                }
+
+                _context.Indicators.Add(ind);
+                _context.TransitionIndicators.Add(projectInd);
+            }
+
+            _context.Transitions.Add(transition);
+            foreach (var item in transition.Childs)
+                AddTransition(item, opId, peopleId, transition.Id, rnd.Next(0, 2) == 1 ? TransitionType.Project : TransitionType.Action);
+        }
+
         #region Business
+        private List<Program> Programs =>
+            new List<Program>
+            {
+                new Program
+                {
+                    Id = Guid.Parse("629AEEF2-F5FF-408A-A68D-A2DCB74FF75C"),
+                    Description = lorem,
+                    StartedAt = DateTime.Now.AddDays(new Random().Next(-500,0)),
+                    EndAt = DateTime.Now.AddDays(new Random().Next(100 , 600)),
+                    Title = "راهبری 1404"
+                },
+                new Program
+                {
+                    Id = Guid.Parse("729AEEF2-F5FF-408A-A68D-A2DCB74FF75C"),
+                    Description = lorem,
+                    StartedAt = DateTime.Now.AddDays(new Random().Next(-500,0)),
+                    EndAt = DateTime.Now.AddDays(new Random().Next(100 , 600)),
+                    Title = "راهبردی 1403"
+                },
+                new Program
+                {
+                    Id = Guid.Parse("829AEEF2-F5FF-408A-A68D-A2DCB74FF75C"),
+                    Description = lorem,
+                    StartedAt = DateTime.Now.AddDays(new Random().Next(-500,0)),
+                    EndAt = DateTime.Now.AddDays(new Random().Next(100 , 600)),
+                    Title = "راهبردی 1402",
+                    IsActive = true
+                },
+                new Program
+                {
+                    Id = Guid.Parse("929AEEF2-F5FF-408A-A68D-A2DCB74FF75C"),
+                    Description = lorem,
+                    StartedAt = DateTime.Now.AddDays(new Random().Next(-500,0)),
+                    EndAt = DateTime.Now.AddDays(new Random().Next(100 , 600)),
+                    Title = "راهبردی 1401"
+                },
+                new Program
+                {
+                    Id = Guid.Parse("529AEEF2-F5FF-408A-A68D-A2DCB74FF75C"),
+                    Description = lorem,
+                    StartedAt = DateTime.Now.AddDays(new Random().Next(-500,0)),
+                    EndAt = DateTime.Now.AddDays(new Random().Next(100 , 600)),
+                    Title = "راهبردی 1400"
+                },
+            };
+
         private List<Person> People =>
             new List<Person>
             {
@@ -409,7 +468,6 @@ namespace Infrastructure.Initializer
                     StartedAt= DateTime.Now ,
                     Title = "مجازی سازی دانشگاه" ,
                     Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
-                    ProgramYearId = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30E"),
                 },
                 new BigGoal{
                     Id =  Guid.NewGuid(),
@@ -417,15 +475,13 @@ namespace Infrastructure.Initializer
                     StartedAt= DateTime.Now ,
                     Title = "هوشمند سازی کلاس ها" ,
                     Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
-                    ProgramYearId = Guid.Parse("C98775E6-C22E-4B4B-8D4F-A9A2F5ECC30F"),
-                },
+                 },
                 new BigGoal{
                     Id =  Guid.Parse("4C6B36FE-4C0F-4D81-8F72-E9DBF80FC9DC"),
                     Deadline = DateTime.Now.AddYears(1) ,
                     StartedAt= DateTime.Now ,
                     Title = "افزایش سنوات دانشجویان" ,
                     Description = "مجازی سازی دانشگاه ها برای ایجاد برقراری ارتباط از راه دور و تدریس در هر شرایطی بدون نیاز به حضور در دانشگاه",
-                    ProgramYearId = Guid.NewGuid(),
                 },
             };
 
@@ -433,7 +489,7 @@ namespace Infrastructure.Initializer
             new List<OperationalObjective>
             {
                 new OperationalObjective{
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("A98F453F-2B00-4C24-AAE8-45455E0FDE6B"),
                     Deadline = DateTime.Now.AddYears(1),
                     Budget = 1000000000,
                     Description = lorem,
@@ -441,7 +497,7 @@ namespace Infrastructure.Initializer
                     Title = "افزایش تعداد سرور ها",
                 },
                 new OperationalObjective{
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("A98F453F-2B00-4C24-AAE8-45455E0FDE6A"),
                     Deadline = DateTime.Now.AddYears(1),
                     Budget = 157000000,
                     Description = lorem,
@@ -449,7 +505,7 @@ namespace Infrastructure.Initializer
                     Title = "ایجاد سامانه اموزشی",
                 },
                 new OperationalObjective{
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("A98F453F-2B00-4C24-AAE8-45455E0FDE69"),
                     Deadline = DateTime.Now.AddYears(1),
                     Budget = 157000000,
                     Description = lorem,
@@ -458,112 +514,148 @@ namespace Infrastructure.Initializer
                 },
             };
 
-        private List<Project> Projects =>
-            new List<Project>
+        private List<Transition> Transitions =>
+            new List<Transition>
             {
-                new Project
+                new Transition
                 {
                     Id = Guid.NewGuid(),
                     Contractor = "مهدی نیازی" ,
-                    GuaranteedFulfillmentAt= DateTime.Now.AddYears(1),
+                    Deadline= DateTime.Now.AddYears(1),
                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     StartedAt = DateTime.Now,
                     Title = "بهینه سازی سرور های موجود",
                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
-                    Financials = new List<Domain.SubEntities.Financial>
+                    Childs= new List<Transition>
                     {
-                        new Domain.SubEntities.Financial
+                        new Transition
                         {
-                            Title = "دارایی 1",
+                            Id = Guid.NewGuid(),
+                            Contractor = "میثم شریفی" ,
+                            Deadline= DateTime.Now.AddYears(1),
+                            LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                            StartedAt = DateTime.Now,
+                            Title = "خرید پردازنده جدید",
+                            OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                            Childs= new List<Transition>
+                             {
+                                 new Transition
+                                 {
+                                     Id = Guid.NewGuid(),
+                                     Deadline= DateTime.Now.AddYears(1),
+                                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                                     StartedAt = DateTime.Now,
+                                     Title = "خرید پردازنده intel",
+                                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                                 },
+                                new Transition
+                                 {
+                                     Id = Guid.NewGuid(),
+                                     Deadline= DateTime.Now.AddYears(1),
+                                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                                     StartedAt = DateTime.Now,
+                                     Title = "خرید پردازنده ryzen",
+                                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                                 },
+                             }
                         },
-                        new Domain.SubEntities.Financial
+                        new Transition
                         {
-                            Title = "دارایی 2",
-                        },
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 3",
+                            Id = Guid.NewGuid(),
+                            Contractor = "میثم شریفی" ,
+                            Deadline= DateTime.Now.AddYears(1),
+                            LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                            StartedAt = DateTime.Now,
+                            Title = "بهبود و ارتقا رم",
+                            OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
                         },
                     }
                 },
-                new Project
+
+                new Transition
+                {
+                    Id = Guid.NewGuid(),
+                    Contractor = "مهدی نیازی" ,
+                    Deadline= DateTime.Now.AddYears(1),
+                    LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                    StartedAt = DateTime.Now,
+                    Title = "افرایش سامانه ها",
+                    OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                    Childs= new List<Transition>
+                    {
+                        new Transition
+                        {
+                            Id = Guid.NewGuid(),
+                            Contractor = "میثم شریفی" ,
+                            Deadline= DateTime.Now.AddYears(1),
+                            LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                            StartedAt = DateTime.Now,
+                            Title = "خرید پردازنده جدید",
+                            OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                            Childs= new List<Transition>
+                             {
+                                 new Transition
+                                 {
+                                     Id = Guid.NewGuid(),
+                                     Deadline= DateTime.Now.AddYears(1),
+                                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                                     StartedAt = DateTime.Now,
+                                     Title = "خرید پردازنده intel",
+                                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                                 },
+                                new Transition
+                                 {
+                                     Id = Guid.NewGuid(),
+                                     Deadline= DateTime.Now.AddYears(1),
+                                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                                     StartedAt = DateTime.Now,
+                                     Title = "خرید پردازنده ryzen",
+                                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                                 },
+                             }
+                        },
+                        new Transition
+                        {
+                            Id = Guid.NewGuid(),
+                            Contractor = "میثم شریفی" ,
+                            Deadline= DateTime.Now.AddYears(1),
+                            LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                            StartedAt = DateTime.Now,
+                            Title = "بهبود و ارتقا رم",
+                            OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                            Childs = new List<Transition>
+                            {
+                                new Transition
+                                 {
+                                     Id = Guid.NewGuid(),
+                                     Deadline= DateTime.Now.AddYears(1),
+                                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                                     StartedAt = DateTime.Now,
+                                     Title = "خرید پردازنده intel",
+                                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                                 },
+                                new Transition
+                                 {
+                                     Id = Guid.NewGuid(),
+                                     Deadline= DateTime.Now.AddYears(1),
+                                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
+                                     StartedAt = DateTime.Now,
+                                     Title = "خرید پردازنده ryzen",
+                                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
+                                 },
+                            }
+                        },
+                    }
+                },
+                new Transition
                 {
                     Id = Guid.NewGuid(),
                     Contractor = "محمد قاری" ,
-                    GuaranteedFulfillmentAt= DateTime.Now.AddYears(1),
+                    Deadline= DateTime.Now.AddYears(1),
                     LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
                     StartedAt = DateTime.Now,
                     Title = "ایجاد پلتفرم ازمون",
                     OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
-                    Financials = new List<Domain.SubEntities.Financial>
-                    {
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 1",
-                        },
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 2",
-                        },
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 3",
-                        },
-                    }
-                },
-            };
-
-        private List<PracticalAction> PracticalActions =>
-            new List<PracticalAction>
-            {
-                new PracticalAction
-                {
-                    Id = Guid.NewGuid(),
-                    Contractor = "نادر نادری" ,
-                    Deadline = DateTime.Now.AddYears(1),
-                    LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
-                    Title = "خرید پروژکتور",
-                    StartedAt = DateTime.Now.AddDays(new Random().Next(-365 , 0)),
-                    Financials = new List<Domain.SubEntities.Financial>
-                    {
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 1",
-                        },
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 2",
-                        },
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 3",
-                        },
-                    }
-                },
-                new PracticalAction
-                {
-                    Id = Guid.NewGuid(),
-                    Contractor = "رها ازادی" ,
-                    Deadline = DateTime.Now.AddYears(1),
-                    LeaderId = Guid.Parse("440FF1EF-C4DD-4C6B-B943-A20EA411E9D8"),
-                    Title = "خرید کابل های ازمایشگاه ها",
-                    StartedAt = DateTime.Now.AddYears(new Random().Next(-500 , 0)),
-                    OperationalObjectiveId = Guid.Parse("BFA181D0-DF10-4493-8620-8FC61A3DB9F3"),
-                    Financials = new List<Domain.SubEntities.Financial>
-                    {
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 1",
-                        },
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 2",
-                        },
-                        new Domain.SubEntities.Financial
-                        {
-                            Title = "دارایی 3",
-                        },
-                    }
                 },
             };
 
@@ -659,6 +751,67 @@ namespace Infrastructure.Initializer
                 ProgressTime = DateTime.Now.AddDays(new Random().Next(-300, 300)),
             };
 
+        private List<SWOT> SWOTs =>
+            new List<SWOT>
+            {
+                new SWOT
+                {
+                    Content = "افزایش میزان بازدهی کلاس ها",
+                    Type = SWOTType.Strengths
+                },
+                new SWOT
+                {
+                    Content = "امکان ارائه کلاس های بیشتر",
+                    Type = SWOTType.Strengths
+                },
+                new SWOT
+                {
+                    Content = "کاهش منابع مصرفی دانشگاه و کارمندان",
+                    Type = SWOTType.Strengths
+                },
+                new SWOT
+                {
+                    Content = "کاهش مهارت های اجتماعی دانشجویان",
+                    Type = SWOTType.Weaknesses
+                },
+                new SWOT
+                {
+                    Content = "ناتوانی نسبی در اجرای کلاس های علوم ورزشی",
+                    Type = SWOTType.Weaknesses
+                },
+                new SWOT
+                {
+                    Content = "کاهش مسئولیت پذیری و افزایش تقلب در امتحانات",
+                    Type = SWOTType.Threats
+                },
+                new SWOT
+                {
+                    Content = "افزایش رشد و نواوری دانشگاه",
+                    Type = SWOTType.Opportunities
+                },
+                new SWOT
+                {
+                    Content = "همگام کردن مسائل دانشگاه به روش نوین و سیستماتیک",
+                    Type = SWOTType.Opportunities
+                },
+            };
+
+        private List<Strategy> Strategies =>
+            new List<Strategy>
+            {
+                new Strategy
+                {
+                    Content = "استفاده حداکثری از ظرفیت سامانه"
+                },
+                new Strategy
+                {
+                    Content = "استفاده از ICT"
+                },
+                new Strategy
+                {
+                    Content = "کاهش مخارج دانشگاه"
+                },
+            };
         #endregion
 
         #region Account
@@ -716,118 +869,121 @@ namespace Infrastructure.Initializer
                         PermissionType.General,
                         new List<Permission>
                         {
-                            //********* system **********
-                            new PermissionContainer("دانشگاه ها" , PermissionType.System ,
+
+                            new PermissionContainer("S.W.O.T" , PermissionType.System ,
                                 new List<Permission> {
-                                    new PermissionItem("اهداف کلان" , PermissionType.System , PermissionsSD.System_ShowBigGoals),
-                                    new PermissionItem("اهداف عملیاتی" , PermissionType.System , PermissionsSD.System_ShowOperationalObjectives),
-                                    new PermissionItem("پروژه ها" , PermissionType.System , PermissionsSD.System_ShowProjects),
-                                    new PermissionItem("اقدامات کاربردی" , PermissionType.System , PermissionsSD.System_ShowPracticalActions),
-                                    new PermissionItem("افراد" , PermissionType.System , PermissionsSD.System_ShowManpowers),
-                                    new PermissionItem("تجهیزات سخت افزاری" , PermissionType.System , PermissionsSD.System_ShowHardwareEquipments),
-                                    new PermissionItem("سامانه ها" , PermissionType.System , PermissionsSD.System_ShowSystems),
-                                    new PermissionItem("کاربران" , PermissionType.System , PermissionsSD.System_ShowUsers),
+                                    new PermissionItem("مشاهده S.W.O.T", PermissionType.System , PermissionsSD.QuerySWOT),
+                                    new PermissionItem("ویرایش S.W.O.T", PermissionType.System , PermissionsSD.CommandSWOT),
                                 }),
-                            new PermissionContainer("سال برنامه" , PermissionType.System ,
+
+                            new PermissionContainer("راهبرد" , PermissionType.System ,
                                 new List<Permission> {
-                                    new PermissionItem("افزودن سال برنامه", PermissionType.System , PermissionsSD.System_AddProgramYear),
-                                    new PermissionItem("ویرایش سال برنامه", PermissionType.System , PermissionsSD.System_EditProgramYear),
-                                    new PermissionItem("حذف سال برنامه", PermissionType.System , PermissionsSD.System_RemoveProgramYear),
+                                    new PermissionItem("مشاهده راهبرد", PermissionType.System , PermissionsSD.QueryStrategy),
+                                    new PermissionItem("ویرایش راهبرد", PermissionType.System , PermissionsSD.CommandStrategy),
                                 }),
-                            new PermissionContainer("طبقه بندی شاخص" , PermissionType.System ,
+
+                            new PermissionContainer("دورنما" , PermissionType.System ,
                                 new List<Permission> {
-                                    new PermissionItem("افزودن طبقه بندی شاخص", PermissionType.System , PermissionsSD.System_AddIndicatorCategory),
-                                    new PermissionItem("ویرایش طبقه بندی شاخص", PermissionType.System , PermissionsSD.System_EditIndicatorCategory),
-                                    new PermissionItem("حذف طبقه بندی شاخص ", PermissionType.System , PermissionsSD.System_RemoveIndicatorCategory),
+                                    new PermissionItem("مشاهده دورنما", PermissionType.System , PermissionsSD.SeePerspective),
+                                    new PermissionItem("ویرایش دورنما", PermissionType.System , PermissionsSD.UpsertPerspective),
                                 }),
-                            new PermissionContainer("واحد های شاخص" , PermissionType.System ,
-                                new List<Permission> {
-                                    new PermissionItem("افزودن واحد شاخص", PermissionType.System , PermissionsSD.System_AddIndicatorType),
-                                    new PermissionItem("ویرایش واحد شاخص", PermissionType.System , PermissionsSD.System_EditIndicatorType),
-                                    new PermissionItem("حذف واحد شاخص ", PermissionType.System , PermissionsSD.System_RemoveIndicatorType),
-                                }),
-                            //********* company *********
-                            new PermissionContainer("اهداف کلان" , PermissionType.Company ,
+
+                            new PermissionContainer("هدف کلان" , PermissionType.Company ,
                                 new List<Permission>
                             {
-                                new PermissionItem("افزودن هدف کلان" , PermissionType.Company , PermissionsSD.Company_AddBigGoal),
-                                new PermissionItem("ویرایش هدف کلان", PermissionType.Company , PermissionsSD.Company_EditBigGoal),
-                                new PermissionItem("حذف هدف کلان" , PermissionType.Company,  PermissionsSD.Company_RemoveBigGoal),
-                                new PermissionItem("مدیریت شاخص های هدف کلان" , PermissionType.Company,  PermissionsSD.Company_ManageBigGoalIndicator)
+                                new PermissionItem("مشاهده هدف کلان" , PermissionType.Company , PermissionsSD.QueryBigGoal),
+                                new PermissionItem("ویرایش هدف کلان" , PermissionType.Company , PermissionsSD.CommandBigGoal),
                             }),
-                            new PermissionContainer("اهداف عملیاتی" , PermissionType.Company ,
+
+                            new PermissionContainer("هدف عملیاتی" , PermissionType.Company ,
                                 new List<Permission>
                             {
-                                new PermissionItem("افزودن هدف عملیاتی"  , PermissionType.Company,  PermissionsSD.Company_AddOperationalObjective),
-                                new PermissionItem("ویرایش هدف عملیاتی" , PermissionType.Company ,  PermissionsSD.Company_EditOperationalObjective),
-                                new PermissionItem("حذف هدف عملیاتی" , PermissionType.Company ,  PermissionsSD.Company_RemoveOperationalObjective),
-                                new PermissionItem("مدیریت شاخص‌ های هدف عملیاتی" , PermissionType.Company ,  PermissionsSD.Company_ManageOperationalObjectiveIndicator),
+                                new PermissionItem("مشاهده هدف عملیاتی"  , PermissionType.Company,  PermissionsSD.QueryOperationalObjective),
+                                new PermissionItem("ویرایش هدف عملیاتی"  , PermissionType.Company,  PermissionsSD.CommandOperationalObjective),
                             }),
-                            new PermissionContainer("منابع" , PermissionType.Company ,
-                                new List<Permission>{
-                                new PermissionContainer("افراد" , PermissionType.Company ,
-                                    new List<Permission>
-                                    {
-                                        new PermissionItem("افزودن فرد" , PermissionType.Company ,  PermissionsSD.Company_AddPerson),
-                                        new PermissionItem("ویرایش فرد" , PermissionType.Company , PermissionsSD.Company_EditPerson),
-                                        new PermissionItem("حذف فرد" , PermissionType.Company ,  PermissionsSD.Company_RemovePerson),
-                                    }),
-                                new PermissionContainer("تجهیزات سخت افزاری" , PermissionType.Company ,
-                                    new List<Permission>
-                                    {
-                                        new PermissionItem("افزودن تجهیز سخت افزاری" , PermissionType.Company ,  PermissionsSD.Company_AddHardwareEquipment),
-                                        new PermissionItem("ویرایش تجهیز سخت افزاری" , PermissionType.Company ,  PermissionsSD.Company_EditHardwareEquipment),
-                                        new PermissionItem("حذف تجهیز سخت افزاری" , PermissionType.Company ,  PermissionsSD.Company_RemoveHardwareEquipment),
-                                    }),
-                                new PermissionContainer("سامانه ها" , PermissionType.Company ,
-                                    new List<Permission>
-                                    {
-                                        new PermissionItem("افزودن سامانه" , PermissionType.Company ,  PermissionsSD.Company_AddSystem),
-                                        new PermissionItem("ویرایش سامانه" , PermissionType.Company ,  PermissionsSD.Company_EditSystem),
-                                        new PermissionItem("حذف سامانه" , PermissionType.Company ,  PermissionsSD.Company_RemoveSystem),
-                                    }),
-                            }),
+
                             new PermissionContainer("گذار" , PermissionType.Company ,
                                 new List<Permission>
-                            {
-                                new PermissionContainer("پروژه ها" , PermissionType.Company ,
+                                {
+                                    new PermissionItem("مشاهده پروژه و اقدام" , PermissionType.Company ,  PermissionsSD.QueryTransition),
+                                    new PermissionItem("ویرایش پروژه و اقدام" , PermissionType.Company ,  PermissionsSD.CommandTransition),
+                                }),
+                        }),
+                    new PermissionContainer(
+                        SD.ManagmentPermissionId ,
+                        "مدیریت" ,
+                        PermissionType.System ,
+                        new List<Permission>
+                        {
+
+                            new PermissionItem("بررسی اطلاعات دانشگاه ها" , PermissionType.System , PermissionsSD.FilterCompany),
+                            new PermissionContainer("دارایی" , PermissionType.Company ,
+                                new List<Permission>{
+                                new PermissionContainer("فرد" , PermissionType.Company ,
                                     new List<Permission>
                                     {
-                                        new PermissionItem("افزودن پروژه" , PermissionType.Company ,  PermissionsSD.Company_AddProject),
-                                        new PermissionItem("ویرایش پروژه" , PermissionType.Company ,  PermissionsSD.Company_EditProject),
-                                        new PermissionItem("حذف پروژه" , PermissionType.Company ,  PermissionsSD.Company_RemoveProject),
-                                        new PermissionItem("مدیریت شاخص های پروژه" , PermissionType.Company ,  PermissionsSD.Company_ManageProjectIndicator)
+                                        new PermissionItem("مشاهده فرد" , PermissionType.Company ,  PermissionsSD.QueryPerson),
+                                        new PermissionItem("ویرایش فرد" , PermissionType.Company ,  PermissionsSD.CommandPerson),
                                     }),
-                                new PermissionContainer("اقدامات کاربری" , PermissionType.Company ,
+                                new PermissionContainer("تجهیز سخت افزاری" , PermissionType.Company ,
                                     new List<Permission>
                                     {
-                                        new PermissionItem("افزودن اقدام" , PermissionType.Company ,  PermissionsSD.Company_AddPracticalAction),
-                                        new PermissionItem("ویرایش اقدام" , PermissionType.Company ,  PermissionsSD.Company_EditPracticalAction),
-                                        new PermissionItem("حذف اقدام" , PermissionType.Company ,  PermissionsSD.Company_RemovePracticalAction),
-                                        new PermissionItem("مدیریت شاخص های اقدام" , PermissionType.Company ,  PermissionsSD.Company_ManagePracticalActionIndicator)
+                                        new PermissionItem("مشاهده تجهیز سخت افزاری" , PermissionType.Company ,  PermissionsSD.QueryHardwareEquipment),
+                                        new PermissionItem("ویرایش تجهیز سخت افزاری" , PermissionType.Company ,  PermissionsSD.CommandHardwareEquipment),
+                                    }),
+                                new PermissionContainer("سامانه" , PermissionType.Company ,
+                                    new List<Permission>
+                                    {
+                                        new PermissionItem("مشاهده سامانه" , PermissionType.Company ,  PermissionsSD.QuerySystem),
+                                        new PermissionItem("ویرایش سامانه" , PermissionType.Company ,  PermissionsSD.CommandSystem),
                                     }),
                             }),
+                            new PermissionContainer(
+                                 "روند" ,
+                                 PermissionType.System,
+                                 new List<Permission>
+                                 {
+                                     new PermissionContainer("برنامه" , PermissionType.System ,
+                                        new List<Permission> {
+                                           new PermissionItem("مشاهده برنامه", PermissionType.System , PermissionsSD.QueryProgram),
+                                           new PermissionItem("ویرایش برنامه", PermissionType.System , PermissionsSD.CommandProgram),
+                                        }),
+                                     new PermissionContainer("طبقه بندی شاخص" , PermissionType.System ,
+                                        new List<Permission> {
+                                            new PermissionItem("مشاهده طبقه بندی شاخص", PermissionType.System , PermissionsSD.QueryIndicatorCategory),
+                                            new PermissionItem("ویرایش طبقه بندی شاخص", PermissionType.System , PermissionsSD.CommandIndicatorCategory),
+                                        }),
+                                    new PermissionContainer("واحد شاخص" , PermissionType.System ,
+                                        new List<Permission> {
+                                            new PermissionItem("مشاهده واحد شاخص", PermissionType.System , PermissionsSD.QueryIndicatorType),
+                                            new PermissionItem("ویرایش واحد شاخص", PermissionType.System , PermissionsSD.CommandIndicatorType),
+                                        }),
+                                 }),
+                             new PermissionContainer(
+                                "حساب" ,
+                                PermissionType.General ,
+                                new List<Permission>
+                                {
+                                    new PermissionContainer("نقش", PermissionType.System , new List<Permission>
+                                    {
+                                        new PermissionItem("مشاهده نقش" , PermissionType.System ,PermissionsSD.QueryRole),
+                                        new PermissionItem("ویرایش نقش" , PermissionType.System ,PermissionsSD.CommandRole),
+                                    }),
+                                    new PermissionContainer("کاربران", PermissionType.System , new List<Permission>
+                                    {
+                                        new PermissionItem("مشاهده کاربران" , PermissionType.System ,PermissionsSD.UsersList),
+                                        new PermissionItem("مدیریت درخواست ورود کاربر", PermissionType.System , PermissionsSD.UsersRequests),
+                                        new PermissionItem("حذف کاربر", PermissionType.System , PermissionsSD.RemoveUser),
+                                        new PermissionItem("تعیین دسترسی", PermissionType.System , PermissionsSD.ManageUserRole),
+                                    }),
+                                    new PermissionContainer("سازمان ها" , PermissionType.System ,
+                                        new List<Permission> {
+                                            new PermissionItem("مشاهده ساختار سازمانی" , PermissionType.System , PermissionsSD.QueryCompany),
+                                            new PermissionItem("ویرایش سازمان" , PermissionType.System , PermissionsSD.CommandCompany),
+                                    }),
+                             }),
+
                         }),
-                    //********* general **********
-                    new PermissionContainer(
-                        "حساب" ,
-                        PermissionType.General ,
-                        new List<Permission>
-                            {
-                                new PermissionContainer("نقش ها", PermissionType.General , new List<Permission>
-                                {
-                                    new PermissionItem("افزودن نقش" , PermissionType.General ,PermissionsSD.General_AddRole),
-                                    new PermissionItem("ویرایش نقش", PermissionType.General , PermissionsSD.General_EditRole),
-                                    new PermissionItem("حذف نقش", PermissionType.General , PermissionsSD.General_RemoveRole),
-                                }),
-                                new PermissionContainer("کاربران", PermissionType.General , new List<Permission>
-                                {
-                                    new PermissionItem("مشاهده کاربران" , PermissionType.General ,PermissionsSD.General_UsersList),
-                                    new PermissionItem("مدیریت درخواست ورود کاربران", PermissionType.General , PermissionsSD.General_UsersRequests),
-                                    new PermissionItem("حذف کاربر", PermissionType.General , PermissionsSD.General_RemoveUser),
-                                    new PermissionItem("تعیین دسترسی", PermissionType.General , PermissionsSD.General_ManageUserRole),
-                                })
-                        })
                 }
             );
 

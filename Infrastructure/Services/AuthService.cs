@@ -34,14 +34,15 @@ namespace Infrastructure.Services
             _userAccessor = userAccessor;
         }
 
-        public async Task<bool> CheckPermission(String nationalCode, String permissionFlag)
+        public async Task<bool> CheckPermission(String permissionFlag)
         {
-            String permissionCacheKey = $"permissions-{nationalCode}";
+            var roleId = _userAccessor.RoleId();
+            String permissionCacheKey = $"permissions-{roleId}";
             var permissionFlags = new List<string>();
 
             if (!_memoryCache.TryGetValue(permissionCacheKey, out permissionFlags))
             {
-                permissionFlags = await GetFromContext(nationalCode);
+                permissionFlags = await GetFromContext(roleId);
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromMinutes(1));
@@ -229,15 +230,17 @@ namespace Infrastructure.Services
         {
             var permissons =
                 await _context.Permissions
-                    .Where(b => b.Discriminator == nameof(PermissionItem) &&
-                                b.Roles.Any(b => b.Role.Acts.Any(b => b.User.NationalId == nationalCode)))
+                    .Where(b => b.Roles.Any(b => b.Role.Acts.Any(b => b.User.NationalId == nationalCode)))
                     .ToListAsync();
 
             List<PermissionSummary> data = new List<PermissionSummary>();
             permissons.ForEach(item =>
             {
-                var permissinItem = (PermissionItem)item;
-                data.Add(_mapper.Map<PermissionSummary>(permissinItem));
+                data.Add(new PermissionSummary
+                {
+                    Title = item.Title,
+                    Value = item.Discriminator != nameof(PermissionItem) ? null : ((PermissionItem)item).PageValue
+                });
             });
 
             return data;
@@ -256,7 +259,7 @@ namespace Infrastructure.Services
             _contextAccessor.HttpContext.Response.Cookies.Append(SD.AuthInfo, JsonSerializer.Serialize(authInfo), new CookieOptions()
             {
                 Expires = DateTime.Now.AddMonths(1),
-                //HttpOnly = true,
+                HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.None
@@ -265,7 +268,7 @@ namespace Infrastructure.Services
             _contextAccessor.HttpContext.Response.Cookies.Append(SD.UswToken, ProtectorData.Encrypt(uswToken), new CookieOptions()
             {
                 Expires = DateTime.Now.AddMonths(1),
-                //HttpOnly = true,
+                HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.None
@@ -339,18 +342,11 @@ namespace Infrastructure.Services
             }
         }
 
-        private async Task<List<String>> GetFromContext(String nationalCode)
+        private async Task<List<String>> GetFromContext(Guid roleId)
         {
-            // get user role
-            var userRole = await _context.Act.FirstOrDefaultAsync(b => b.User.NationalId == nationalCode);
-
-            if (userRole == null)
-                return new List<String>();
-
-            // return permissions
             var permissions =
                 await _context.RolePermissions
-                    .Where(b => b.RoleId == userRole.RoleId && b.Permission.Discriminator == nameof(PermissionItem))
+                    .Where(b => b.RoleId == roleId && b.Permission.Discriminator == nameof(PermissionItem))
                     .Select(b => (PermissionItem)b.Permission)
                     .ToListAsync();
 

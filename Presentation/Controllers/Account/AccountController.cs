@@ -9,6 +9,8 @@ using Domain.Dtos.Account.User;
 using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using Infrastructure;
+using Infrastructure.CQRS.Account.Users;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,8 +34,9 @@ namespace Presentation.Controllers.Account
         private readonly IUserAccessor _userAccessor;
         private readonly IMemoryCache _memoryCache;
         private readonly IRepository<Act> _actRepo;
+        private readonly IMediator _mediator;
 
-        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor, ApplicationDbContext context, IUserAccessor userAccessor, IMemoryCache memoryCache, IRepository<Act> actRepo)
+        public AccountController(IHttpClientFactory clientFactory, ISSOService ssoService, IAuthService authService, IMapper mapper, IRepository<Company> companyRepo, IHttpContextAccessor contextAccessor, ApplicationDbContext context, IUserAccessor userAccessor, IMemoryCache memoryCache, IRepository<Act> actRepo, IMediator mediator)
         {
             _clientFactory = clientFactory;
             _ssoService = ssoService;
@@ -45,6 +48,7 @@ namespace Presentation.Controllers.Account
             _userAccessor = userAccessor;
             _memoryCache = memoryCache;
             _actRepo = actRepo;
+            _mediator = mediator;
         }
 
         [Route("Login")]
@@ -61,6 +65,8 @@ namespace Presentation.Controllers.Account
             await _authService.LoginAsync(
                nationalId: user.NationalId,
                uswToken: "sdlkasdklasdjklasdklasdkl");
+
+            return Ok();
 
             return Redirect(redirectUrl);
 
@@ -81,25 +87,6 @@ namespace Presentation.Controllers.Account
             return Redirect(url);
         }
 
-
-        [Route("RaziLogin")]
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> RaziLogin([FromQuery] String redirectUrl)
-        {
-            var user =
-                await _context.Act
-                    .Where(b => b.CompanyId == Guid.Parse("aa12b4d2-652c-407a-a569-9edcd1e2c467"))
-                    .Select(b => b.User)
-                    .FirstOrDefaultAsync();
-
-            await _authService.LoginAsync(
-               nationalId: user.NationalId,
-               uswToken: "sdlkasdklasdjklasdklasdkl");
-
-            //return Ok();
-            return Redirect(redirectUrl);
-        }
 
         [Route("authorizeLogin")]
         [HttpGet]
@@ -158,6 +145,14 @@ namespace Presentation.Controllers.Account
             return await _actRepo.GetAllAsync<ActSummary>(b => b.UserId == Guid.Parse(ProtectorData.Decrypt(userTempInfo.UserId)));
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("UserRequest")]
+        public async Task<CommandResponse> UserRequest([FromBody] UserRequestCommand command, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(command, cancellationToken);
+        }
+
         [HttpGet]
         [Route("Logout")]
         public async Task<CommandResponse> Logout()
@@ -186,8 +181,8 @@ namespace Presentation.Controllers.Account
                 FullName = "امیررضا محمدی",
                 Gender = "مرد",
                 Mobile = "09211573936",
-                NationalId = SD.DefaultNationalId,
-                Permissions = await _authService.GetPermissionsAsync(SD.DefaultNationalId)
+                NationalId = "3360408330",
+                Permissions = await _authService.GetPermissionsAsync("3360408330"),
             });
 
             //var hashedUswToken = HttpContext.Request.Cookies[SD.UswToken];

@@ -28,6 +28,7 @@ namespace Presentation.Controllers.Business
 
         [Route("GetAll")]
         [HttpPost]
+        [AccessControl(PermissionsSD.QueryHardwareEquipment)]
         public async Task<ListActionResult<HardwareEquipment>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
             var companyId = _userAccessor.GetCompanyId();
@@ -35,6 +36,7 @@ namespace Presentation.Controllers.Business
         }
 
         [HttpGet("Find/{id}")]
+        [AccessControl(PermissionsSD.QueryHardwareEquipment)]
         public async Task<HardwareEquipment> Find(Guid id, CancellationToken cancellation)
         {
             return await _repo.FirstOrDefaultAsync<HardwareEquipment>(d => d.Id == id, cancellationToken: cancellation);
@@ -42,10 +44,26 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(PermissionsSD.Company_AddHardwareEquipment)]
+        [AccessControl(PermissionsSD.CommandHardwareEquipment)]
         public async Task<CommandResponse> Create([FromBody] CreateHardwareEquipmentCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
+        }
+
+        [Route("Update")]
+        [HttpPut]
+        [AccessControl(PermissionsSD.CommandBigGoal)]
+        public async Task<CommandResponse> Update([FromBody] UpdateHardwareEquipmentCommand command, CancellationToken cancellation)
+        {
+            return await _mediator.Send(command, cancellation);
+        }
+
+        [Route("Delete")]
+        [HttpDelete]
+        [AccessControl(PermissionsSD.CommandBigGoal)]
+        public async Task<CommandResponse> Delete([FromQuery] DeleteHardwareEquipmentCommand command, CancellationToken cancellation)
+        {
+            return await _mediator.Send(command, cancellation);
         }
     }
 }

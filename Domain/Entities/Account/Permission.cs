@@ -22,16 +22,12 @@ namespace Domain.Entities.Account
             Id = Guid.NewGuid();
             Title = title;
             Type = type;
+            Discriminator = nameof(PermissionContainer);
         }
 
-        public PermissionContainer(string title, PermissionType type, List<Permission> childrens)
-        {
-            GuardAgaintSelfChildren(childrens.ToArray());
 
-            Id = Guid.NewGuid();
-            Title = title;
-            Type = type;
-            _childrens = childrens;
+        public PermissionContainer(string title, PermissionType type, List<Permission> childrens) : this(Guid.NewGuid(), title, type, childrens)
+        {
         }
 
         public PermissionContainer(Guid id, string title, PermissionType type, List<Permission> childrens)
@@ -41,6 +37,7 @@ namespace Domain.Entities.Account
             Id = id;
             Title = title;
             Type = type;
+            Discriminator = nameof(PermissionContainer);
             _childrens = childrens;
         }
 
@@ -76,6 +73,7 @@ namespace Domain.Entities.Account
             Title = title;
             PageValue = pageValue;
             Type = type;
+            Discriminator = nameof(PermissionItem);
         }
         private PermissionItem()
         { }

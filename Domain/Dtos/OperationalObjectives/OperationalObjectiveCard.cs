@@ -1,4 +1,4 @@
-﻿using Domain.Dtos.Shared;
+﻿using Domain.Dtos.Transitions;
 
 namespace Domain.Dtos.OperationalObjectives
 {
@@ -19,7 +19,6 @@ namespace Domain.Dtos.OperationalObjectives
 
         public bool Active { get; set; }
 
-        public List<ProjectActionCard> Projects { get; set; } = new List<ProjectActionCard>();
-        public List<ProjectActionCard> Actions { get; set; } = new List<ProjectActionCard>();
+        public List<NestedTransition> Transitions { get; set; } = new List<NestedTransition>();
     }
 }

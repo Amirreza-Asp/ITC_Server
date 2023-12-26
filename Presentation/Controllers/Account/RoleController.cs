@@ -29,6 +29,7 @@ namespace Presentation.Controllers.Account
 
         [Route("GetAll")]
         [HttpPost]
+        [AccessControl(PermissionsSD.QueryRole)]
         public async Task<ListActionResult<RoleSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
             return
@@ -47,6 +48,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Find")]
         [HttpGet]
+        [AccessControl(PermissionsSD.QueryRole)]
         public async Task<RoleDetails> Find([FromQuery] Guid id, CancellationToken cancellationToken)
         {
             return await _roleRepository.FirstOrDefaultAsync<RoleDetails>(b => b.Id == id, cancellationToken);
@@ -54,7 +56,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(PermissionsSD.General_AddRole)]
+        [AccessControl(PermissionsSD.CommandRole)]
         public async Task<CommandResponse> Create([FromBody] CreateRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -62,7 +64,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Update")]
         [HttpPut]
-        [AccessControl(PermissionsSD.General_EditRole)]
+        [AccessControl(PermissionsSD.CommandRole)]
         public async Task<CommandResponse> Update([FromBody] UpdateRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
@@ -70,7 +72,7 @@ namespace Presentation.Controllers.Account
 
         [Route("Remove")]
         [HttpDelete]
-        [AccessControl(PermissionsSD.General_RemoveRole)]
+        [AccessControl(PermissionsSD.CommandRole)]
         public async Task<CommandResponse> Remove([FromQuery] DeleteRoleCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);

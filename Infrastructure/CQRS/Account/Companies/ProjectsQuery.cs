@@ -1,5 +1,6 @@
 ﻿using Domain.Dtos.Companies;
-using Domain.Dtos.Projects;
+using Domain.Dtos.Transitions;
+using Domain.Utiltiy;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,28 +24,39 @@ namespace Infrastructure.CQRS.Account.Companies
         public async Task<List<CompanyProjects>> Handle(CompanyProjectsQuery request, CancellationToken cancellationToken)
         {
             var data =
-               await _context.Projects
-                   .Include(b => b.Indicators)
-                        .ThenInclude(b => b.Indicator)
-                   .Where(b =>
-                           request.Companies.Contains(b.OperationalObjective.BigGoal.CompanyId) &&
+               await _context.Transitions
+               .Where(b =>
+                           request.Companies.Contains(b.OperationalObjective.BigGoal.Programs.First().Program.CompanyId) &&
                            (String.IsNullOrWhiteSpace(request.BigGoal) || b.OperationalObjective.BigGoal.Title.Contains(request.BigGoal.Trim())))
-                   .Select(op => new CompanyProjects
-                   {
-                       CompanyId = op.OperationalObjective.BigGoal.CompanyId,
-                       CompanyName = op.OperationalObjective.BigGoal.Company.Title,
-                       Projects = new List<ProjectListDto>
-                       {
-                            new ProjectListDto
-                            {
-                                Id = op.Id,
-                                BigGoal = op.OperationalObjective.BigGoal.Title,
-                                Progress = op.Progress,
-                                Title = op.Title
-                            }
+               .Select(b => new CompanyProjects
+               {
+                   CompanyId = b.OperationalObjective.BigGoal.Programs.First().Program.CompanyId,
+                   CompanyName = b.OperationalObjective.BigGoal.Programs.First().Program.Company.Title,
+                   Projects = new List<TransitionListDto> {
+                       new TransitionListDto {
+                           BigGoal = b.OperationalObjective.BigGoal.Title,
+                           Id = b.Id,
+                           Title = b.Title
                        }
-                   })
-                   .ToListAsync(cancellationToken);
+                   }
+               })
+              .ToListAsync(cancellationToken);
+
+            var indicators =
+                await _context.TransitionIndicators
+                    .Where(b => data.Select(b => b.Projects[0].Id).Contains(b.TransitionId))
+                    .Include(b => b.Indicator)
+                    .ToListAsync(cancellationToken);
+
+            data.ForEach(item =>
+            {
+                var itemIndicators =
+                    indicators.Where(b => b.TransitionId == item.Projects[0].Id)
+                    .Select(b => b.Indicator)
+                    .ToList();
+
+                item.Projects[0].Progress = Calculator.CalcProgress(itemIndicators);
+            });
 
             var coo = new List<CompanyProjects>();
             data.ForEach(item =>

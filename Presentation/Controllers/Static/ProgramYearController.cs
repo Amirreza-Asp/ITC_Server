@@ -46,7 +46,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(PermissionsSD.System_AddProgramYear)]
+        [AccessControl(PermissionsSD.CommandProgramYear)]
         public async Task<CommandResponse> Create([FromBody] CreateProgramYearCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -54,7 +54,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Update")]
         [HttpPut]
-        [AccessControl(PermissionsSD.System_EditProgramYear)]
+        [AccessControl(PermissionsSD.CommandProgramYear)]
         public async Task<CommandResponse> Update([FromBody] UpdateProgramYearCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command);
@@ -62,7 +62,7 @@ namespace Presentation.Controllers.Static
 
         [Route("Remove")]
         [HttpDelete]
-        [AccessControl(PermissionsSD.System_RemoveProgramYear)]
+        [AccessControl(PermissionsSD.CommandProgramYear)]
         public async Task<CommandResponse> Remove([FromQuery] RemoveProgramYearCommand command, CancellationToken cancellationToken) =>
             await _mediator.Send(command);
     }

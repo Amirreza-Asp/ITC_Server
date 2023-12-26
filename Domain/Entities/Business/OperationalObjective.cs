@@ -19,7 +19,6 @@ namespace Domain.Entities.Business
 
         public long Budget { get; set; }
 
-
         [ForeignKey(nameof(BigGoal))]
         public Guid BigGoalId { get; set; }
 
@@ -27,8 +26,7 @@ namespace Domain.Entities.Business
         public int Progress => Calculator.CalcProgress(Indicators.Select(e => e.Indicator));
 
         public BigGoal BigGoal { get; set; }
-        public ICollection<Project> Projects { get; set; } = new List<Project>();
-        public ICollection<PracticalAction> PracticalActions { get; set; } = new List<PracticalAction>();
+        public ICollection<Transition> Transitions { get; set; } = new List<Transition>();
         public ICollection<OperationalObjectiveIndicator> Indicators { get; set; } = new List<OperationalObjectiveIndicator>();
     }
 }

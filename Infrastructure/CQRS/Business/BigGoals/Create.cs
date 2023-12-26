@@ -5,6 +5,7 @@ using Domain.Dtos.Shared;
 using Domain.Entities.Business;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.CQRS.Business.BigGoals
@@ -21,8 +22,6 @@ namespace Infrastructure.CQRS.Business.BigGoals
 
         [Required]
         public DateTime Deadline { get; set; }
-
-        public Guid? ProgramYearId { get; set; }
     }
 
     public class CreateBigGoalCommandHandler : IRequestHandler<CreateBigGoalCommand, CommandResponse>
@@ -31,13 +30,15 @@ namespace Infrastructure.CQRS.Business.BigGoals
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserAccessor _userAccessor;
+        private readonly ApplicationDbContext _context;
 
-        public CreateBigGoalCommandHandler(IRepository<BigGoal> repo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IUserAccessor userAccessor)
+        public CreateBigGoalCommandHandler(IRepository<BigGoal> repo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IUserAccessor userAccessor, ApplicationDbContext context)
         {
             _repo = repo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userAccessor = userAccessor;
+            _context = context;
         }
 
         public async Task<CommandResponse> Handle(CreateBigGoalCommand request, CancellationToken cancellationToken)
@@ -46,11 +47,17 @@ namespace Infrastructure.CQRS.Business.BigGoals
                 return CommandResponse.Failure(400, "تاریخ شروع نمیتواند از مهلت انجام بیشتر باشد");
 
             var comapnyId = _userAccessor.GetCompanyId();
+            var activeProgram = await _context.Program.Where(b => b.CompanyId == comapnyId.Value && b.IsActive).FirstOrDefaultAsync();
+
+            if (activeProgram == null)
+                return CommandResponse.Failure(400, "هیچ برنامه ای انتخاب نشده است");
 
             var bigGoal = _mapper.Map<BigGoal>(request);
-            bigGoal.CompanyId = comapnyId.Value;
+            var programBigGoal = new ProgramBigGoal { BigGoalId = bigGoal.Id, ProgramId = activeProgram.Id };
+
 
             _repo.Create(bigGoal);
+            _context.ProgramBigGoal.Add(programBigGoal);
 
             if (await _repo.SaveAsync(cancellationToken))
             {

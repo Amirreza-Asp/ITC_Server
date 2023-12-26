@@ -30,6 +30,7 @@ namespace Presentation.Controllers.Business
 
         [Route("GetAll")]
         [HttpPost]
+        [AccessControl(PermissionsSD.QueryPerson)]
         public async Task<ListActionResult<PersonSummary>> GetAll([FromBody] GridQuery query, CancellationToken cancellationToken)
         {
             var companyId = _userAccessor.GetCompanyId();
@@ -37,6 +38,7 @@ namespace Presentation.Controllers.Business
         }
 
         [HttpGet("Find/{id}")]
+        [AccessControl(PermissionsSD.QueryPerson)]
         public async Task<PersonSummary> Find(Guid id, CancellationToken cancellationToken)
         {
             return await _repo.FirstOrDefaultAsync<PersonSummary>(b => b.Id == id, cancellationToken: cancellationToken);
@@ -44,10 +46,23 @@ namespace Presentation.Controllers.Business
 
         [Route("Create")]
         [HttpPost]
-        [AccessControl(PermissionsSD.Company_AddPerson)]
+        [AccessControl(PermissionsSD.CommandPerson)]
         public async Task<CommandResponse> Create([FromBody] CreatePersonCommand command, CancellationToken cancellationToken)
         {
             return await _mediator.Send(command, cancellationToken);
         }
+
+        [Route("Update")]
+        [HttpPut]
+        [AccessControl(PermissionsSD.CommandPerson)]
+        public async Task<CommandResponse> Update([FromBody] UpdatePersonCommand command, CancellationToken cancellationToken) =>
+            await _mediator.Send(command, cancellationToken);
+
+
+        [Route("Delete")]
+        [HttpDelete]
+        [AccessControl(PermissionsSD.CommandPerson)]
+        public async Task<CommandResponse> Delete([FromQuery] DeletePersonCommand command, CancellationToken cancellationToken) =>
+            await _mediator.Send(command, cancellationToken);
     }
 }

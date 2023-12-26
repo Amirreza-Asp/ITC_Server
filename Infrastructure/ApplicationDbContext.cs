@@ -16,15 +16,18 @@ namespace Infrastructure
         public DbSet<Person> People { get; set; }
         public DbSet<HardwareEquipment> HardwareEquipment { get; set; }
         public DbSet<Domain.Entities.Business.System> Systems { get; set; }
-        public DbSet<Project> Projects { get; set; }
-        public DbSet<PracticalAction> PracticalActions { get; set; }
+        public DbSet<Transition> Transitions { get; set; }
         public DbSet<Indicator> Indicators { get; set; }
         public DbSet<OperationalObjectiveIndicator> OperationalObjectiveIndicators { get; set; }
-        public DbSet<ProjectIndicator> ProjectIndicators { get; set; }
-        public DbSet<PracticalActionIndicator> PracticalActionIndicators { get; set; }
+        public DbSet<TransitionIndicator> TransitionIndicators { get; set; }
         public DbSet<BigGoalIndicator> BigGoalIndicators { get; set; }
         public DbSet<IndicatorProgress> IndicatorProgresses { get; set; }
         public DbSet<CompanyIndicator> CompanyIndicators { get; set; }
+        public DbSet<Program> Program { get; set; }
+        public DbSet<ProgramBigGoal> ProgramBigGoal { get; set; }
+        public DbSet<Perspective> Perspective { get; set; }
+        public DbSet<SWOT> SWOT { get; set; }
+        public DbSet<Strategy> Strategy { get; set; }
 
 
 
@@ -55,54 +58,46 @@ namespace Infrastructure
                     b.Property(b => b.Title).IsRequired().HasColumnName("title");
                 });
 
-            modelBuilder.Entity<Project>()
+            modelBuilder.Entity<Transition>()
                 .OwnsMany(b => b.Financials, b =>
                 {
                     b.Property(b => b.Title).IsRequired().HasColumnName("title");
                 });
 
-            modelBuilder.Entity<PracticalAction>()
-                .OwnsMany(b => b.Financials, b =>
-                {
-                    b.Property(b => b.Title).IsRequired().HasColumnName("title");
-                });
 
             modelBuilder.Entity<User>()
                 .HasIndex(b => b.NationalId).IsUnique(true);
 
-            modelBuilder.Entity<BigGoal>()
-                .HasOne(b => b.ProgramYear)
-                .WithMany(b => b.BigGoals)
-                .IsRequired(false);
+            modelBuilder.Entity<ProgramBigGoal>()
+                .HasKey(b => new { b.BigGoalId, b.ProgramId });
 
-            modelBuilder.Entity<PracticalAction>()
-                .HasOne(b => b.Leader)
-                .WithMany(b => b.PracticalActions)
-                .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Perspective>()
+                .HasOne(b => b.Program)
+                .WithOne(b => b.Perspective)
+                .HasForeignKey<Perspective>(b => b.ProgramId);
 
-            modelBuilder.Entity<Project>()
+            modelBuilder.Entity<Transition>()
                 .HasOne(b => b.Leader)
-                .WithMany(b => b.Projects)
+                .WithMany(b => b.Transitions)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<UserJoinRequest>()
                 .Property(b => b.CompanyId)
                 .IsRequired(false);
 
-            modelBuilder.Entity<ProjectIndicator>()
-                .HasKey(b => new { b.IndicatorId, b.ProjectId });
-
             modelBuilder.Entity<OperationalObjectiveIndicator>()
                 .HasKey(b => new { b.IndicatorId, b.OperationalObjectiveId });
-
-            modelBuilder.Entity<PracticalActionIndicator>()
-                .HasKey(b => new { b.IndicatorId, b.PracticalActionId });
 
             modelBuilder.Entity<BigGoalIndicator>()
                 .HasKey(b => new { b.IndicatorId, b.BigGoalId });
 
             modelBuilder.Entity<CompanyIndicator>()
                 .HasKey(b => new { b.IndicatorId, b.CompanyId });
+
+            modelBuilder.Entity<Transition>()
+                .HasOne(b => b.Parent)
+                .WithMany(b => b.Childs)
+                .HasForeignKey(b => b.ParentId);
         }
     }
 }

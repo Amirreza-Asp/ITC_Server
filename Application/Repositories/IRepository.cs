@@ -32,6 +32,12 @@ namespace Application.Repositories
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
             CancellationToken cancellationToken = default);
 
+        Task<List<TDto>> GetAllAsync<TDto>(
+            GridQuery query,
+            Expression<Func<TEntity, bool>> filters = null,
+            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
+            CancellationToken cancellationToken = default);
+
         Task<int> CountAsync(CancellationToken cancellationToken);
 
         void Create(TEntity entity);
