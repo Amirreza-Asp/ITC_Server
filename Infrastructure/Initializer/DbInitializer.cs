@@ -70,9 +70,23 @@ namespace Infrastructure.Initializer
 
 
             var comps = await _ssoService.GetCompaniesAsync();
+            var vahedIds = new List<Guid>
+            {
+                Guid.Parse("aa12b4d2-652c-407a-a569-9edcd1e2c467"),
+                Guid.Parse("FD88FE22-5AB8-48E9-B649-9A9F5FE93180"),
+                Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676"),
+                Guid.Parse("FD88FE22-5AB8-48E9-B649-9A9F5FE93180"),
+                Guid.Parse("BFCA0E4A-F2CB-4C7C-BEBF-D97D46A9E294"),
+                Guid.Parse("BACA0E4A-F2CB-4C7C-BEBF-D97D46A9E294"),
+                Guid.Parse("BBCA0E4A-F2CB-4C7C-BEBF-D97D46A9E294"),
+                Guid.Parse("BB5A0E4A-F2CB-4C7C-BEBF-D97D46A9E294"),
+                Guid.Parse("BB5A0E4A-F2CB-4C7C-BEBF-D97D46A9E194"),
+                Guid.Parse("BB5A0E4A-F2CB-4C7C-BEBF-D97D46A4E194")
+            };
 
             if (!_context.Company.Any())
             {
+
                 foreach (var comp in comps)
                 {
                     comp.ParentId = AdminComapny.Id;
@@ -85,6 +99,9 @@ namespace Infrastructure.Initializer
                                 Id = Guid.Parse("FD88FE22-5AB8-48E9-B649-9A9F5FE93180"),
                                 ParentId = comp.Id,
                                 Title = "واحد علم و فناوری",
+                                Province= "کرمانشاه",
+                                City = "کرمانشاه",
+
                                 Childs = new List<Company>
                                 {
                                     new Company
@@ -92,33 +109,42 @@ namespace Infrastructure.Initializer
                                         Id = Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676"),
                                         ParentId =  Guid.Parse("FD88FE22-5AB8-48E9-B649-9A9F5FE93180"),
                                         Title = "واحد آپا",
+                                         Province= "کرمانشاه",
+                                        City = "کرمانشاه",
                                         Childs = new List<Company>
                                         {
-                                            new Company{Id = Guid.NewGuid() , Title ="واحد آپا مرکزی", ParentId = Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676")},
-                                            new Company{Id = Guid.NewGuid() , Title ="واحد آپا دانشکده کامپیوتر", ParentId = Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676")},
-                                            new Company{Id = Guid.NewGuid() , Title ="واحد آپا دانشکده کشاورزی", ParentId = Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676")},
-
+                                            new Company{Id = Guid.Parse("BFCA0E4A-F2CB-4C7C-BEBF-D97D46A9E294") ,  Province= "کرمانشاه",
+                                                        City = "کرمانشاه",Title ="واحد آپا مرکزی", ParentId = Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676")},
+                                            new Company{Id =Guid.Parse("BACA0E4A-F2CB-4C7C-BEBF-D97D46A9E294") , Province= "کرمانشاه",
+                                                        City = "کرمانشاه" , Title ="واحد آپا دانشکده کامپیوتر", ParentId = Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676")},
+                                            new Company{Id = Guid.Parse("BBCA0E4A-F2CB-4C7C-BEBF-D97D46A9E294"), Province= "کرمانشاه",
+                                                        City = "کرمانشاه" , Title ="واحد آپا دانشکده کشاورزی", ParentId = Guid.Parse("03070627-8EDB-410C-AB95-7F29E5FA2676")}
                                         }
                                     },
                                     new Company
                                     {
-                                        Id = Guid.NewGuid(),
+                                        Id = Guid.Parse("BB5A0E4A-F2CB-4C7C-BEBF-D97D46A9E294"),
                                         ParentId =  Guid.Parse("FD88FE22-5AB8-48E9-B649-9A9F5FE93180"),
                                         Title = "مرکز هوش مصنوعی",
+                                         Province= "کرمانشاه",
+                                         City = "کرمانشاه"
                                     },
                                 }
                             },
                             new Company
                             {
-                                Id = Guid.NewGuid(),
+                                Id = Guid.Parse("BB5A0E4A-F2CB-4C7C-BEBF-D97D46A9E194"),
                                 ParentId = comp.Id,
-                                Title = "واحد شبکه"
+                                Title = "واحد شبکه", Province= "کرمانشاه",
+                                City = "کرمانشاه"
                             },
                             new Company
                             {
-                                Id = Guid.NewGuid(),
+                                Id = Guid.Parse("BB5A0E4A-F2CB-4C7C-BEBF-D97D46A4E194"),
                                 ParentId = comp.Id,
-                                Title = "واحد سلامت"
+                                Title = "واحد سلامت",
+                                 Province= "کرمانشاه",
+                                City = "کرمانشاه"
                             },
                         };
                     }
@@ -293,6 +319,8 @@ namespace Infrastructure.Initializer
                         _context.Users.Add(user);
                     }
 
+                    _context.SaveChanges();
+
                     foreach (var ujr in UserJoinRequests)
                     {
                         ujr.CompanyId = comp.Id;
@@ -300,6 +328,187 @@ namespace Infrastructure.Initializer
                         _context.UsersJoinRequests.Add(ujr);
                     }
                 }
+
+                foreach (var vahedId in vahedIds)
+                {
+                    for (int i = 0; i < new Random().Next(1, 6); i++)
+                    {
+                        var indicator = CustomeIndicator;
+                        indicator.Id = Guid.NewGuid();
+                        var companyIndicator = new CompanyIndicator { CompanyId = vahedId, IndicatorId = indicator.Id };
+
+                        for (int j = 0; j < new Random().Next(0, 7); j++)
+                        {
+                            var progressIndicator = IndicatorProgress;
+                            progressIndicator.Id = Guid.NewGuid();
+                            progressIndicator.IndicatorId = indicator.Id;
+                            progressIndicator.Value = new Random().NextInt64(indicator.InitValue, indicator.GoalValue);
+
+                            _context.IndicatorProgresses.Add(progressIndicator);
+                        }
+
+                        _context.Indicators.Add(indicator);
+                        _context.CompanyIndicators.Add(companyIndicator);
+                    }
+
+                    List<Guid> peopleId = new List<Guid>();
+
+                    foreach (var person in People)
+                    {
+                        person.CompanyId = vahedId;
+                        person.Id = Guid.NewGuid();
+                        peopleId.Add(person.Id);
+                        _context.People.Add(person);
+                    }
+
+                    foreach (var heq in HardwareEquipments)
+                    {
+                        heq.CompanyId = vahedId;
+                        heq.Id = Guid.NewGuid();
+                        _context.HardwareEquipment.Add(heq);
+                    }
+
+                    foreach (var system in Systems)
+                    {
+                        system.CompanyId = vahedId;
+                        system.Id = Guid.NewGuid();
+                        _context.Systems.Add(system);
+                    }
+
+
+                    List<Guid> programsId = new List<Guid>();
+
+                    foreach (var program in Programs)
+                    {
+                        program.Id = Guid.NewGuid();
+                        programsId.Add(program.Id);
+                        program.CompanyId = vahedId;
+
+                        _context.Program.Add(program);
+
+                        foreach (var item in SWOTs)
+                        {
+                            item.Id = Guid.NewGuid();
+                            item.ProgramId = program.Id;
+                            _context.SWOT.Add(item);
+                        }
+
+                        foreach (var item in Strategies)
+                        {
+                            item.Id = Guid.NewGuid();
+                            item.ProgramId = program.Id;
+                            _context.Strategy.Add(item);
+                        }
+
+                    }
+
+                    foreach (var bigGoal in BigGoals)
+                    {
+                        bigGoal.Id = Guid.NewGuid();
+                        var random = new Random();
+
+                        var rnd = new Random();
+
+                        // set Indicator
+                        for (int i = 0; i < rnd.Next(1, 6); i++)
+                        {
+                            var customeInd = CustomeIndicator;
+                            customeInd.Id = Guid.NewGuid();
+                            var bid = new BigGoalIndicator { BigGoalId = bigGoal.Id, IndicatorId = customeInd.Id };
+
+                            for (int j = 0; j < rnd.Next(0, 7); j++)
+                            {
+                                var progressIndicator = IndicatorProgress;
+                                progressIndicator.Id = Guid.NewGuid();
+                                progressIndicator.IndicatorId = customeInd.Id;
+                                progressIndicator.Value = rnd.NextInt64(customeInd.InitValue, customeInd.GoalValue);
+
+                                _context.IndicatorProgresses.Add(progressIndicator);
+                            }
+
+                            _context.Indicators.Add(customeInd);
+                            _context.BigGoalIndicators.Add(bid);
+                        }
+
+                        var from = rnd.Next(1, programsId.Count);
+                        var to = programsId.Count - 1;
+
+                        for (int j = from; j <= to; j++)
+                        {
+                            var bigGoalProgram = new ProgramBigGoal { BigGoalId = bigGoal.Id, ProgramId = programsId[j] };
+                            _context.ProgramBigGoal.Add(bigGoalProgram);
+                        }
+
+                        _context.BigGoals.Add(bigGoal);
+
+                        foreach (var opo in OperationalObjectives)
+                        {
+                            opo.Id = Guid.NewGuid();
+                            opo.BigGoalId = bigGoal.Id;
+                            _context.OperationalObjectives.Add(opo);
+
+
+                            for (int i = 0; i < rnd.Next(1, 6); i++)
+                            {
+                                var ind = CustomeIndicator;
+                                ind.Id = Guid.NewGuid();
+
+                                var opoInd = new OperationalObjectiveIndicator
+                                { IndicatorId = ind.Id, OperationalObjectiveId = opo.Id };
+
+                                for (int j = 0; j < rnd.Next(0, 7); j++)
+                                {
+                                    var progressIndicator = IndicatorProgress;
+                                    progressIndicator.Id = Guid.NewGuid();
+                                    progressIndicator.IndicatorId = ind.Id;
+                                    progressIndicator.Value = rnd.NextInt64(ind.InitValue, ind.GoalValue);
+
+                                    _context.IndicatorProgresses.Add(progressIndicator);
+                                }
+
+                                _context.Indicators.Add(ind);
+                                _context.OperationalObjectiveIndicators.Add(opoInd);
+                            }
+
+                            foreach (var transition in Transitions)
+                            {
+                                AddTransition(transition, opo.Id, peopleId, null, rnd.Next(0, 2) == 1 ? TransitionType.Project : TransitionType.Action);
+                            }
+
+                        }
+                    }
+
+
+                    for (int h = 0; h < Users.Count; h++)
+                    {
+                        var user = Users[h];
+                        user.Id = Guid.NewGuid();
+                        var rnd = new Random();
+                        user.NationalId = rnd.NextInt64(1111111111, 9999999999).ToString();
+
+                        var act =
+                            new Act
+                            {
+                                Id = Guid.NewGuid(),
+                                CompanyId = vahedId,
+                                UserId = user.Id,
+                                RoleId = h == 0 ? SD.AgentId : Roles[new Random().Next(1, Roles.Count - 1)].Id
+                            };
+
+                        _context.Act.Add(act);
+                        _context.Users.Add(user);
+                    }
+
+                    _context.SaveChanges();
+
+                    foreach (var ujr in UserJoinRequests)
+                    {
+                        ujr.CompanyId = vahedId;
+                        ujr.Id = Guid.NewGuid();
+                        _context.UsersJoinRequests.Add(ujr);
+                    }
+                }
+
             }
 
             if (!_context.Users.Any(b => b.Id == Guid.Parse("06797131-356F-4E99-A413-8E08104E4CB0")))
@@ -316,6 +525,7 @@ namespace Infrastructure.Initializer
                 userTest.Act.Add(new Act { UserId = userTest.Id, CompanyId = AdminComapny.Id, Id = Guid.NewGuid(), RoleId = SD.AgentId });
 
                 _context.Add(userTest);
+                _context.SaveChanges();
             }
 
             if (!_context.Permissions.Any())

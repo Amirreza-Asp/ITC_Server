@@ -225,6 +225,8 @@ namespace Infrastructure.Repositories
 
             var result = await queryContext
                 .ProjectTo<TDto>(_mapper.ConfigurationProvider)
+                .Skip((query.Page - 1) * query.Size)
+                .Take(query.Size)
                 .ToListAsync(cancellationToken);
 
             return result;

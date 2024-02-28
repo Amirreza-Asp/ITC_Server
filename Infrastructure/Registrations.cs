@@ -16,12 +16,14 @@ namespace Infrastructure
 
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var connection = configuration.GetConnectionString("DefaultConnection");
             // Sql context
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+
+                //options.UseSqlServer(connection);
                 //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                //options.UseInMemoryDatabase("ITC");
+                options.UseInMemoryDatabase("ITC");
             });
 
             // Initializer

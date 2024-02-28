@@ -126,10 +126,10 @@ namespace Presentation.Controllers.Account
         }
 
 
-        [HttpPost]
+        [HttpGet]
         [AllowAnonymous]
         [Route("ChooseAct")]
-        public async Task<CommandResponse> ChooseAct([FromBody] ChooseActDto command, CancellationToken cancellationToken)
+        public async Task<CommandResponse> ChooseAct([FromQuery] ChooseActDto command, CancellationToken cancellationToken)
         {
             return await _authService.ChooseActAsync(command);
         }

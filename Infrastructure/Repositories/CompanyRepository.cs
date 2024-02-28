@@ -7,7 +7,6 @@ using Domain.Dtos.Companies;
 using Domain.Dtos.Shared;
 using Domain.Entities.Account;
 using Domain.Queries.Shared;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -24,16 +23,26 @@ namespace Infrastructure.Repositories
         public async Task<NestedCompanies> GetNestedAsync(CancellationToken cancellation)
         {
             var companyId = _userAccessor.GetCompanyId();
-            var companies =
-                 _context.Company
-                    .FromSqlRaw("WITH RecursiveTree AS (\r\n    SELECT *\r\n    FROM Company\r\n    WHERE Id = @id \r\n    UNION ALL\r\n    SELECT t.*\r\n    FROM Company t\r\n    JOIN RecursiveTree rt ON rt.Id = t.ParentId\r\n)\r\nSELECT * FROM RecursiveTree;",
-                                new SqlParameter("Id", companyId.Value))
-                    .AsEnumerable()
-                    .ToList();
 
-            var companiesSpec =
+            var nestedItems = await GetNestedCompanies(companyId.Value, cancellation);
+            return nestedItems;
+        }
+
+        async Task<NestedCompanies> GetNestedCompanies(Guid id, CancellationToken cancellation)
+        {
+            var company =
                 await _context.Company
-                    .Where(b => companies.Select(u => u.Id).Contains(b.Id))
+                 .Where(b => b.Id == id)
+                 .Include(b => b.Childs)
+                 .FirstOrDefaultAsync();
+
+            if (company == null)
+            {
+                return null;
+            }
+
+            var companySpec = await _context.Company
+                    .Where(b => b.Id == company.Id)
                     .Select(b => new
                     CompanySpec
                     {
@@ -42,16 +51,7 @@ namespace Infrastructure.Repositories
                         IndicatorsCount = b.Indicators.Count(),
                         Agent = b.Acts.Where(b => b.RoleId == SD.AgentId).Select(b => String.Concat(b.User.Name + " " + b.User.Family)).FirstOrDefault()
                     })
-                    .ToListAsync();
-
-            var nestedItems = GetNestedCompanies(companies, companiesSpec, companyId.Value, cancellation);
-            return nestedItems;
-        }
-
-        NestedCompanies GetNestedCompanies(List<Company> companies, List<CompanySpec> companiesSpec, Guid id, CancellationToken cancellation)
-        {
-            var company = companies.Find(b => b.Id == id);
-            var companySpec = companiesSpec.Find(b => b.CompanyId == id);
+                    .FirstOrDefaultAsync();
 
 
             var nestedItems =
@@ -64,12 +64,11 @@ namespace Infrastructure.Repositories
                     Agent = companySpec.Agent
                 };
 
-            var companyChilds = companies.Where(b => b.ParentId == id).ToList();
+            var companyChilds = company.Childs;
 
-            foreach (var subcategory in companyChilds)
+            foreach (var subCompany in companyChilds)
             {
-                var item = GetNestedCompanies(companies, companiesSpec, subcategory.Id, cancellation);
-
+                var item = await GetNestedCompanies(subCompany.Id, cancellation);
                 nestedItems.Childs.Add(item);
             }
 

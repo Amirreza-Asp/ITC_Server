@@ -15,6 +15,8 @@ namespace Presentation.CustomeAttributes
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            await base.OnActionExecutionAsync(context, next);
+            return;
             var s = context.HttpContext.User.Claims;
 
             var _authService = context.HttpContext.RequestServices.GetService<IAuthService>();
